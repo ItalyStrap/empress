@@ -8,6 +8,8 @@ use Codeception\Test\Unit;
 use ItalyStrap\Config\ConfigFactory;
 use ItalyStrap\Container\Application;
 use ItalyStrap\Container\ApplicationInterface;
+use PHPUnit\Framework\Assert;
+use Prophecy\Argument;
 
 class AppTest extends Unit
 {
@@ -34,8 +36,8 @@ class AppTest extends Unit
 		return $this->fake_injector->reveal();
     }
 
-	protected function getIntance() {
-		$sut = new Application( ConfigFactory::make([]), $this->fakeInjector() );
+	protected function getIntance( array $config = [] ) {
+		$sut = new Application( ConfigFactory::make( $config ), $this->fakeInjector() );
 		$this->assertInstanceOf( ApplicationInterface::class, $sut, '' );
 		$this->assertInstanceOf( Application::class, $sut, '' );
 		return $sut;
@@ -48,11 +50,35 @@ class AppTest extends Unit
 		$sut = $this->getIntance();
     }
 
+	public function shareProvider() {
+		return [
+			'ClassName'		=> [
+				'SomeClassName'
+			],
+			'ClassInstance'	=> [
+				new class {}
+			],
+		];
+    }
+
 	/**
 	 * @test
+	 * @dataProvider shareProvider()
 	 */
-	public function itShouldBeRegistrable() {
-		$sut = $this->getIntance();
+	public function itShouldBeShare( $expected ) {
+
+		$this->fake_injector->share( Argument::any() )->will( function ( $args ) use ( $expected ) {
+			Assert::assertEquals( $expected, $args[0], '' );
+		} );
+
+		$sut = $this->getIntance(
+			[
+				Application::SHARING	=> [
+					$expected,
+				],
+			]
+		);
+
 		$sut->register();
     }
 }

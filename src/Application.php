@@ -24,21 +24,103 @@ class Application implements ApplicationInterface
 	/**
 	 * @var Config
 	 */
-	private $config;
+	private $dependencies;
 
 	/**
 	 * Application constructor.
-	 * @param Config $config
+	 * @param Config $dependencies
 	 * @param Injector $injector
 	 */
-	public function __construct( Config $config, Injector $injector ) {
+	public function __construct( Config $dependencies, Injector $injector ) {
 		$this->injector = $injector;
-		$this->config = $config;
+		$this->dependencies = $dependencies;
 	}
 
 	public function register() {
-		foreach ( $this->config as $config ) {
 
+		$default_key = [
+			self::SHARING		=> 'share',
+			self::ALIASES		=> 'alias',
+			self::DEFINITIONS	=> 'define',
+			self::DEFINE_PARAM	=> 'defineParam',
+			self::DELEGATIONS	=> 'delegate',
+			self::PREPARATIONS	=> 'prepare',
+			self::SUBSCRIBERS	=> 'subscribe',
+		];
+
+		foreach ( $default_key as $key => $method ) {
+			$value = $this->dependencies->get( $key, [] );
+			\array_walk( $value, [ $this, $method ] );
 		}
+	}
+
+	/**
+	 * @param $class
+	 * @param $interface
+	 * @throws \Auryn\ConfigException
+	 */
+	protected function share( $nameOrInstance, $index ) {
+
+		if ( ! \is_int( $index ) ) {
+			throw new \RuntimeException( 'Sharing config does not have $key => $value pair, only $value' );
+		}
+
+		$this->injector->share( $nameOrInstance );
+	}
+
+	/**
+	 * @param $implementation
+	 * @param $interface
+	 * @throws \Auryn\ConfigException
+	 */
+	protected function alias( $implementation, $interface ) {
+		$this->injector->alias( $interface, $implementation );
+	}
+
+	/**
+	 * @param $class_args
+	 * @param $class_name
+	 */
+	protected function define( $class_args, $class_name ) {
+		$this->injector->define( $class_name, $class_args );
+	}
+
+	/**
+	 * @param $param_args
+	 * @param $param_name
+	 */
+	protected function defineParam( $param_args, $param_name ) {
+		$this->injector->defineParam( $param_name, $param_args );
+	}
+
+	/**
+	 * @param $callableOrMethodStr
+	 * @param $name
+	 * @throws \Auryn\ConfigException
+	 */
+	protected function delegate( $callableOrMethodStr, $name ) {
+		$this->injector->delegate( $name, $callableOrMethodStr );
+	}
+
+	/**
+	 * @param $callableOrMethodStr
+	 * @param $name
+	 * @throws \Auryn\InjectionException
+	 */
+	protected function prepare( $callableOrMethodStr, $name ) {
+		$this->injector->prepare( $name, $callableOrMethodStr );
+	}
+
+	/**
+	 * @param $concrete
+	 * @param $option_name
+	 */
+	protected function subscribe( $concrete, $option_name ) {
+
+//		if ( is_string( $option_name ) && $config->has( $option_name ) && empty( $config->get( $option_name ) ) ) {
+//			continue;
+//		}
+
+//		$event_manager->add_subscriber( $this->injector->share( $concrete )->make( $concrete ) );
 	}
 }
