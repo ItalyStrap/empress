@@ -65,7 +65,7 @@ class AppTest extends Unit
 	 * @test
 	 * @dataProvider shareProvider()
 	 */
-	public function itShouldBeShare( $expected ) {
+	public function itShouldShare( $expected ) {
 
 		$this->fake_injector->share( Argument::any() )->will( function ( $args ) use ( $expected ) {
 			Assert::assertEquals( $expected, $args[0], '' );
