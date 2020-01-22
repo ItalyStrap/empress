@@ -31,7 +31,7 @@ class Application implements ApplicationInterface {
 	 * @param Config $dependencies
 	 * @param Injector $injector
 	 */
-	public function __construct( Config $dependencies, Injector $injector ) {
+	public function __construct( Injector $injector, Config $dependencies ) {
 		$this->injector = $injector;
 		$this->dependencies = $dependencies;
 	}

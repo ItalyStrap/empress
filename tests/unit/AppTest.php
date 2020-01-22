@@ -38,7 +38,7 @@ class AppTest extends Unit {
 	}
 
 	protected function getIntance( array $config = [] ) {
-		$sut = new Application( ConfigFactory::make( $config ), $this->fakeInjector() );
+		$sut = new Application( $this->fakeInjector(), ConfigFactory::make( $config ) );
 		$this->assertInstanceOf( ApplicationInterface::class, $sut, '' );
 		$this->assertInstanceOf( Application::class, $sut, '' );
 		return $sut;
