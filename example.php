@@ -69,5 +69,5 @@ d_footer(
 	$app,
 	$example,
 	$example2,
-	$example === $example2
+	$example !== $example2
 );
