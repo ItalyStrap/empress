@@ -24,10 +24,12 @@ class AppTest extends Unit {
 	 */
 	private $fake_injector;
 
+	// phpcs:ignore -- Method from Codeception
 	protected function _before() {
 		$this->fake_injector = $this->prophesize( Injector::class );
 	}
 
+	// phpcs:ignore -- Method from Codeception
 	protected function _after() {
 	}
 

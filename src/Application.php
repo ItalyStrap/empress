@@ -48,6 +48,10 @@ class Application implements ApplicationInterface {
 			self::SUBSCRIBERS	=> 'subscribe',
 		];
 
+		/**
+		 * @var string $key
+		 * @var callable $method
+		 */
 		foreach ( $default_key as $key => $method ) {
 			$value = $this->dependencies->get( $key, [] );
 			\array_walk( $value, [ $this, $method ] );
@@ -55,8 +59,8 @@ class Application implements ApplicationInterface {
 	}
 
 	/**
-	 * @param $class
-	 * @param $interface
+	 * @param mixed $nameOrInstance
+	 * @param int $index
 	 * @throws ConfigException
 	 */
 	protected function share( $nameOrInstance, $index ): void {
@@ -101,7 +105,7 @@ class Application implements ApplicationInterface {
 
 	/**
 	 * @param string $callableOrMethodStr
-	 * @param mixed $name
+	 * @param string $name
 	 * @throws ConfigException
 	 */
 	protected function delegate( $callableOrMethodStr, string $name ) {
