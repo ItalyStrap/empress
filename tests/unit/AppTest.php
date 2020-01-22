@@ -92,7 +92,7 @@ class AppTest extends Unit {
 			]
 		);
 
-		$sut->register();
+		$sut->resolver();
 	}
 
 	/**
@@ -111,7 +111,7 @@ class AppTest extends Unit {
 
 		$this->expectException( ConfigException::class );
 		$this->expectExceptionCode( Injector::E_SHARE_ARGUMENT );
-		$sut->register();
+		$sut->resolver();
 	}
 
 	/**
@@ -134,7 +134,7 @@ class AppTest extends Unit {
 			]
 		);
 
-		$sut->register();
+		$sut->resolver();
 	}
 
 	/**
@@ -160,7 +160,7 @@ class AppTest extends Unit {
 			]
 		);
 
-		$sut->register();
+		$sut->resolver();
 	}
 
 	/**
@@ -186,7 +186,7 @@ class AppTest extends Unit {
 			]
 		);
 
-		$sut->register();
+		$sut->resolver();
 	}
 
 	/**
@@ -215,7 +215,7 @@ class AppTest extends Unit {
 			]
 		);
 
-		$sut->register();
+		$sut->resolver();
 	}
 
 	/**
@@ -251,6 +251,6 @@ class AppTest extends Unit {
 			]
 		);
 
-		$sut->register();
+		$sut->resolver();
 	}
 }
