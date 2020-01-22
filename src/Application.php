@@ -36,7 +36,10 @@ class Application implements ApplicationInterface {
 		$this->dependencies = $dependencies;
 	}
 
-	public function register() {
+	/**
+	 * @inheritDoc
+	 */
+	public function register(): void {
 
 		$default_key = [
 			self::SHARING		=> 'share',
@@ -127,7 +130,7 @@ class Application implements ApplicationInterface {
 	 */
 	protected function subscribe( string $concrete, string $option_name ) {
 
-//		if ( is_string( $option_name ) && $config->has( $option_name ) && empty( $config->get( $option_name ) ) ) {
+//		if ( $config->has( $option_name ) && empty( $config->get( $option_name ) ) ) {
 //			continue;
 //		}
 

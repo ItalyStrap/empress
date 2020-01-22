@@ -9,5 +9,8 @@ namespace ItalyStrap\Container;
  */
 interface ApplicationInterface {
 
-
+	/**
+	 *
+	 */
+	public function register();
 }

@@ -6,6 +6,7 @@ namespace ItalyStrap\Tests;
 use Auryn\ConfigException;
 use Auryn\Injector;
 use Codeception\Test\Unit;
+use ItalyStrap\Config\Config;
 use ItalyStrap\Config\ConfigFactory;
 use ItalyStrap\Container\Application;
 use ItalyStrap\Container\ApplicationInterface;
@@ -24,9 +25,15 @@ class AppTest extends Unit {
 	 */
 	private $fake_injector;
 
+	/**
+	 * @var \Prophecy\Prophecy\ObjectProphecy
+	 */
+	private $config;
+
 	// phpcs:ignore -- Method from Codeception
 	protected function _before() {
 		$this->fake_injector = $this->prophesize( Injector::class );
+		$this->config = $this->prophesize( Config::class );
 	}
 
 	// phpcs:ignore -- Method from Codeception
@@ -35,6 +42,10 @@ class AppTest extends Unit {
 
 	private function fakeInjector(): Injector {
 		return $this->fake_injector->reveal();
+	}
+
+	private function config(): Config {
+		return $this->config->reveal();
 	}
 
 	protected function getIntance( array $config = [] ) {
