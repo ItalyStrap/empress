@@ -12,5 +12,5 @@ interface ApplicationInterface {
 	/**
 	 *
 	 */
-	public function resolver();
+	public function resolve();
 }

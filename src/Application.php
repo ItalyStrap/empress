@@ -39,7 +39,7 @@ class Application implements ApplicationInterface {
 	/**
 	 * @inheritDoc
 	 */
-	public function resolver(): void {
+	public function resolve(): void {
 
 		$default_key = [
 			self::SHARING		=> 'share',
