@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ItalyStrap\Container;
 
 
+use Auryn\ConfigException;
 use Auryn\Injector;
 use ItalyStrap\Config\ConfigInterface as Config;
 
@@ -57,65 +58,71 @@ class Application implements ApplicationInterface
 	/**
 	 * @param $class
 	 * @param $interface
-	 * @throws \Auryn\ConfigException
+	 * @throws ConfigException
 	 */
-	protected function share( $nameOrInstance, $index ) {
+	protected function share( $nameOrInstance, $index ): void {
 
 		if ( ! \is_int( $index ) ) {
-			throw new \RuntimeException( 'Sharing config does not have $key => $value pair, only $value' );
+			throw new ConfigException(
+				sprintf(
+					'%s::share() config does not have $key => $value pair, only $value',
+					__CLASS__
+				),
+				Injector::E_SHARE_ARGUMENT
+			);
 		}
 
 		$this->injector->share( $nameOrInstance );
 	}
 
 	/**
-	 * @param $implementation
-	 * @param $interface
-	 * @throws \Auryn\ConfigException
+	 * @param string $implementation
+	 * @param string $interface
+	 * @throws ConfigException
 	 */
-	protected function alias( $implementation, $interface ) {
+	protected function alias( string $implementation, string $interface ): void {
 		$this->injector->alias( $interface, $implementation );
 	}
 
 	/**
-	 * @param $class_args
-	 * @param $class_name
+	 * @param array $class_args
+	 * @param string $class_name
 	 */
-	protected function define( $class_args, $class_name ) {
+	protected function define( array $class_args, string $class_name ): void {
 		$this->injector->define( $class_name, $class_args );
 	}
 
 	/**
-	 * @param $param_args
-	 * @param $param_name
+	 * @param mixed $param_args
+	 * @param string $param_name
 	 */
-	protected function defineParam( $param_args, $param_name ) {
+	protected function defineParam( $param_args, string $param_name ): void {
 		$this->injector->defineParam( $param_name, $param_args );
 	}
 
 	/**
-	 * @param $callableOrMethodStr
-	 * @param $name
-	 * @throws \Auryn\ConfigException
+	 * @param string $callableOrMethodStr
+	 * @param mixed $name
+	 * @throws ConfigException
 	 */
-	protected function delegate( $callableOrMethodStr, $name ) {
+	protected function delegate( $callableOrMethodStr, string $name ) {
 		$this->injector->delegate( $name, $callableOrMethodStr );
 	}
 
 	/**
-	 * @param $callableOrMethodStr
-	 * @param $name
+	 * @param mixed $callableOrMethodStr
+	 * @param string $name
 	 * @throws \Auryn\InjectionException
 	 */
-	protected function prepare( $callableOrMethodStr, $name ) {
+	protected function prepare( $callableOrMethodStr, string $name ) {
 		$this->injector->prepare( $name, $callableOrMethodStr );
 	}
 
 	/**
-	 * @param $concrete
-	 * @param $option_name
+	 * @param string $concrete
+	 * @param string $option_name
 	 */
-	protected function subscribe( $concrete, $option_name ) {
+	protected function subscribe( string $concrete, string $option_name ) {
 
 //		if ( is_string( $option_name ) && $config->has( $option_name ) && empty( $config->get( $option_name ) ) ) {
 //			continue;
