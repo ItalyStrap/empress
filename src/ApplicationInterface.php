@@ -7,7 +7,7 @@ namespace ItalyStrap\Container;
  * Interface ApplicationInterface
  * @package ItalyStrap\Container
  */
-interface ApplicationInterface
-{
+interface ApplicationInterface {
+
 
 }

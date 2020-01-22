@@ -3,13 +3,12 @@ declare(strict_types=1);
 
 namespace ItalyStrap\Container;
 
-
 use Auryn\ConfigException;
 use Auryn\Injector;
 use ItalyStrap\Config\ConfigInterface as Config;
 
-class Application implements ApplicationInterface
-{
+class Application implements ApplicationInterface {
+
 	const SHARING = 'sharing';
 	const ALIASES = 'aliases';
 	const DEFINITIONS = 'definitions';

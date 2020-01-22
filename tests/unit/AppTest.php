@@ -12,44 +12,42 @@ use ItalyStrap\Container\ApplicationInterface;
 use PHPUnit\Framework\Assert;
 use Prophecy\Argument;
 
-class AppTest extends Unit
-{
-    /**
-     * @var \UnitTester
-     */
-    protected $tester;
+class AppTest extends Unit {
+
+	/**
+	 * @var \UnitTester
+	 */
+	protected $tester;
 
 	/**
 	 * @var \Prophecy\Prophecy\ObjectProphecy
 	 */
 	private $fake_injector;
 
-	protected function _before()
-    {
-    	$this->fake_injector = $this->prophesize( Injector::class );
-    }
+	protected function _before() {
+		$this->fake_injector = $this->prophesize( Injector::class );
+	}
 
-    protected function _after()
-    {
-    }
+	protected function _after() {
+	}
 
 	private function fakeInjector(): Injector {
 		return $this->fake_injector->reveal();
-    }
+	}
 
 	protected function getIntance( array $config = [] ) {
 		$sut = new Application( ConfigFactory::make( $config ), $this->fakeInjector() );
 		$this->assertInstanceOf( ApplicationInterface::class, $sut, '' );
 		$this->assertInstanceOf( Application::class, $sut, '' );
 		return $sut;
-    }
+	}
 
 	/**
 	 * @test
 	 */
 	public function itShouldBeInstantiable() {
 		$sut = $this->getIntance();
-    }
+	}
 
 	public function shareProvider() {
 		return [
@@ -57,10 +55,11 @@ class AppTest extends Unit
 				'SomeClassName'
 			],
 			'ClassInstance'	=> [
-				new class {}
+				new class {
+				}
 			],
 		];
-    }
+	}
 
 	/**
 	 * @test
@@ -81,7 +80,7 @@ class AppTest extends Unit
 		);
 
 		$sut->register();
-    }
+	}
 
 	/**
 	 * @test
@@ -100,7 +99,7 @@ class AppTest extends Unit
 		$this->expectException( ConfigException::class );
 		$this->expectExceptionCode( Injector::E_SHARE_ARGUMENT );
 		$sut->register();
-    }
+	}
 
 	/**
 	 * @test
@@ -110,9 +109,9 @@ class AppTest extends Unit
 		$this->fake_injector
 			->alias( Argument::type('string'), Argument::type('string') )
 			->will( function ( $args ) {
-			Assert::assertEquals( 'InterfaceName', $args[0], '' );
-			Assert::assertEquals( 'ClassName', $args[1], '' );
-		} );
+				Assert::assertEquals( 'InterfaceName', $args[0], '' );
+				Assert::assertEquals( 'ClassName', $args[1], '' );
+			} );
 
 		$sut = $this->getIntance(
 			[
@@ -133,15 +132,16 @@ class AppTest extends Unit
 		$this->fake_injector
 			->define( Argument::type('string'), Argument::type('array') )
 			->will( function ( $args ) {
-			Assert::assertEquals( 'ClassName', $args[0], '' );
-			Assert::assertArrayHasKey( ':config', $args[1], '' );
-		} );
+				Assert::assertEquals( 'ClassName', $args[0], '' );
+				Assert::assertArrayHasKey( ':config', $args[1], '' );
+			} );
 
 		$sut = $this->getIntance(
 			[
 				Application::DEFINITIONS	=> [
 					'ClassName'	=> [
-						':config'	=> new class {}
+						':config'	=> new class {
+						}
 					],
 				],
 			]
@@ -155,14 +155,15 @@ class AppTest extends Unit
 	 */
 	public function itShouldDefineParam() {
 
-		$param_expected = new class {};
+		$param_expected = new class {
+		};
 
 		$this->fake_injector
 			->defineParam( Argument::type('string'), Argument::any() )
 			->will( function ( $args ) use ( $param_expected ) {
-			Assert::assertEquals( ':config', $args[0], '' );
-			Assert::assertEquals( $param_expected, $args[1], '' );
-		} );
+				Assert::assertEquals( ':config', $args[0], '' );
+				Assert::assertEquals( $param_expected, $args[1], '' );
+			} );
 
 		$sut = $this->getIntance(
 			[
@@ -181,16 +182,17 @@ class AppTest extends Unit
 	public function itShouldDelegate() {
 
 		$factory_delegation = function () {
-			return new class {};
+			return new class {
+			};
 		};
 
 		$this->fake_injector
 			->delegate( Argument::type('string'), Argument::any() )
 			->will( function ( $args ) use ( $factory_delegation ) {
-			Assert::assertEquals( ':config', $args[0], '' );
-			Assert::assertEquals( $factory_delegation, $args[1], '' );
-			Assert::assertIsCallable( $args[1], '' );
-		} );
+				Assert::assertEquals( ':config', $args[0], '' );
+				Assert::assertEquals( $factory_delegation, $args[1], '' );
+				Assert::assertIsCallable( $args[1], '' );
+			} );
 
 		$sut = $this->getIntance(
 			[
