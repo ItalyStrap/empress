@@ -15,6 +15,10 @@ use ItalyStrap\Container\Extension;
 use PHPUnit\Framework\Assert;
 use Prophecy\Argument;
 
+/**
+ * Class AppTest
+ * @package ItalyStrap\Tests
+ */
 class AppTest extends Unit {
 
 	/**
