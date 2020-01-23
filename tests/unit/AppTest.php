@@ -8,8 +8,10 @@ use Auryn\Injector;
 use Codeception\Test\Unit;
 use ItalyStrap\Config\Config;
 use ItalyStrap\Config\ConfigFactory;
+use ItalyStrap\Config\ConfigInterface;
 use ItalyStrap\Container\Application;
 use ItalyStrap\Container\ApplicationInterface;
+use ItalyStrap\Container\Extension;
 use PHPUnit\Framework\Assert;
 use Prophecy\Argument;
 
@@ -246,6 +248,65 @@ class AppTest extends Unit {
 				],
 			]
 		);
+
+		$sut->resolve();
+	}
+
+	/**
+	 * @test
+	 */
+	public function itShouldWalk() {
+		$sut = $this->getIntance(
+			[
+				'Test'	=> [
+					'Key'	=> 'ClassName',
+				],
+			]
+		);
+
+		$sut->walk( 'Test', function ( string $value, $key ) {
+			Assert::assertStringContainsString( $value, 'ClassName', '' );
+			Assert::assertStringContainsString( $key, 'Key', '' );
+		} );
+	}
+
+	/**
+	 * @test
+	 */
+	public function itShouldExtend() {
+
+		$this->fake_injector->make( Argument::type( 'string' ), Argument::type('array') )
+			->will(function($args){
+				Assert::assertStringContainsString( 'ClassName', $args[0], '' );
+			});
+
+		$sut = $this->getIntance(
+			[
+				'subscribers'	=> [
+					'ClassName',
+					'option-name'	=> 'ClassName',
+				],
+			]
+		);
+
+		$sut->extend( new class implements Extension {
+
+			/** @var string */
+			const SUBSCRIBERS = 'subscribers';
+
+			public function name(): string {
+				return (string) self::SUBSCRIBERS;
+			}
+
+			public function execute( Application $application ) {
+				$application->walk( (string) self::SUBSCRIBERS, [ $this, 'method' ] );
+			}
+
+			public function method( string $class, $index_or_optionName, Injector $injector ) {
+				Assert::assertStringContainsString( $class, 'ClassName', '' );
+				$injector->make( $class, [] );
+			}
+		} );
 
 		$sut->resolve();
 	}

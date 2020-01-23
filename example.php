@@ -32,6 +32,10 @@ class Example {
 	public function getClass(): stdClass {
 		return $this->class;
 	}
+
+	public function execute( string $text ) {
+		return $text;
+	}
 }
 
 $config = [
@@ -41,7 +45,9 @@ $config = [
 	Application::SHARING		=> [
 		stdClass::class,
 	],
-	Application::DEFINE_PARAM	=> [],
+	Application::DEFINE_PARAM	=> [
+		'text'	=> 'Some Text'
+	],
 	Application::DEFINITIONS	=> [
 		Example::class	=> [
 			':param'	=> 42,
@@ -65,9 +71,12 @@ $app->resolve();
 $example = $injector->make( Example::class );
 $example2 = $injector->make( Example::class );
 
+$result = $injector->execute( [ $example, 'execute' ] );
+
 d_footer(
 	$app,
 	$example,
 	$example2,
-	$example !== $example2
+	$example !== $example2,
+	$result
 );

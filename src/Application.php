@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ItalyStrap\Container;
 
 use Auryn\ConfigException;
+use Auryn\InjectionException;
 use Auryn\Injector;
 use ItalyStrap\Config\ConfigInterface as Config;
 
@@ -17,6 +18,16 @@ class Application implements ApplicationInterface {
 	const PREPARATIONS = 'preparations';
 	const SUBSCRIBERS = 'subscribers';
 
+	private const DEFAULT = [
+		self::SHARING		=> 'share',
+		self::ALIASES		=> 'alias',
+		self::DEFINITIONS	=> 'define',
+		self::DEFINE_PARAM	=> 'defineParam',
+		self::DELEGATIONS	=> 'delegate',
+		self::PREPARATIONS	=> 'prepare',
+		self::SUBSCRIBERS	=> 'subscribe',
+	];
+
 	/**
 	 * @var Injector
 	 */
@@ -25,6 +36,11 @@ class Application implements ApplicationInterface {
 	 * @var Config
 	 */
 	private $dependencies;
+
+	/**
+	 * @var array<Extension>
+	 */
+	private $extensions = [];
 
 	/**
 	 * Application constructor.
@@ -41,24 +57,35 @@ class Application implements ApplicationInterface {
 	 */
 	public function resolve(): void {
 
-		$default_key = [
-			self::SHARING		=> 'share',
-			self::ALIASES		=> 'alias',
-			self::DEFINITIONS	=> 'define',
-			self::DEFINE_PARAM	=> 'defineParam',
-			self::DELEGATIONS	=> 'delegate',
-			self::PREPARATIONS	=> 'prepare',
-			self::SUBSCRIBERS	=> 'subscribe',
-		];
-
 		/**
 		 * @var string $key
 		 * @var callable $method
 		 */
-		foreach ( $default_key as $key => $method ) {
-			$value = $this->dependencies->get( $key, [] );
-			\array_walk( $value, [ $this, $method ] );
+		foreach ( self::DEFAULT as $key => $method ) {
+			$this->walk( $key, [ $this, $method ] );
 		}
+
+		/** @var Extension $extension */
+		foreach ( $this->extensions as $extension ) {
+			$extension->execute( $this );
+		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function extend( Extension ...$extensions ): void {
+		foreach ( $extensions as $extension ) {
+			$this->extensions[ $extension->name() ] = $extension;
+		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function walk( string $key, callable $callback ): void {
+		$value = $this->dependencies->get( $key, [] );
+		\array_walk( $value, $callback, $this->injector );
 	}
 
 	/**
@@ -118,7 +145,7 @@ class Application implements ApplicationInterface {
 	/**
 	 * @param mixed $callableOrMethodStr
 	 * @param string $name
-	 * @throws \Auryn\InjectionException
+	 * @throws InjectionException
 	 */
 	protected function prepare( $callableOrMethodStr, string $name ) {
 		$this->injector->prepare( $name, $callableOrMethodStr );
