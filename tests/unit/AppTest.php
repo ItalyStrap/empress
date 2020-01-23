@@ -310,8 +310,8 @@ class AppTest extends Unit {
 				Assert::assertStringContainsString( $class, 'ClassName', '' );
 				$injector->make( $class, [] );
 
-//				if ( $config->has( $option_name ) && empty( $config->get( $option_name ) ) ) {
-//					continue;
+//				if ( empty( $config->get( $index_or_optionName, '' ) ) ) {
+//					return;
 //				}
 //
 //				$event_manager = $injector->make( EventManager::class );
