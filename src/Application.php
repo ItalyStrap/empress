@@ -16,7 +16,6 @@ class Application implements ApplicationInterface {
 	const DEFINE_PARAM = 'define_param';
 	const DELEGATIONS = 'delegations';
 	const PREPARATIONS = 'preparations';
-	const SUBSCRIBERS = 'subscribers';
 
 	private const DEFAULT = [
 		self::SHARING		=> 'share',
@@ -25,7 +24,6 @@ class Application implements ApplicationInterface {
 		self::DEFINE_PARAM	=> 'defineParam',
 		self::DELEGATIONS	=> 'delegate',
 		self::PREPARATIONS	=> 'prepare',
-		self::SUBSCRIBERS	=> 'subscribe',
 	];
 
 	/**
@@ -149,18 +147,5 @@ class Application implements ApplicationInterface {
 	 */
 	protected function prepare( $callableOrMethodStr, string $name ) {
 		$this->injector->prepare( $name, $callableOrMethodStr );
-	}
-
-	/**
-	 * @param string $concrete
-	 * @param string $option_name
-	 */
-	protected function subscribe( string $concrete, string $option_name ) {
-
-//		if ( $config->has( $option_name ) && empty( $config->get( $option_name ) ) ) {
-//			continue;
-//		}
-
-//		$event_manager->add_subscriber( $this->injector->share( $concrete )->make( $concrete ) );
 	}
 }

@@ -309,6 +309,13 @@ class AppTest extends Unit {
 			public function method( string $class, $index_or_optionName, Injector $injector ) {
 				Assert::assertStringContainsString( $class, 'ClassName', '' );
 				$injector->make( $class, [] );
+
+//				if ( $config->has( $option_name ) && empty( $config->get( $option_name ) ) ) {
+//					continue;
+//				}
+//
+//				$event_manager = $injector->make( EventManager::class );
+//				$event_manager->add_subscriber( $injector->share( $class )->make( $class ) );
 			}
 		} );
 
