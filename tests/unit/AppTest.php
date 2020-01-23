@@ -276,7 +276,7 @@ class AppTest extends Unit {
 	public function itShouldExtend() {
 
 		$this->fake_injector->make( Argument::type( 'string' ), Argument::type('array') )
-			->will(function($args){
+			->will(function ($args) {
 				Assert::assertStringContainsString( 'ClassName', $args[0], '' );
 			});
 

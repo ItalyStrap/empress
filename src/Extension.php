@@ -9,12 +9,12 @@ use ItalyStrap\Config\ConfigInterface;
  * Interface Extension
  * @package ItalyStrap\Container
  */
-interface Extension
-{
+interface Extension {
+
 	/**
 	 * @return string
 	 */
-	public function name(): string ;
+	public function name(): string;
 
 	/**
 	 * @param Application $application
