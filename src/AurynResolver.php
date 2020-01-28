@@ -8,7 +8,12 @@ use Auryn\InjectionException;
 use Auryn\Injector;
 use ItalyStrap\Config\ConfigInterface as Config;
 
-class Application implements ApplicationInterface {
+/**
+ * AurynResolver
+ * Class Application
+ * @package ItalyStrap\Container
+ */
+class AurynResolver implements AurynResolverInterface {
 
 	const SHARING = 'sharing';
 	const ALIASES = 'aliases';

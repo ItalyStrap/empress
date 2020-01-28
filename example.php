@@ -8,7 +8,7 @@ use Auryn\Injector;
 use ItalyStrap\Config\Config;
 use ItalyStrap\Config\ConfigFactory;
 use ItalyStrap\Config\ConfigInterface;
-use ItalyStrap\Container\Application;
+use ItalyStrap\Container\AurynResolver;
 use stdClass;
 
 class Example {
@@ -39,33 +39,33 @@ class Example {
 }
 
 $config = [
-	Application::ALIASES		=> [
+	AurynResolver::ALIASES		=> [
 		ConfigInterface::class	=> Config::class,
 	],
-	Application::SHARING		=> [
+	AurynResolver::SHARING		=> [
 		stdClass::class,
 	],
-	Application::DEFINE_PARAM	=> [
+	AurynResolver::DEFINE_PARAM	=> [
 		'text'	=> 'Some Text'
 	],
-	Application::DEFINITIONS	=> [
+	AurynResolver::DEFINITIONS	=> [
 		Example::class	=> [
 			':param'	=> 42,
 		]
 	],
-	Application::PREPARATIONS	=> [
+	AurynResolver::PREPARATIONS	=> [
 		stdClass::class	=> function ( stdClass $class, Injector $injector ) {
 			$class->param = 42;
 		},
 	],
-	Application::DELEGATIONS	=> [
+	AurynResolver::DELEGATIONS	=> [
 		ConfigInterface::class	=> [ ConfigFactory::class, 'make']
 	],
 ];
 
 $injector = new Injector();
 
-$app = new Application( $injector, ConfigFactory::make( $config ) );
+$app = new AurynResolver( $injector, ConfigFactory::make( $config ) );
 $app->resolve();
 
 $example = $injector->make( Example::class );

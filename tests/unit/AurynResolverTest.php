@@ -9,8 +9,8 @@ use Codeception\Test\Unit;
 use ItalyStrap\Config\Config;
 use ItalyStrap\Config\ConfigFactory;
 use ItalyStrap\Config\ConfigInterface;
-use ItalyStrap\Container\Application;
-use ItalyStrap\Container\ApplicationInterface;
+use ItalyStrap\Container\AurynResolver;
+use ItalyStrap\Container\AurynResolverInterface;
 use ItalyStrap\Container\Extension;
 use PHPUnit\Framework\Assert;
 use Prophecy\Argument;
@@ -19,7 +19,7 @@ use Prophecy\Argument;
  * Class AppTest
  * @package ItalyStrap\Tests
  */
-class AppTest extends Unit {
+class AurynResolverTest extends Unit {
 
 	/**
 	 * @var \UnitTester
@@ -51,9 +51,9 @@ class AppTest extends Unit {
 	}
 
 	protected function getIntance( array $config = [] ) {
-		$sut = new Application( $this->fakeInjector(), ConfigFactory::make( $config ) );
-		$this->assertInstanceOf( ApplicationInterface::class, $sut, '' );
-		$this->assertInstanceOf( Application::class, $sut, '' );
+		$sut = new AurynResolver( $this->fakeInjector(), ConfigFactory::make( $config ) );
+		$this->assertInstanceOf( AurynResolverInterface::class, $sut, '' );
+		$this->assertInstanceOf( AurynResolver::class, $sut, '' );
 		return $sut;
 	}
 
@@ -88,7 +88,7 @@ class AppTest extends Unit {
 
 		$sut = $this->getIntance(
 			[
-				Application::SHARING	=> [
+				AurynResolver::SHARING	=> [
 					$expected,
 				],
 			]
@@ -105,7 +105,7 @@ class AppTest extends Unit {
 
 		$sut = $this->getIntance(
 			[
-				Application::SHARING	=> [
+				AurynResolver::SHARING	=> [
 					'ClassName'	=> $expected,
 				],
 			]
@@ -130,7 +130,7 @@ class AppTest extends Unit {
 
 		$sut = $this->getIntance(
 			[
-				Application::ALIASES	=> [
+				AurynResolver::ALIASES	=> [
 					'InterfaceName'	=> 'ClassName',
 				],
 			]
@@ -153,7 +153,7 @@ class AppTest extends Unit {
 
 		$sut = $this->getIntance(
 			[
-				Application::DEFINITIONS	=> [
+				AurynResolver::DEFINITIONS	=> [
 					'ClassName'	=> [
 						':config'	=> new class {
 						}
@@ -182,7 +182,7 @@ class AppTest extends Unit {
 
 		$sut = $this->getIntance(
 			[
-				Application::DEFINE_PARAM	=> [
+				AurynResolver::DEFINE_PARAM	=> [
 					':config'	=> $param_expected,
 				],
 			]
@@ -211,7 +211,7 @@ class AppTest extends Unit {
 
 		$sut = $this->getIntance(
 			[
-				Application::DELEGATIONS	=> [
+				AurynResolver::DELEGATIONS	=> [
 					':config'	=> $factory_delegation,
 				],
 			]
@@ -247,7 +247,7 @@ class AppTest extends Unit {
 
 		$sut = $this->getIntance(
 			[
-				Application::PREPARATIONS	=> [
+				AurynResolver::PREPARATIONS	=> [
 					'ClassName'	=> $preparation_callback,
 				],
 			]
@@ -302,7 +302,7 @@ class AppTest extends Unit {
 				return (string) self::SUBSCRIBERS;
 			}
 
-			public function execute( Application $application ) {
+			public function execute( AurynResolver $application ) {
 				$application->walk( (string) self::SUBSCRIBERS, [ $this, 'method' ] );
 			}
 

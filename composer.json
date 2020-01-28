@@ -15,7 +15,8 @@
     "require": {
         "php" : ">=7.2",
         "rdlowrey/auryn": "^1.4",
-        "italystrap/config": "^2.2"
+        "italystrap/config": "^2.2",
+        "ocramius/proxy-manager": "^2.2"
     },
     "require-dev": {
         "lucatume/wp-browser": "~2.2",
