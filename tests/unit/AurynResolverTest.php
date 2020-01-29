@@ -331,7 +331,7 @@ class AurynResolverTest extends Unit {
 				return (string) self::SUBSCRIBERS;
 			}
 
-			public function execute( AurynResolver $application ) {
+			public function execute( AurynResolverInterface $application ) {
 				$application->walk( (string) self::SUBSCRIBERS, [ $this, 'method' ] );
 			}
 
