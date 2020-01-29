@@ -6,12 +6,11 @@ namespace ItalyStrap\Empress;
 use Auryn\ConfigException;
 use Auryn\InjectionException;
 use ItalyStrap\Config\ConfigInterface as Config;
-use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 
 /**
  * AurynResolver
  * Class Application
- * @package ItalyStrap\Container
+ * @package ItalyStrap\Empress
  */
 class AurynResolver implements AurynResolverInterface {
 

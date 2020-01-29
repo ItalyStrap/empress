@@ -7,7 +7,7 @@ use ItalyStrap\Config\ConfigInterface;
 
 /**
  * Interface Extension
- * @package ItalyStrap\Container
+ * @package ItalyStrap\Empress
  */
 interface Extension {
 

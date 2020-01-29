@@ -12,6 +12,10 @@ use Auryn\Injector as AurynInjector;
 use ProxyManager\Factory\LazyLoadingValueHolderFactory as Proxy;
 use ProxyManager\Proxy\LazyLoadingInterface;
 
+/**
+ * Class Injector
+ * @package ItalyStrap\Empress
+ */
 class Injector extends AurynInjector {
 
 	const E_PROXY_ARGUMENT = 13;
