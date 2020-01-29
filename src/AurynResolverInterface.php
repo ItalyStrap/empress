@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace ItalyStrap\Container;
+namespace ItalyStrap\Empress;
 
 /**
  * Interface ApplicationInterface

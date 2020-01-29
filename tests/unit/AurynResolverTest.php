@@ -4,14 +4,13 @@ declare(strict_types=1);
 namespace ItalyStrap\Tests;
 
 use Auryn\ConfigException;
-use Auryn\Injector;
 use Codeception\Test\Unit;
 use ItalyStrap\Config\Config;
 use ItalyStrap\Config\ConfigFactory;
-use ItalyStrap\Config\ConfigInterface;
-use ItalyStrap\Container\AurynResolver;
-use ItalyStrap\Container\AurynResolverInterface;
-use ItalyStrap\Container\Extension;
+use ItalyStrap\Empress\Injector;
+use ItalyStrap\Empress\AurynResolver;
+use ItalyStrap\Empress\AurynResolverInterface;
+use ItalyStrap\Empress\Extension;
 use PHPUnit\Framework\Assert;
 use Prophecy\Argument;
 
@@ -89,6 +88,31 @@ class AurynResolverTest extends Unit {
 		$sut = $this->getIntance(
 			[
 				AurynResolver::SHARING	=> [
+					$expected,
+				],
+			]
+		);
+
+		$sut->resolve();
+	}
+
+	/**
+	 * @test
+	 */
+	public function itShouldProxy() {
+
+		$expected = 'SomeClassProxies';
+
+		$this->fake_injector->proxy(
+			Argument::type( 'string' ),
+			Argument::any()
+		)->will( function ( $args ) use ( $expected ) {
+			Assert::assertEquals( $expected, $args[0], '' );
+		} );
+
+		$sut = $this->getIntance(
+			[
+				AurynResolver::PROXY	=> [
 					$expected,
 				],
 			]
@@ -279,6 +303,11 @@ class AurynResolverTest extends Unit {
 	 */
 	public function itShouldExtend() {
 
+		$this->fake_injector->share( Argument::type( 'string' ), Argument::any() )
+			->will(function ($args) {
+				Assert::assertStringContainsString( 'ClassName', $args[0], '' );
+			});
+
 		$this->fake_injector->make( Argument::type( 'string' ), Argument::type('array') )
 			->will(function ($args) {
 				Assert::assertStringContainsString( 'ClassName', $args[0], '' );
@@ -308,6 +337,7 @@ class AurynResolverTest extends Unit {
 
 			public function method( string $class, $index_or_optionName, Injector $injector ) {
 				Assert::assertStringContainsString( $class, 'ClassName', '' );
+				$injector->share( $class );
 				$injector->make( $class, [] );
 
 //				if ( empty( $config->get( $index_or_optionName, '' ) ) ) {

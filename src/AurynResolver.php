@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace ItalyStrap\Container;
+namespace ItalyStrap\Empress;
 
 use Auryn\ConfigException;
 use Auryn\InjectionException;
-use Auryn\Injector;
 use ItalyStrap\Config\ConfigInterface as Config;
+use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 
 /**
  * AurynResolver
@@ -15,6 +15,7 @@ use ItalyStrap\Config\ConfigInterface as Config;
  */
 class AurynResolver implements AurynResolverInterface {
 
+	const PROXY = 'proxies';
 	const SHARING = 'sharing';
 	const ALIASES = 'aliases';
 	const DEFINITIONS = 'definitions';
@@ -22,7 +23,8 @@ class AurynResolver implements AurynResolverInterface {
 	const DELEGATIONS = 'delegations';
 	const PREPARATIONS = 'preparations';
 
-	private const DEFAULT = [
+	private const METHODS = [
+		self::PROXY			=> 'proxy',
 		self::SHARING		=> 'share',
 		self::ALIASES		=> 'alias',
 		self::DEFINITIONS	=> 'define',
@@ -64,7 +66,7 @@ class AurynResolver implements AurynResolverInterface {
 		 * @var string $key
 		 * @var callable $method
 		 */
-		foreach ( self::DEFAULT as $key => $method ) {
+		foreach ( self::METHODS as $key => $method ) {
 			$this->walk( $key, [ $this, $method ] );
 		}
 
@@ -101,8 +103,8 @@ class AurynResolver implements AurynResolverInterface {
 		if ( ! \is_int( $index ) ) {
 			throw new ConfigException(
 				sprintf(
-					'%s::share() config does not have $key => $value pair, only $value',
-					__CLASS__
+					'%s() config does not have $key => $value pair, only $value',
+					__METHOD__
 				),
 				Injector::E_SHARE_ARGUMENT
 			);
@@ -141,7 +143,7 @@ class AurynResolver implements AurynResolverInterface {
 	 * @param string $name
 	 * @throws ConfigException
 	 */
-	protected function delegate( $callableOrMethodStr, string $name ) {
+	protected function delegate( $callableOrMethodStr, string $name ): void {
 		$this->injector->delegate( $name, $callableOrMethodStr );
 	}
 
@@ -150,7 +152,27 @@ class AurynResolver implements AurynResolverInterface {
 	 * @param string $name
 	 * @throws InjectionException
 	 */
-	protected function prepare( $callableOrMethodStr, string $name ) {
+	protected function prepare( $callableOrMethodStr, string $name ): void {
 		$this->injector->prepare( $name, $callableOrMethodStr );
+	}
+
+	/**
+	 * @param string $name
+	 * @param int $index
+	 * @throws ConfigException
+	 */
+	protected function proxy( string $name, $index ) {
+
+		if ( ! \is_int( $index ) ) {
+			throw new ConfigException(
+				sprintf(
+					'%s() config does not have $key => $value pair, only $value',
+					__METHOD__
+				),
+				Injector::E_PROXY_ARGUMENT
+			);
+		}
+
+		$this->injector->proxy( $name );
 	}
 }

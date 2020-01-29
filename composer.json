@@ -37,7 +37,7 @@
     },
     "autoload": {
         "psr-4": {
-            "ItalyStrap\\Container\\": "src/"
+            "ItalyStrap\\Empress\\": "src/"
         }
     },
     "scripts": {

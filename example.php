@@ -8,7 +8,7 @@ use Auryn\Injector;
 use ItalyStrap\Config\Config;
 use ItalyStrap\Config\ConfigFactory;
 use ItalyStrap\Config\ConfigInterface;
-use ItalyStrap\Container\AurynResolver;
+use ItalyStrap\Empress\AurynResolver;
 use stdClass;
 
 class Example {
