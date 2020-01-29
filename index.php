@@ -1,7 +1,7 @@
 <?php
 /*
-Plugin Name: Container
-Description: Container
+Plugin Name: Empress
+Description: Empress
 Plugin URI: https://italystrap.com
 Author: Enea Overclokk
 Author URI: https://italystrap.com

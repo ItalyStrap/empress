@@ -3,12 +3,11 @@ declare(strict_types=1);
 
 namespace ItalyStrap;
 
-use ArrayIterator;
-use Auryn\Injector;
 use ItalyStrap\Config\Config;
 use ItalyStrap\Config\ConfigFactory;
 use ItalyStrap\Config\ConfigInterface;
 use ItalyStrap\Empress\AurynResolver;
+use ItalyStrap\Empress\Injector;
 use stdClass;
 
 class Example {
@@ -17,13 +16,32 @@ class Example {
 	 * @var stdClass
 	 */
 	private $class;
+	/**
+	 * @var ConfigInterface
+	 */
+	private $config;
+	/**
+	 * @var string
+	 */
+	private $param;
 
 	/**
 	 * Example constructor.
 	 * @param stdClass $class
+	 * @param ConfigInterface $config
+	 * @param string $param
 	 */
 	public function __construct( stdClass $class, ConfigInterface $config, string $param ) {
 		$this->class = $class;
+		$this->config = $config;
+		$this->param = $param;
+	}
+
+	/**
+	 * @return ConfigInterface
+	 */
+	public function getConfig(): ConfigInterface {
+		return $this->config;
 	}
 
 	/**
@@ -44,6 +62,10 @@ $config = [
 	],
 	AurynResolver::SHARING		=> [
 		stdClass::class,
+		ConfigInterface::class,
+	],
+	AurynResolver::PROXY		=> [
+		Example::class,
 	],
 	AurynResolver::DEFINE_PARAM	=> [
 		'text'	=> 'Some Text'
@@ -78,5 +100,6 @@ d_footer(
 	$example,
 	$example2,
 	$example !== $example2,
-	$result
+	$result,
+	$example->getConfig()
 );

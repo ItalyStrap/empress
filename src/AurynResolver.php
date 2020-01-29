@@ -89,8 +89,8 @@ class AurynResolver implements AurynResolverInterface {
 	 * @inheritDoc
 	 */
 	public function walk( string $key, callable $callback ): void {
-		$value = $this->dependencies->get( $key, [] );
-		\array_walk( $value, $callback, $this->injector );
+		$dependencies = $this->dependencies->get( $key, [] );
+		\array_walk( $dependencies, $callback, $this->injector );
 	}
 
 	/**
