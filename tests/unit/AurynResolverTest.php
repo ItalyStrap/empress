@@ -349,10 +349,6 @@ class AurynResolverTest extends Unit {
 		$extension->execute( Argument::exact( $sut ) )->will(function ( $args ) {
 		});
 
-//		{
-//			$application->walk( (string) self::SUBSCRIBERS, [ $this, 'method' ] );
-//		}
-
 		$sut->extend( $extension->reveal() );
 
 		$sut->resolve();
