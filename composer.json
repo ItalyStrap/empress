@@ -38,7 +38,10 @@
     "autoload": {
         "psr-4": {
             "ItalyStrap\\Empress\\": "src/"
-        }
+        },
+        "files": [
+            "bridge/Injector.php"
+        ]
     },
     "scripts": {
         "check": [
@@ -50,7 +53,7 @@
         ]
     },
     "support"    : {
-        "issues": "https://github.com/ItalyStrap/cleaner/issues",
-        "source": "https://github.com/ItalyStrap/cleaner"
+        "issues": "https://github.com/ItalyStrap/empress/issues",
+        "source": "https://github.com/ItalyStrap/empress"
     }
 }
