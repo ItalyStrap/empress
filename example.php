@@ -179,7 +179,7 @@ $config = [
 	],
 
 	/**
-	 * You can delegate the instantiation for an object to a some kind of callable factory
+	 * You can delegate the instantiation of an object to a some kind of callable factory
 	 * This will be always used to get the instance of a class.
 	 * @see [Instantiation Delegates](https://github.com/rdlowrey/auryn#instantiation-delegates)
 	 */
@@ -281,3 +281,5 @@ $app->extend(
  * Now you can call the ::resolve() method
  */
 $app->resolve();
+
+// Do the rest of your stuff
