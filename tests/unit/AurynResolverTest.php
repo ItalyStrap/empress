@@ -301,7 +301,47 @@ class AurynResolverTest extends Unit {
 	/**
 	 * @test
 	 */
-	public function itShouldExtend() {
+	public function itShouldExtendFakeClass() {
+
+		$this->fake_injector->share( Argument::type( 'string' ), Argument::any() )
+			->will(function ($args) {
+				Assert::assertStringContainsString( 'ClassName', $args[0], '' );
+			});
+
+		$this->fake_injector->make( Argument::type( 'string' ), Argument::type('array') )
+			->will(function ($args) {
+				Assert::assertStringContainsString( 'ClassName', $args[0], '' );
+			});
+
+		$sut = $this->getIntance(
+			[
+				'subscribers'	=> [
+					'ClassName',
+					'option-name'	=> 'ClassName',
+				],
+			]
+		);
+
+		$extension = $this->prophesize( Extension::class );
+
+		$extension->name()->willReturn( 'ExtensionName' );
+
+		$extension->execute( Argument::exact( $sut ) )->will(function ( $args ) {
+		});
+
+//		{
+//			$application->walk( (string) self::SUBSCRIBERS, [ $this, 'method' ] );
+//		}
+
+		$sut->extend( $extension->reveal() );
+
+		$sut->resolve();
+	}
+
+	/**
+	 * @test
+	 */
+	public function itShouldExtendRealClass() {
 
 		$this->fake_injector->share( Argument::type( 'string' ), Argument::any() )
 			->will(function ($args) {

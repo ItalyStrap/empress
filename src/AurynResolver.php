@@ -6,6 +6,8 @@ namespace ItalyStrap\Empress;
 use Auryn\ConfigException;
 use Auryn\InjectionException;
 use ItalyStrap\Config\ConfigInterface as Config;
+use function array_walk;
+use function is_int;
 
 /**
  * AurynResolver
@@ -89,7 +91,7 @@ class AurynResolver implements AurynResolverInterface {
 	 */
 	public function walk( string $key, callable $callback ): void {
 		$dependencies = $this->dependencies->get( $key, [] );
-		\array_walk( $dependencies, $callback, $this->injector );
+		array_walk( $dependencies, $callback, $this->injector );
 	}
 
 	/**
@@ -99,7 +101,7 @@ class AurynResolver implements AurynResolverInterface {
 	 */
 	protected function share( $nameOrInstance, $index ): void {
 
-		if ( ! \is_int( $index ) ) {
+		if ( ! is_int( $index ) ) {
 			throw new ConfigException(
 				sprintf(
 					'%s() config does not have $key => $value pair, only $value',
@@ -160,9 +162,9 @@ class AurynResolver implements AurynResolverInterface {
 	 * @param int $index
 	 * @throws ConfigException
 	 */
-	protected function proxy( string $name, $index ) {
+	protected function proxy( string $name, $index ): void {
 
-		if ( ! \is_int( $index ) ) {
+		if ( ! is_int( $index ) ) {
 			throw new ConfigException(
 				sprintf(
 					'%s() config does not have $key => $value pair, only $value',

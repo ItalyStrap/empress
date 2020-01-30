@@ -17,7 +17,7 @@ interface Extension {
 	public function name(): string;
 
 	/**
-	 * @param AurynResolver $application
+	 * @param AurynResolverInterface $application
 	 */
 	public function execute( AurynResolverInterface $application );
 }
