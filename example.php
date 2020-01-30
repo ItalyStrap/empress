@@ -138,11 +138,11 @@ $config = [
 
 	/**
 	 * Define global parameter
-	 * class SomeCLass( $text ) {}
-	 * class SomeOtherCLass( $text ) {}
+	 * class SomeCLass(string $text) {}
+	 * class SomeOtherCLass(string $text) {}
 	 * $injector->make(SomeCLass::class);
 	 * $injector->make(SomeOtherCLass::class);
-	 * Now the `$text` will be decorated with 'Some Text'
+	 * Now the `$text` param will be decorated with 'Some Text'
 	 * @see [Global Parameter Definitions](https://github.com/rdlowrey/auryn#global-parameter-definitions)
 	 */
 	AurynResolver::DEFINE_PARAM	=> [
@@ -152,10 +152,10 @@ $config = [
 	/**
 	 * Definition for class specific
 	 * Example:
-	 * class Example($param) {}
+	 * class Example(int $param) {}
 	 * Now the `$param` will be decorated with 42
-	 * class OtherExample($param) {}
-	 * This will not be decorated with 42 because is not Example::class
+	 * class OtherExample(int $param) {}
+	 * This will not be decorated with 42 because you have defined only the Example::class parameter
 	 * @see [Injection Definitions](https://github.com/rdlowrey/auryn#injection-definitions)
 	 */
 	AurynResolver::DEFINITIONS	=> [
@@ -179,8 +179,8 @@ $config = [
 	],
 
 	/**
-	 * You can delegate the instantiation for an object to a some kinf of factory
-	 * This will be aloways used to get the instante of a class.
+	 * You can delegate the instantiation for an object to a some kind of callable factory
+	 * This will be always used to get the instance of a class.
 	 * @see [Instantiation Delegates](https://github.com/rdlowrey/auryn#instantiation-delegates)
 	 */
 	AurynResolver::DELEGATIONS	=> [
@@ -192,6 +192,7 @@ $config = [
  * Instantiate the Injector
  */
 $injector = new Injector();
+
 /**
  * Pass the $injector instance to the AurynResolver::class as first parameter and a
  * Config::class instance at the second parameters with the configuration array.
@@ -208,8 +209,9 @@ $app->resolve();
  * when you need them
  */
 $example = $injector->make( Example::class );
-
 // $example instanceof Example::class
+
+
 
 //$example2 = $injector->make( Example::class );
 //
@@ -230,14 +232,14 @@ $example = $injector->make( Example::class );
 
 /**
  * If you need more power you can extend the AurynResolver::class BEFORE calling the AurynResolver::resolve() method
- * The configuration will be the follow:
+ * Create your custom configuration like the follow:
  * $config = [
  * 	'your-key'	=> [
  * 		'Key' => 'Value',
  *  ],
  * ];
  *
- * Let see an example:
+ * Now extend the AurynResolver:
  */
 $app->extend(
 	new class implements Extension {
@@ -254,17 +256,18 @@ $app->extend(
 		 * @param AurynResolverInterface $application
 		 */
 		public function execute( AurynResolverInterface $application ) {
+
 			/**
 			 * ::walk() accept:
-			 * A key to search against the config array
-			 * A valid callable to do the work you need.
+			 * self::YOUR_KEY will be a key to search against the config array
+			 * [ $this, 'doSomeStuff' ] will be a valid callable to do the work you need.
 			 */
-			$application->walk( (string) self::YOUR_KEY, [ $this, 'doSomeStuff' ] );
+			$application->walk( (string) self::YOUR_KEY, [$this, 'doSomeStuff'] );
 		}
 
 		/**
 		 * @param string     $array_value Array value from yous configuration
-		 * @param int|string $array_key   Array key from yous configuration
+		 * @param int|string $array_key   Array key from your configuration
 		 * @param Injector   $injector    An instance of the Injector::class
 		 */
 		public function doSomeStuff( string $array_value, $array_key, Injector $injector ) {
