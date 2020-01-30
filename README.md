@@ -181,8 +181,10 @@ $config = [
 
 /**
  * Instantiate the Injector
+ * Remember that ItalyStrap\Empress\Injector() is the extended class with the proxy functionality
+ * The superclass \Auryn\Injector() does not have the ProxyManager in it.
  */
-$injector = new Injector();
+$injector = new \ItalyStrap\Empress\Injector();
 
 /**
  * Pass the $injector instance to the AurynResolver::class as first parameter and a
