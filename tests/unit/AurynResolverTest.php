@@ -143,6 +143,26 @@ class AurynResolverTest extends Unit {
 	/**
 	 * @test
 	 */
+	public function itShouldThrownExceptionIfProxyHasStringInKey() {
+
+		$expected = 'SomeClassProxies';
+
+		$sut = $this->getIntance(
+			[
+				AurynResolver::PROXY	=> [
+					'ClassName'	=> $expected,
+				],
+			]
+		);
+
+		$this->expectException( ConfigException::class );
+		$this->expectExceptionCode( Injector::E_PROXY_ARGUMENT );
+		$sut->resolve();
+	}
+
+	/**
+	 * @test
+	 */
 	public function itShouldAlias() {
 
 		$this->fake_injector

@@ -101,15 +101,11 @@ class AurynResolver implements AurynResolverInterface {
 	 */
 	protected function share( $nameOrInstance, $index ): void {
 
-		if ( ! is_int( $index ) ) {
-			throw new ConfigException(
-				sprintf(
-					'%s() config does not have $key => $value pair, only $value',
-					__METHOD__
-				),
-				Injector::E_SHARE_ARGUMENT
-			);
-		}
+		$this->assertIndexIsCorrectType(
+			$index,
+			__METHOD__,
+			Injector::E_SHARE_ARGUMENT
+		);
 
 		$this->injector->share( $nameOrInstance );
 	}
@@ -121,15 +117,11 @@ class AurynResolver implements AurynResolverInterface {
 	 */
 	protected function proxy( string $name, $index ): void {
 
-		if ( ! is_int( $index ) ) {
-			throw new ConfigException(
-				sprintf(
-					'%s() config does not have $key => $value pair, only $value',
-					__METHOD__
-				),
-				Injector::E_PROXY_ARGUMENT
-			);
-		}
+		$this->assertIndexIsCorrectType(
+			$index,
+			__METHOD__,
+			Injector::E_PROXY_ARGUMENT
+		);
 
 		$this->injector->proxy( $name );
 	}
@@ -175,5 +167,23 @@ class AurynResolver implements AurynResolverInterface {
 	 */
 	protected function prepare( $callableOrMethodStr, string $name ): void {
 		$this->injector->prepare( $name, $callableOrMethodStr );
+	}
+
+	/**
+	 * @param mixed $index
+	 * @param string $method
+	 * @param int $error_code
+	 * @throws ConfigException
+	 */
+	private function assertIndexIsCorrectType( $index, string $method, int $error_code ): void {
+		if ( ! is_int( $index ) ) {
+			throw new ConfigException(
+				sprintf(
+					'%s() config does not have $key => $value pair, only $value',
+					$method
+				),
+				$error_code
+			);
+		}
 	}
 }
