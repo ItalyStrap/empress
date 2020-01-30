@@ -40,6 +40,13 @@ Do not use Injector as a service locator or your server will blown up.
 
 ```php
 
+use ItalyStrap\Config\Config;
+use ItalyStrap\Config\ConfigFactory;
+use ItalyStrap\Config\ConfigInterface;
+use ItalyStrap\Empress\AurynResolverInterface;
+use ItalyStrap\Empress\AurynResolver;
+use ItalyStrap\Empress\Extension;
+use ItalyStrap\Empress\Injector;
 
 
 ```

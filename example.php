@@ -73,6 +73,9 @@ class Example {
  * AurynResolver::PREPARATIONS = 'preparations';
  */
 
+/**
+ * First off all we need a configuration
+ */
 $config = [
 
 	/**
@@ -80,6 +83,7 @@ $config = [
 	 * class MyCLass( ConfigInterface $config ) {}
 	 * You alias a `ConfigInterface::class` to `Config::class`
 	 * $injector->make(MyCLass::class); will be injected with a Config object
+	 * @see [Type-Hint Aliasing](https://github.com/rdlowrey/auryn#type-hint-aliasing)
 	 */
 	AurynResolver::ALIASES		=> [
 		ConfigInterface::class	=> Config::class,
@@ -89,7 +93,7 @@ $config = [
 	 * Example:
 	 * class MyCLass( ConfigInterface $global_config, \stdClass $class ) {}
 	 * class MyOtherCLass( ConfigInterface $global_config, \stdClass $class ) {}
-	 * A new Config instance will be shared, think of it like a singleton but more better and OOP oriented
+	 * A new Config instance will be shared, think of it like a singleton but more better and OOP oriented (You can mock it ;-))
 	 * The same instance of Config will be injected to MyCLass and MyOtherCLass
 	 * $injector->make(MyCLass::class); // Will have $global_config
 	 * $injector->make(MyOtherCLass::class); // Will have $global_config
@@ -105,20 +109,27 @@ $config = [
 	 * You usually need a lazy value holder in cases where the following applies:
 	 *  * your object takes a lot of time and memory to be initialized (with all dependencies)
 	 *  * your object is not always used, and the instantiation overhead is avoidable
+	 *
 	 * Example:
-	 * HeavyComplexObject( ...HeavyDependency ); // Declared somewhere
+	 * class HeavyComplexObject( ...HeavyDependency ){}; // Declared somewhere
 	 * $object = $injector->make(HeavyComplexObject::class);
 	 * add_{filter|action}( 'event_name', [ $object, 'doSomeStuff' ] );
 	 *
 	 * You can proxies the `HeavyComplexObject::class` dependency
 	 * $injector->proxy(HeavyDependency::class);
-	 * Or the `HeavyComplexObject::class` directly the business logic is up to you
+	 * Or the `HeavyComplexObject::class`
 	 * $injector->proxy(HeavyComplexObject::class);
 	 *
-	 * Now you call
-	 * $object = $injector->make(HeavyComplexObject::class);
-	 * With proxy will be:
-	 * add_{filter|action}( 'event_name', [ $object, 'doSomeStuff' ] );
+	 * It depends on your business logic.
+	 *
+	 * Let see for example if you have proxies the HeavyComplexObject::class
+	 *
+	 * $proxy = $injector->make(HeavyComplexObject::class);
+	 *
+	 * Now $proxy will be the lazy version of the object (as a proxy) and when the event call it
+	 * add_{filter|action}( 'event_name', [ $proxy, 'doSomeStuff' ] );
+	 * ::doSomeStuff() will just work as before.
+	 *
 	 * @see [Lazy Loading Value Holder Proxy](https://github.com/Ocramius/ProxyManager/blob/master/docs/lazy-loading-value-holder.md)
 	 */
 	AurynResolver::PROXY		=> [
