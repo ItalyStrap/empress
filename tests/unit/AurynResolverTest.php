@@ -98,6 +98,25 @@ class AurynResolverTest extends Unit {
 
 	/**
 	 * @test
+	 * @dataProvider shareProvider()
+	 */
+	public function itShouldThrownExceptionIfConfigHasKeyValueWith( $expected ) {
+
+		$sut = $this->getIntance(
+			[
+				AurynResolver::SHARING	=> [
+					'ClassName'	=> $expected,
+				],
+			]
+		);
+
+		$this->expectException( ConfigException::class );
+		$this->expectExceptionCode( Injector::E_SHARE_ARGUMENT );
+		$sut->resolve();
+	}
+
+	/**
+	 * @test
 	 */
 	public function itShouldProxy() {
 
@@ -118,25 +137,6 @@ class AurynResolverTest extends Unit {
 			]
 		);
 
-		$sut->resolve();
-	}
-
-	/**
-	 * @test
-	 * @dataProvider shareProvider()
-	 */
-	public function itShouldThrownExceptionIfConfigHasKeyValueWith( $expected ) {
-
-		$sut = $this->getIntance(
-			[
-				AurynResolver::SHARING	=> [
-					'ClassName'	=> $expected,
-				],
-			]
-		);
-
-		$this->expectException( ConfigException::class );
-		$this->expectExceptionCode( Injector::E_SHARE_ARGUMENT );
 		$sut->resolve();
 	}
 

@@ -115,6 +115,26 @@ class AurynResolver implements AurynResolverInterface {
 	}
 
 	/**
+	 * @param string $name
+	 * @param int $index
+	 * @throws ConfigException
+	 */
+	protected function proxy( string $name, $index ): void {
+
+		if ( ! is_int( $index ) ) {
+			throw new ConfigException(
+				sprintf(
+					'%s() config does not have $key => $value pair, only $value',
+					__METHOD__
+				),
+				Injector::E_PROXY_ARGUMENT
+			);
+		}
+
+		$this->injector->proxy( $name );
+	}
+
+	/**
 	 * @param string $implementation
 	 * @param string $interface
 	 * @throws ConfigException
@@ -155,25 +175,5 @@ class AurynResolver implements AurynResolverInterface {
 	 */
 	protected function prepare( $callableOrMethodStr, string $name ): void {
 		$this->injector->prepare( $name, $callableOrMethodStr );
-	}
-
-	/**
-	 * @param string $name
-	 * @param int $index
-	 * @throws ConfigException
-	 */
-	protected function proxy( string $name, $index ): void {
-
-		if ( ! is_int( $index ) ) {
-			throw new ConfigException(
-				sprintf(
-					'%s() config does not have $key => $value pair, only $value',
-					__METHOD__
-				),
-				Injector::E_PROXY_ARGUMENT
-			);
-		}
-
-		$this->injector->proxy( $name );
 	}
 }
