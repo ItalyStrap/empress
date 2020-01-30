@@ -6,7 +6,9 @@ namespace ItalyStrap;
 use ItalyStrap\Config\Config;
 use ItalyStrap\Config\ConfigFactory;
 use ItalyStrap\Config\ConfigInterface;
+use ItalyStrap\Empress\AurynResolverInterface;
 use ItalyStrap\Empress\AurynResolver;
+use ItalyStrap\Empress\Extension;
 use ItalyStrap\Empress\Injector;
 use stdClass;
 
@@ -196,7 +198,7 @@ $app->resolve();
  */
 $example = $injector->make( Example::class );
 
-
+// $example instanceof Example::class
 
 //$example2 = $injector->make( Example::class );
 //
@@ -210,3 +212,58 @@ $example = $injector->make( Example::class );
 //	$result,
 //	$example->getConfig()
 //);
+
+/**
+ * Advanced usage
+ */
+
+/**
+ * If you need more power you can extend the AurynResolver::class BEFORE calling the AurynResolver::resolve() method
+ * The configuration will be the follow:
+ * $config = [
+ * 	'your-key'	=> [
+ * 		'Key' => 'Value',
+ *  ],
+ * ];
+ *
+ * Let see an example:
+ */
+$app->extend(
+	new class implements Extension {
+
+		/** @var string */
+		const YOUR_KEY = 'your-key';
+
+		public function name(): string {
+			return (string) self::YOUR_KEY;
+		}
+
+		/**
+		 * Called inside the AurynResolver instance
+		 * @param AurynResolverInterface $application
+		 */
+		public function execute( AurynResolverInterface $application ) {
+			/**
+			 * ::walk() accept:
+			 * A key to search against the config array
+			 * A valid callable to do the work you need.
+			 */
+			$application->walk( (string) self::YOUR_KEY, [ $this, 'doSomeStuff' ] );
+		}
+
+		/**
+		 * @param string     $array_value Array value from yous configuration
+		 * @param int|string $array_key   Array key from yous configuration
+		 * @param Injector   $injector    An instance of the Injector::class
+		 */
+		public function doSomeStuff( string $array_value, $array_key, Injector $injector ) {
+			// Do your logic here
+		}
+	}
+);
+
+/**
+ * You can add as many extensions as you need
+ * Now you can call the ::resolve() method
+ */
+$app->resolve();
