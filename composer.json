@@ -1,6 +1,6 @@
 {
     "name": "italystrap/empress",
-    "description": "Simple container for ItalyStrap around Auryn/Injector",
+    "description": "Config driven for Auryn Injector the OOP way",
     "type": "library",
     "license": "MIT",
     "authors": [
