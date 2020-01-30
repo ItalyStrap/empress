@@ -1,5 +1,5 @@
 {
-    "name": "italystrap/container",
+    "name": "italystrap/empress",
     "description": "Simple container for ItalyStrap around Auryn/Injector",
     "type": "library",
     "license": "MIT",
