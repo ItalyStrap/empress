@@ -12,7 +12,6 @@ parameters:
         - %currentWorkingDirectory%/src/
     excludes_analyse:
         #- %currentWorkingDirectory%/src/Config/
-        - %currentWorkingDirectory%/src/Injector.php
     autoload_files:
         # Procedural code
         #- %currentWorkingDirectory%/src/Injector.php
