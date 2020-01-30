@@ -7,7 +7,9 @@
 [![License](https://img.shields.io/packagist/l/italystrap/empress.svg)](https://packagist.org/packages/italystrap/empress)
 ![PHP from Packagist](https://img.shields.io/packagist/php-v/italystrap/empress)
 
-Auryn Injector Resolver for PHP applications the OOP way
+Config driven for [Auryn Injector](https://github.com/rdlowrey/auryn) the OOP way
+
+In this library it is also included a bridge for the [Auryn\Injector](https://github.com/rdlowrey/auryn) and [ProxyManager](https://github.com/Ocramius/ProxyManager) for lazily initializes a "real" instance of the proxied class.
 
 ## Table Of Contents
 
@@ -16,6 +18,8 @@ Auryn Injector Resolver for PHP applications the OOP way
 * [Advanced Usage](#advanced-usage)
 * [Contributing](#contributing)
 * [License](#license)
+* [Notes](#notes)
+* [Credits](#credits)
 
 ## Installation
 
@@ -28,7 +32,17 @@ This package adheres to the [SemVer](http://semver.org/) specification and will 
 
 ## Basic Usage
 
-> TODO
+> For more information on how to use Auryn\Injector see the [Auryn README](https://github.com/rdlowrey/auryn/blob/master/README.md)
+
+Keep in mind that `$injector->(SomeClass::class)` hides the word `new` and does the instantiation for you.
+
+Do not use Injector as a service locator or your server will blown up.
+
+```php
+
+
+
+```
 
 ## Advanced Usage
 
@@ -44,6 +58,11 @@ Copyright (c) 2019 Enea Overclokk, ItalyStrap
 
 This code is licensed under the [MIT](LICENSE).
 
+## Notes
+
+*  Maintained under the [Semantic Versioning Guide](http://semver.org)
+
 ## Credits
 
-> TODO
+* [`rdlowrey/auryn`](https://github.com/rdlowrey/auryn)
+* [`brightnucleus/injector`](https://github.com/brightnucleus/injector)
