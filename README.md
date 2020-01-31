@@ -6,6 +6,7 @@
 [![Latest Unstable Version](https://img.shields.io/packagist/vpre/italystrap/empress.svg)](https://packagist.org/packages/italystrap/empress)
 [![License](https://img.shields.io/packagist/l/italystrap/empress.svg)](https://packagist.org/packages/italystrap/empress)
 ![PHP from Packagist](https://img.shields.io/packagist/php-v/italystrap/empress)
+![Scrutinizer code quality (GitHub/Bitbucket)](https://img.shields.io/scrutinizer/quality/g/ItalyStrap/empress?label=Scrutinizer)
 
 Config driven for [Auryn Injector](https://github.com/rdlowrey/auryn) the OOP way
 
