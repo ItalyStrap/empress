@@ -12,6 +12,8 @@ Config driven for [Auryn Injector](https://github.com/rdlowrey/auryn) the OOP wa
 
 In this library it is also included a bridge for the [Auryn\Injector](https://github.com/rdlowrey/auryn) and [ProxyManager](https://github.com/Ocramius/ProxyManager) for lazily initializes a "real" instance of the proxied class.
 
+**This library is still a WIP (work in progres)**
+
 ## Table Of Contents
 
 * [Installation](#installation)
