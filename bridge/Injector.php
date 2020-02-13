@@ -9,21 +9,48 @@ use Auryn\Executable;
 use Auryn\InjectionException;
 use Auryn\Reflector;
 use Auryn\Injector as AurynInjector;
-use ProxyManager\Factory\LazyLoadingValueHolderFactory as Proxy;
-use ProxyManager\Proxy\LazyLoadingInterface;
 
 /**
  * Class Injector
  * @package ItalyStrap\Empress
  */
 class Injector extends AurynInjector {
+	const A_RAW = ':';
+	const A_DELEGATE = '+';
+	const A_DEFINE = '@';
+	const I_BINDINGS = 1;
+	const I_DELEGATES = 2;
+	const I_PREPARES = 4;
+	const I_ALIASES = 8;
+	const I_SHARES = 16;
+	const I_ALL = 31;
 
-	const E_PROXY_ARGUMENT = 13;
-	const M_PROXY_ARGUMENT = "%s::proxy() requires a string class name or object instance at Argument 1; %s specified";
-
+	const E_NON_EMPTY_STRING_ALIAS = 1;
+	const M_NON_EMPTY_STRING_ALIAS = "Invalid alias: non-empty string required at arguments 1 and 2";
+	const E_SHARED_CANNOT_ALIAS = 2;
+	const M_SHARED_CANNOT_ALIAS = "Cannot alias class %s to %s because it is currently shared";
+	const E_SHARE_ARGUMENT = 3;
+	const M_SHARE_ARGUMENT = "%s::share() requires a string class name or object instance at Argument 1; %s specified";
+	const E_ALIASED_CANNOT_SHARE = 4;
+	const M_ALIASED_CANNOT_SHARE = "Cannot share class %s because it is currently aliased to %s";
+	const E_INVOKABLE = 5;
+	const M_INVOKABLE = "Invalid invokable: callable or provisional string required";
+	const E_NON_PUBLIC_CONSTRUCTOR = 6;
+	const M_NON_PUBLIC_CONSTRUCTOR = "Cannot instantiate protected/private constructor in class %s";
+	const E_NEEDS_DEFINITION = 7;
+	const M_NEEDS_DEFINITION = "Injection definition required for %s %s";
+	const E_MAKE_FAILURE = 8;
+	const M_MAKE_FAILURE = "Could not make %s: %s";
+	const E_UNDEFINED_PARAM = 9;
+	const M_UNDEFINED_PARAM = "No definition available to provision typeless parameter \$%s at position %d in %s()%s";
+	const E_DELEGATE_ARGUMENT = 10;
+	const M_DELEGATE_ARGUMENT = "%s::delegate expects a valid callable or executable class::method string at Argument 2%s";
+	const E_CYCLIC_DEPENDENCY = 11;
+	const M_CYCLIC_DEPENDENCY = "Detected a cyclic dependency while provisioning %s";
+	const E_MAKING_FAILED = 12;
+	const M_MAKING_FAILED = "Making %s did not result in an object, instead result is of type '%s'";
 
 	private $reflector;
-	private $proxy_manager;
 	private $classDefinitions = array();
 	private $paramDefinitions = array();
 	private $aliases = array();
@@ -31,16 +58,16 @@ class Injector extends AurynInjector {
 	private $prepares = array();
 	private $delegates = array();
 	private $proxies = array();
-	private $prepares_proxy = array();
+	private $preparesProxy = array();
 	private $inProgressMakes = array();
 
-	public function __construct(Reflector $reflector = null, Proxy $proxy = null) {
-		$this->reflector = $reflector ?: new CachingReflector;
-		$this->proxy_manager = $proxy ?: new Proxy();
-		parent::__construct( $reflector );
+	public function __construct(Reflector $reflector = null)
+	{
+		$this->reflector = $reflector ?: new CachingReflector();
 	}
 
-	public function __clone() {
+	public function __clone()
+	{
 		$this->inProgressMakes = array();
 	}
 
@@ -49,9 +76,11 @@ class Injector extends AurynInjector {
 	 *
 	 * @param string $name The class (or alias) whose constructor arguments we wish to define
 	 * @param array $args An array mapping parameter names to values/instructions
-	 * @return self
+	 *
+	 * @return \Auryn\Injector
 	 */
-	public function define($name, array $args) {
+	public function define($name, array $args)
+	{
 		list(, $normalizedName) = $this->resolveAlias($name);
 		$this->classDefinitions[$normalizedName] = $args;
 
@@ -68,7 +97,8 @@ class Injector extends AurynInjector {
 	 * @param mixed $value The value to inject for this parameter name
 	 * @return self
 	 */
-	public function defineParam($paramName, $value) {
+	public function defineParam($paramName, $value)
+	{
 		$this->paramDefinitions[$paramName] = $value;
 
 		return $this;
@@ -84,7 +114,8 @@ class Injector extends AurynInjector {
 	 * @throws ConfigException if any argument is empty or not a string
 	 * @return self
 	 */
-	public function alias($original, $alias) {
+	public function alias($original, $alias)
+	{
 		if (empty($original) || !is_string($original)) {
 			throw new ConfigException(
 				self::M_NON_EMPTY_STRING_ALIAS,
@@ -122,7 +153,8 @@ class Injector extends AurynInjector {
 		return $this;
 	}
 
-	private function normalizeName($className) {
+	private function normalizeName($className)
+	{
 		return ltrim(strtolower($className), '\\');
 	}
 
@@ -133,7 +165,8 @@ class Injector extends AurynInjector {
 	 * @throws ConfigException if $nameOrInstance is not a string or an object
 	 * @return self
 	 */
-	public function share($nameOrInstance) {
+	public function share($nameOrInstance)
+	{
 		if (is_string($nameOrInstance)) {
 			$this->shareClass($nameOrInstance);
 		} elseif (is_object($nameOrInstance)) {
@@ -152,14 +185,16 @@ class Injector extends AurynInjector {
 		return $this;
 	}
 
-	private function shareClass($nameOrInstance) {
+	private function shareClass($nameOrInstance)
+	{
 		list(, $normalizedName) = $this->resolveAlias($nameOrInstance);
 		$this->shares[$normalizedName] = isset($this->shares[$normalizedName])
 			? $this->shares[$normalizedName]
 			: null;
 	}
 
-	private function resolveAlias($name) {
+	private function resolveAlias($name)
+	{
 		$normalizedName = $this->normalizeName($name);
 		if (isset($this->aliases[$normalizedName])) {
 			$name = $this->aliases[$normalizedName];
@@ -169,7 +204,8 @@ class Injector extends AurynInjector {
 		return array($name, $normalizedName);
 	}
 
-	private function shareInstance($obj) {
+	private function shareInstance($obj)
+	{
 		$normalizedName = $this->normalizeName(get_class($obj));
 		if (isset($this->aliases[$normalizedName])) {
 			// You cannot share an instance of a class name that is already aliased
@@ -197,7 +233,8 @@ class Injector extends AurynInjector {
 	 *                            See https://github.com/rdlowrey/auryn#injecting-for-execution
 	 * @return self
 	 */
-	public function prepare($name, $callableOrMethodStr) {
+	public function prepare($name, $callableOrMethodStr)
+	{
 		if ($this->isExecutable($callableOrMethodStr) === false) {
 			throw InjectionException::fromInvalidCallable(
 				$this->inProgressMakes,
@@ -211,7 +248,8 @@ class Injector extends AurynInjector {
 		return $this;
 	}
 
-	private function isExecutable($exe) {
+	private function isExecutable($exe)
+	{
 		if (is_callable($exe)) {
 			return true;
 		}
@@ -226,32 +264,20 @@ class Injector extends AurynInjector {
 	}
 
 	/**
-	 * Delegate the creation of $name instances to the specified callable
+	 * Delegate the creation of $name instances to the specified callable, receiving arguments based on the callables
+	 * signature.
 	 *
 	 * @param string $name
 	 * @param mixed $callableOrMethodStr Any callable or provisionable invokable method
 	 * @throws ConfigException if $callableOrMethodStr is not a callable.
 	 * @return self
 	 */
-	public function delegate($name, $callableOrMethodStr) {
-		if ($this->isExecutable($callableOrMethodStr) === false) {
-			$errorDetail = '';
-			if (is_string($callableOrMethodStr)) {
-				$errorDetail = " but received '$callableOrMethodStr'";
-			} elseif (is_array($callableOrMethodStr) &&
-				count($callableOrMethodStr) === 2 &&
-				array_key_exists(0, $callableOrMethodStr) &&
-				array_key_exists(1, $callableOrMethodStr)
-			) {
-				if (is_string($callableOrMethodStr[0]) && is_string($callableOrMethodStr[1])) {
-					$errorDetail = " but received ['".$callableOrMethodStr[0]."', '".$callableOrMethodStr[1]."']";
-				}
-			}
-			throw new ConfigException(
-				sprintf(self::M_DELEGATE_ARGUMENT, __CLASS__, $errorDetail),
-				self::E_DELEGATE_ARGUMENT
-			);
+	public function delegate($name, $callableOrMethodStr)
+	{
+		if (!$this->isExecutable($callableOrMethodStr)) {
+			$this->generateInvalidCallableError($callableOrMethodStr);
 		}
+
 		$normalizedName = $this->normalizeName($name);
 		$this->delegates[$normalizedName] = $callableOrMethodStr;
 
@@ -267,7 +293,8 @@ class Injector extends AurynInjector {
 	 * @param int $typeFilter A bitmask of Injector::* type constant flags
 	 * @return array
 	 */
-	public function inspect($nameFilter = null, $typeFilter = null) {
+	public function inspect($nameFilter = null, $typeFilter = null)
+	{
 		$result = array();
 		$name = $nameFilter ? $this->normalizeName($nameFilter) : null;
 
@@ -292,7 +319,8 @@ class Injector extends AurynInjector {
 		return $result;
 	}
 
-	private function filter($source, $name) {
+	private function filter($source, $name)
+	{
 		if (empty($name)) {
 			return $source;
 		} elseif (array_key_exists($name, $source)) {
@@ -303,27 +331,22 @@ class Injector extends AurynInjector {
 	}
 
 	/**
-	 * Share the specified class/instance across the Injector context
+	 * Proxy the specified class across the Injector context.
 	 *
-	 * @param string $name The class or object to share
-	 * @throws ConfigException if $nameOrInstance is not a string or an object
-	 * @return self
+	 * @param string $name The class to proxy
+	 *
+	 * @param $callableOrMethodStr
+	 * @return Injector
+	 * @throws ConfigException
 	 */
-	public function proxy($name) {
-		if ( ! is_string( $name ) ) {
-			throw new ConfigException(
-				sprintf(
-					self::M_PROXY_ARGUMENT,
-					__CLASS__,
-					gettype($name)
-				),
-				self::E_PROXY_ARGUMENT
-			);
+	public function proxy(string $name, $callableOrMethodStr)
+	{
+		if (!$this->isExecutable($callableOrMethodStr)) {
+			$this->generateInvalidCallableError($callableOrMethodStr);
 		}
 
 		list($className, $normalizedName) = $this->resolveAlias($name);
-
-		$this->proxies[$normalizedName] = $className;
+		$this->proxies[$normalizedName] = $callableOrMethodStr;
 
 		return $this;
 	}
@@ -336,7 +359,8 @@ class Injector extends AurynInjector {
 	 * @throws InjectionException if a cyclic gets detected when provisioning
 	 * @return mixed
 	 */
-	public function make($name, array $args = array()) {
+	public function make($name, array $args = array())
+	{
 		list($className, $normalizedClass) = $this->resolveAlias($name);
 
 		if (isset($this->inProgressMakes[$normalizedClass])) {
@@ -368,8 +392,8 @@ class Injector extends AurynInjector {
 				$args = $this->provisionFuncArgs($reflectionFunction, $args, null, $className);
 				$obj = call_user_func_array(array($executable, '__invoke'), $args);
 			} elseif (isset($this->proxies[$normalizedClass])) {
-				if ( isset( $this->prepares[$normalizedClass] ) ) {
-					$this->prepares_proxy[$normalizedClass] = $this->prepares[$normalizedClass];
+				if (isset($this->prepares[$normalizedClass])) {
+					$this->preparesProxy[$normalizedClass] = $this->prepares[$normalizedClass];
 				}
 				$obj = $this->resolveProxy($className, $normalizedClass, $args);
 				unset($this->prepares[$normalizedClass]);
@@ -384,10 +408,12 @@ class Injector extends AurynInjector {
 			}
 
 			unset($this->inProgressMakes[$normalizedClass]);
-		} catch (\Exception $exception) {
+		}
+		catch (\Exception $exception) {
 			unset($this->inProgressMakes[$normalizedClass]);
 			throw $exception;
-		} catch (\Throwable $exception) {
+		}
+		catch (\Throwable $exception) {
 			unset($this->inProgressMakes[$normalizedClass]);
 			throw $exception;
 		}
@@ -395,33 +421,36 @@ class Injector extends AurynInjector {
 		return $obj;
 	}
 
-	private function resolveProxy($className, $normalizedClass, array $args) {
-		return $this->proxy_manager->createProxy(
-			$className,
-			function (
-				&$wrappedObject,
-				LazyLoadingInterface $proxy,
-				$method,
-				$parameters,
-				&$initializer
-			) use (
-				$className,
-				$normalizedClass,
-				$args
-			) {
-				$wrappedObject = $this->provisionInstance($className, $normalizedClass, $args);
+	private function resolveProxy(string $className, string $normalizedClass, array $args)
+	{
+		$callback = function ()  use ($className, $normalizedClass, $args) {
+			return $this->buildWrappedObject( $className, $normalizedClass, $args );
+		};
 
-				if (isset($this->prepares_proxy[$normalizedClass])) {
-					$this->prepares[$normalizedClass] = $this->prepares_proxy[$normalizedClass];
-				}
+		$proxy = $this->proxies[$normalizedClass];
 
-				$wrappedObject = $this->prepareInstance($wrappedObject, $normalizedClass);
-				$initializer   = null;
-			}
-		);
+		return $proxy( $className, $callback );
 	}
 
-	private function provisionInstance($className, $normalizedClass, array $definition) {
+	/**
+	 * @param string $className
+	 * @param string $normalizedClass
+	 * @param array $args
+	 * @return mixed|object
+	 * @throws InjectionException
+	 */
+	private function buildWrappedObject( $className, $normalizedClass, array $args ) {
+		$wrappedObject = $this->provisionInstance( $className, $normalizedClass, $args );
+
+		if ( isset( $this->preparesProxy[ $normalizedClass ] ) ) {
+			$this->prepares[ $normalizedClass ] = $this->preparesProxy[ $normalizedClass ];
+		}
+
+		return $this->prepareInstance( $wrappedObject, $normalizedClass );
+	}
+
+	private function provisionInstance($className, $normalizedClass, array $definition)
+	{
 		try {
 			$ctor = $this->reflector->getCtor($className);
 
@@ -455,7 +484,8 @@ class Injector extends AurynInjector {
 		}
 	}
 
-	private function instantiateWithoutCtorParams($className) {
+	private function instantiateWithoutCtorParams($className)
+	{
 		$reflClass = $this->reflector->getClass($className);
 
 		if (!$reflClass->isInstantiable()) {
@@ -467,15 +497,11 @@ class Injector extends AurynInjector {
 			);
 		}
 
-		return new $className;
+		return new $className();
 	}
 
-	private function provisionFuncArgs(
-		\ReflectionFunctionAbstract $reflFunc,
-		array $definition,
-		array $reflParams = null,
-		$className = null
-	) {
+	private function provisionFuncArgs(\ReflectionFunctionAbstract $reflFunc, array $definition, array $reflParams = null, $className = null)
+	{
 		$args = array();
 
 		// @TODO store this in ReflectionStorage
@@ -492,10 +518,7 @@ class Injector extends AurynInjector {
 			} elseif (isset($definition[$name]) || array_key_exists($name, $definition)) {
 				// interpret the param as a class name to be instantiated
 				$arg = $this->make($definition[$name]);
-			} elseif (
-				($prefix = self::A_RAW . $name)
-				&& (isset($definition[$prefix]) || array_key_exists($prefix, $definition))
-			) {
+			} elseif (($prefix = self::A_RAW . $name) && (isset($definition[$prefix]) || array_key_exists($prefix, $definition))) {
 				// interpret the param as a raw value to be injected
 				$arg = $definition[$prefix];
 			} elseif (($prefix = self::A_DELEGATE . $name) && isset($definition[$prefix])) {
@@ -520,18 +543,19 @@ class Injector extends AurynInjector {
 		return $args;
 	}
 
-	private function buildArgFromParamDefineArr($definition) {
+	private function buildArgFromParamDefineArr($definition)
+	{
 		if (!is_array($definition)) {
 			throw new InjectionException(
 				$this->inProgressMakes
-				// @TODO Add message
+			// @TODO Add message
 			);
 		}
 
 		if (!isset($definition[0], $definition[1])) {
 			throw new InjectionException(
 				$this->inProgressMakes
-				// @TODO Add message
+			// @TODO Add message
 			);
 		}
 
@@ -540,7 +564,8 @@ class Injector extends AurynInjector {
 		return $this->make($class, $definition);
 	}
 
-	private function buildArgFromDelegate($paramName, $callableOrMethodStr) {
+	private function buildArgFromDelegate($paramName, $callableOrMethodStr)
+	{
 		if ($this->isExecutable($callableOrMethodStr) === false) {
 			throw InjectionException::fromInvalidCallable(
 				$this->inProgressMakes,
@@ -553,7 +578,8 @@ class Injector extends AurynInjector {
 		return $executable($paramName, $this);
 	}
 
-	private function buildArgFromTypeHint(\ReflectionFunctionAbstract $reflFunc, \ReflectionParameter $reflParam) {
+	private function buildArgFromTypeHint(\ReflectionFunctionAbstract $reflFunc, \ReflectionParameter $reflParam)
+	{
 		$typeHint = $this->reflector->getParamTypeHint($reflFunc, $reflParam);
 
 		if (!$typeHint) {
@@ -575,7 +601,8 @@ class Injector extends AurynInjector {
 		return $obj;
 	}
 
-	private function buildArgFromReflParam(\ReflectionParameter $reflParam, $className = null) {
+	private function buildArgFromReflParam(\ReflectionParameter $reflParam, $className = null)
+	{
 		if (array_key_exists($reflParam->name, $this->paramDefinitions)) {
 			$arg = $this->paramDefinitions[$reflParam->name];
 		} elseif ($reflParam->isDefaultValueAvailable()) {
@@ -611,7 +638,8 @@ class Injector extends AurynInjector {
 		return $arg;
 	}
 
-	private function prepareInstance($obj, $normalizedClass) {
+	private function prepareInstance($obj, $normalizedClass)
+	{
 		if (isset($this->prepares[$normalizedClass])) {
 			$prepare = $this->prepares[$normalizedClass];
 			$executable = $this->buildExecutable($prepare);
@@ -660,15 +688,11 @@ class Injector extends AurynInjector {
 	 * @throws \Auryn\InjectionException
 	 * @return mixed Returns the invocation result returned from calling the generated executable
 	 */
-	public function execute($callableOrMethodStr, array $args = array()) {
+	public function execute($callableOrMethodStr, array $args = array())
+	{
 		list($reflFunc, $invocationObj) = $this->buildExecutableStruct($callableOrMethodStr);
 		$executable = new Executable($reflFunc, $invocationObj);
-		$args = $this->provisionFuncArgs(
-			$reflFunc,
-			$args,
-			null,
-			$invocationObj === null ? null : get_class($invocationObj)
-		);
+		$args = $this->provisionFuncArgs($reflFunc, $args, null, $invocationObj === null ? null : get_class($invocationObj));
 
 		return call_user_func_array(array($executable, '__invoke'), $args);
 	}
@@ -679,7 +703,8 @@ class Injector extends AurynInjector {
 	 * @param mixed $callableOrMethodStr A valid PHP callable or a provisionable ClassName::methodName string
 	 * @return \Auryn\Executable
 	 */
-	public function buildExecutable($callableOrMethodStr) {
+	public function buildExecutable($callableOrMethodStr)
+	{
 		try {
 			list($reflFunc, $invocationObj) = $this->buildExecutableStruct($callableOrMethodStr);
 		} catch (\ReflectionException $e) {
@@ -693,7 +718,8 @@ class Injector extends AurynInjector {
 		return new Executable($reflFunc, $invocationObj);
 	}
 
-	private function buildExecutableStruct($callableOrMethodStr) {
+	private function buildExecutableStruct($callableOrMethodStr)
+	{
 		if (is_string($callableOrMethodStr)) {
 			$executableStruct = $this->buildExecutableStructFromString($callableOrMethodStr);
 		} elseif ($callableOrMethodStr instanceof \Closure) {
@@ -718,7 +744,8 @@ class Injector extends AurynInjector {
 		return $executableStruct;
 	}
 
-	private function buildExecutableStructFromString($stringExecutable) {
+	private function buildExecutableStructFromString($stringExecutable)
+	{
 		if (function_exists($stringExecutable)) {
 			$callableRefl = $this->reflector->getFunction($stringExecutable);
 			$executableStruct = array($callableRefl, null);
@@ -739,7 +766,8 @@ class Injector extends AurynInjector {
 		return $executableStruct;
 	}
 
-	private function buildStringClassMethodCallable($class, $method) {
+	private function buildStringClassMethodCallable($class, $method)
+	{
 		$relativeStaticMethodStartPos = strpos($method, 'parent::');
 
 		if ($relativeStaticMethodStartPos === 0) {
@@ -764,7 +792,8 @@ class Injector extends AurynInjector {
 		return array($reflectionMethod, $instance);
 	}
 
-	private function buildExecutableStructFromArray($arrayExecutable) {
+	private function buildExecutableStructFromArray($arrayExecutable)
+	{
 		list($classOrObj, $method) = $arrayExecutable;
 
 		if (is_object($classOrObj) && method_exists($classOrObj, $method)) {
@@ -780,5 +809,30 @@ class Injector extends AurynInjector {
 		}
 
 		return $executableStruct;
+	}
+
+	/**
+	 * @param $callableOrMethodStr
+	 *
+	 * @throws ConfigException
+	 */
+	private function generateInvalidCallableError($callableOrMethodStr)
+	{
+		$errorDetail = '';
+		if (is_string($callableOrMethodStr)) {
+			$errorDetail = " but received '$callableOrMethodStr'";
+		} elseif (is_array($callableOrMethodStr) &&
+			count($callableOrMethodStr) === 2 &&
+			array_key_exists(0, $callableOrMethodStr) &&
+			array_key_exists(1, $callableOrMethodStr)
+		) {
+			if (is_string($callableOrMethodStr[0]) && is_string($callableOrMethodStr[1])) {
+				$errorDetail = " but received ['" . $callableOrMethodStr[0] . "', '" . $callableOrMethodStr[1] . "']";
+			}
+		}
+		throw new ConfigException(
+			sprintf(self::M_DELEGATE_ARGUMENT, __CLASS__, $errorDetail),
+			self::E_DELEGATE_ARGUMENT
+		);
 	}
 }

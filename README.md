@@ -221,6 +221,15 @@ use ItalyStrap\Empress\AurynResolver;
 use ItalyStrap\Empress\Extension;
 use ItalyStrap\Empress\Injector;
 
+$config = [
+    'your-key'	=> [
+        'Key' => 'Value',
+    ],
+];
+
+$injector = new \ItalyStrap\Empress\Injector();
+$app = new AurynResolver( $injector, ConfigFactory::make( $config ) );
+
 /**
  * If you need more power you can extend the AurynResolver::class BEFORE calling the AurynResolver::resolve() method
  * Create your custom configuration like the follow:

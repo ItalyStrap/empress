@@ -98,25 +98,6 @@ class AurynResolverTest extends Unit {
 
 	/**
 	 * @test
-	 * @dataProvider shareProvider()
-	 */
-	public function itShouldThrownExceptionIfConfigHasKeyValueWith( $expected ) {
-
-		$sut = $this->getIntance(
-			[
-				AurynResolver::SHARING	=> [
-					'ClassName'	=> $expected,
-				],
-			]
-		);
-
-		$this->expectException( ConfigException::class );
-		$this->expectExceptionCode( Injector::E_SHARE_ARGUMENT );
-		$sut->resolve();
-	}
-
-	/**
-	 * @test
 	 */
 	public function itShouldProxy() {
 
@@ -124,7 +105,7 @@ class AurynResolverTest extends Unit {
 
 		$this->fake_injector->proxy(
 			Argument::type( 'string' ),
-			Argument::any()
+			Argument::type('callable')
 		)->will( function ( $args ) use ( $expected ) {
 			Assert::assertEquals( $expected, $args[0], '' );
 		} );
@@ -137,26 +118,6 @@ class AurynResolverTest extends Unit {
 			]
 		);
 
-		$sut->resolve();
-	}
-
-	/**
-	 * @test
-	 */
-	public function itShouldThrownExceptionIfProxyHasStringInKey() {
-
-		$expected = 'SomeClassProxies';
-
-		$sut = $this->getIntance(
-			[
-				AurynResolver::PROXY	=> [
-					'ClassName'	=> $expected,
-				],
-			]
-		);
-
-		$this->expectException( ConfigException::class );
-		$this->expectExceptionCode( Injector::E_PROXY_ARGUMENT );
 		$sut->resolve();
 	}
 

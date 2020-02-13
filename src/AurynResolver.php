@@ -6,8 +6,8 @@ namespace ItalyStrap\Empress;
 use Auryn\ConfigException;
 use Auryn\InjectionException;
 use ItalyStrap\Config\ConfigInterface as Config;
+use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 use function array_walk;
-use function is_int;
 
 /**
  * AurynResolver
@@ -99,14 +99,7 @@ class AurynResolver implements AurynResolverInterface {
 	 * @param int $index
 	 * @throws ConfigException
 	 */
-	protected function share( $nameOrInstance, $index ): void {
-
-		$this->assertIndexIsCorrectType(
-			$index,
-			__METHOD__,
-			Injector::E_SHARE_ARGUMENT
-		);
-
+	protected function share( $nameOrInstance, int $index ): void {
 		$this->injector->share( $nameOrInstance );
 	}
 
@@ -115,15 +108,19 @@ class AurynResolver implements AurynResolverInterface {
 	 * @param int $index
 	 * @throws ConfigException
 	 */
-	protected function proxy( string $name, $index ): void {
+	protected function proxy( string $name, int $index ): void {
 
-		$this->assertIndexIsCorrectType(
-			$index,
-			__METHOD__,
-			Injector::E_PROXY_ARGUMENT
-		);
+		$proxy = static function ( string $className, callable $callback ) {
+			return (new LazyLoadingValueHolderFactory)->createProxy(
+				$className,
+				static function ( &$object, $proxy, $method, $parameters, &$initializer ) use ( $callback ) {
+					$object = $callback();
+					$initializer = null;
+				}
+			);
+		};
 
-		$this->injector->proxy( $name );
+		$this->injector->proxy( $name, $proxy );
 	}
 
 	/**
@@ -167,23 +164,5 @@ class AurynResolver implements AurynResolverInterface {
 	 */
 	protected function prepare( $callableOrMethodStr, string $name ): void {
 		$this->injector->prepare( $name, $callableOrMethodStr );
-	}
-
-	/**
-	 * @param mixed $index
-	 * @param string $method
-	 * @param int $error_code
-	 * @throws ConfigException
-	 */
-	private function assertIndexIsCorrectType( $index, string $method, int $error_code ): void {
-		if ( ! is_int( $index ) ) {
-			throw new ConfigException(
-				sprintf(
-					'%s() config does not have $key => $value pair, only $value',
-					$method
-				),
-				$error_code
-			);
-		}
 	}
 }

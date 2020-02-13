@@ -6,6 +6,7 @@ namespace ItalyStrap\Tests;
 use Codeception\Test\Unit;
 use ItalyStrap\Empress\Injector;
 use Auryn\Test\PreparesImplementationTest;
+use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 
 // phpcs:disable
 require_once codecept_root_dir('/vendor/rdlowrey/auryn/test/fixtures.php');
@@ -34,12 +35,23 @@ class ProxyInjectorTest extends Unit {
 	public function testThrowException() {
 		$injector = new Injector();
 		$this->expectException( \Auryn\ConfigException::class );
-		$injector->proxy( 1 );
+		$injector->proxy( '1', 'string');
 	}
 
 	public function testInstanceProxy() {
 		$injector = new Injector();
-		$injector->proxy('Auryn\Test\TestDependency');
+		$injector->proxy(
+			'Auryn\Test\TestDependency',
+			static function ( string $className, callable $callback ) {
+				return (new LazyLoadingValueHolderFactory)->createProxy(
+					$className,
+					static function ( &$object, $proxy, $method, $parameters, &$initializer ) use ( $callback ) {
+						$object = $callback();
+						$initializer = null;
+					}
+				);
+			}
+		);
 		$class = $injector->make('Auryn\Test\TestDependency');
 
 		$this->assertInstanceOf('Auryn\Test\TestDependency', $class, '');
@@ -49,7 +61,18 @@ class ProxyInjectorTest extends Unit {
 
 	public function testMakeInstanceInjectsSimpleConcreteDependencyProxy() {
 		$injector = new Injector;
-		$injector->proxy('Auryn\Test\TestDependency');
+		$injector->proxy(
+			'Auryn\Test\TestDependency',
+			static function ( string $className, callable $callback ) {
+				return (new LazyLoadingValueHolderFactory)->createProxy(
+					$className,
+					static function ( &$object, $proxy, $method, $parameters, &$initializer ) use ( $callback ) {
+						$object = $callback();
+						$initializer = null;
+					}
+				);
+			}
+		);
 		$need_dep = $injector->make('Auryn\Test\TestNeedsDep');
 
 		$this->assertInstanceOf('Auryn\Test\TestNeedsDep', $need_dep, '');
@@ -57,7 +80,18 @@ class ProxyInjectorTest extends Unit {
 
 	public function testShareInstanceProxy() {
 		$injector = new Injector();
-		$injector->proxy('Auryn\Test\TestDependency');
+		$injector->proxy(
+			'Auryn\Test\TestDependency',
+			static function ( string $className, callable $callback ) {
+				return (new LazyLoadingValueHolderFactory)->createProxy(
+					$className,
+					static function ( &$object, $proxy, $method, $parameters, &$initializer ) use ( $callback ) {
+						$object = $callback();
+						$initializer = null;
+					}
+				);
+			}
+		);
 		$injector->share('Auryn\Test\TestDependency');
 		$class = $injector->make('Auryn\Test\TestDependency');
 		$class2 = $injector->make('Auryn\Test\TestDependency');
@@ -68,7 +102,18 @@ class ProxyInjectorTest extends Unit {
 	public function testProxyMakeInstanceReturnsAliasInstanceOnNonConcreteTypehint() {
 		$injector = new Injector;
 		$injector->alias('Auryn\Test\DepInterface', 'Auryn\Test\DepImplementation');
-		$injector->proxy('Auryn\Test\DepInterface');
+		$injector->proxy(
+			'Auryn\Test\DepInterface',
+			static function ( string $className, callable $callback ) {
+				return (new LazyLoadingValueHolderFactory)->createProxy(
+					$className,
+					static function ( &$object, $proxy, $method, $parameters, &$initializer ) use ( $callback ) {
+						$object = $callback();
+						$initializer = null;
+					}
+				);
+			}
+		);
 		$object =  $injector->make('Auryn\Test\DepInterface');
 
 		$this->assertInstanceOf('Auryn\Test\DepInterface', $object, '');
@@ -78,7 +123,18 @@ class ProxyInjectorTest extends Unit {
 
 	public function testProxyPrepare() {
 		$injector = new Injector();
-		$injector->proxy('Auryn\Test\PreparesImplementationTest');
+		$injector->proxy(
+			'Auryn\Test\PreparesImplementationTest',
+			static function ( string $className, callable $callback ) {
+				return (new LazyLoadingValueHolderFactory)->createProxy(
+					$className,
+					static function ( &$object, $proxy, $method, $parameters, &$initializer ) use ( $callback ) {
+						$object = $callback();
+						$initializer = null;
+					}
+				);
+			}
+		);
 		$injector->prepare(
 			'Auryn\Test\PreparesImplementationTest',
 			function ( PreparesImplementationTest $obj, $injector) {
