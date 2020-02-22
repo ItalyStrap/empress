@@ -18,6 +18,7 @@ interface Extension {
 
 	/**
 	 * @param AurynResolverInterface $application
+	 * @return void
 	 */
 	public function execute( AurynResolverInterface $application );
 }

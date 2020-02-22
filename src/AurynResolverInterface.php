@@ -10,12 +10,13 @@ namespace ItalyStrap\Empress;
 interface AurynResolverInterface {
 
 	/**
-	 *
+	 * @return void
 	 */
 	public function resolve();
 
 	/**
 	 * @param Extension ...$extensions
+	 * @return void
 	 */
 	public function extend( Extension ...$extensions );
 

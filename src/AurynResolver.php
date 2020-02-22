@@ -5,8 +5,10 @@ namespace ItalyStrap\Empress;
 
 use Auryn\ConfigException;
 use Auryn\InjectionException;
+use Closure;
 use ItalyStrap\Config\ConfigInterface as Config;
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;
+use ProxyManager\Proxy\VirtualProxyInterface;
 use function array_walk;
 
 /**
@@ -68,7 +70,9 @@ class AurynResolver implements AurynResolverInterface {
 		 * @var callable $method
 		 */
 		foreach ( self::METHODS as $key => $method ) {
-			$this->walk( $key, [ $this, $method ] );
+			/** @var callable $callback */
+			$callback = [ $this, $method ];
+			$this->walk( $key, $callback );
 		}
 
 		/** @var Extension $extension */
@@ -110,10 +114,16 @@ class AurynResolver implements AurynResolverInterface {
 	 */
 	protected function proxy( string $name, int $index ): void {
 
-		$proxy = static function ( string $className, callable $callback ) {
+		$proxy = static function ( string $className, callable $callback ): VirtualProxyInterface {
 			return (new LazyLoadingValueHolderFactory)->createProxy(
 				$className,
-				static function ( &$object, $proxy, $method, $parameters, &$initializer ) use ( $callback ) {
+				static function (
+					?object &$object,
+					?object $proxy,
+					string $method,
+					array $parameters,
+					?Closure &$initializer
+				) use ( $callback ) {
 					$object = $callback();
 					$initializer = null;
 				}
