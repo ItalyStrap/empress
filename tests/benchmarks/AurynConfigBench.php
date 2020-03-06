@@ -8,7 +8,7 @@ use ItalyStrap\Empress\AurynConfig;
 use ItalyStrap\Empress\Injector;
 use stdClass;
 
-class AurynResolverBench {
+class AurynConfigBench {
 
 	/**
 	 * @Warmup(2)

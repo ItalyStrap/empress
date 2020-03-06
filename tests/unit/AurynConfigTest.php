@@ -18,7 +18,7 @@ use Prophecy\Argument;
  * Class AppTest
  * @package ItalyStrap\Tests
  */
-class AurynResolverTest extends Unit {
+class AurynConfigTest extends Unit {
 
 	/**
 	 * @var \UnitTester
