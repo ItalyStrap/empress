@@ -7,7 +7,7 @@ namespace ItalyStrap\Empress;
  * Interface ApplicationInterface
  * @package ItalyStrap\Empress
  */
-interface AurynResolverInterface {
+interface AurynConfigInterface {
 
 	/**
 	 * @return void

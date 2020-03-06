@@ -47,8 +47,8 @@ namespace MyApp;
 use ItalyStrap\Config\Config;
 use ItalyStrap\Config\ConfigFactory;
 use ItalyStrap\Config\ConfigInterface;
-use ItalyStrap\Empress\AurynResolverInterface;
-use ItalyStrap\Empress\AurynResolver;
+use ItalyStrap\Empress\AurynConfigInterface;
+use ItalyStrap\Empress\AurynConfig;
 use ItalyStrap\Empress\Extension;
 use ItalyStrap\Empress\Injector;
 
@@ -79,7 +79,7 @@ $config = [
 	 * $injector->make(MyCLass::class); will be injected with a Config object
 	 * @see [Type-Hint Aliasing](https://github.com/rdlowrey/auryn#type-hint-aliasing)
 	 */
-	AurynResolver::ALIASES		=> [
+	AurynConfig::ALIASES		=> [
 		ConfigInterface::class	=> Config::class,
 	],
 
@@ -93,7 +93,7 @@ $config = [
 	 * $injector->make(MyOtherCLass::class); // Will have $global_config
 	 * @see [Instance Sharing](https://github.com/rdlowrey/auryn#instance-sharing)
 	 */
-	AurynResolver::SHARING		=> [
+	AurynConfig::SHARING		=> [
 		stdClass::class,
 		ConfigInterface::class,
 	],
@@ -126,7 +126,7 @@ $config = [
 	 *
 	 * @see [Lazy Loading Value Holder Proxy](https://github.com/Ocramius/ProxyManager/blob/master/docs/lazy-loading-value-holder.md)
 	 */
-	AurynResolver::PROXY		=> [
+	AurynConfig::PROXY		=> [
 		Config::class,
 	],
 
@@ -139,7 +139,7 @@ $config = [
 	 * Now the `$text` param will be decorated with 'Some Text'
 	 * @see [Global Parameter Definitions](https://github.com/rdlowrey/auryn#global-parameter-definitions)
 	 */
-	AurynResolver::DEFINE_PARAM	=> [
+	AurynConfig::DEFINE_PARAM	=> [
 		'text'	=> 'Some Text'
 	],
 
@@ -152,7 +152,7 @@ $config = [
 	 * This will not be decorated with 42 because you have defined only the Example::class parameter
 	 * @see [Injection Definitions](https://github.com/rdlowrey/auryn#injection-definitions)
 	 */
-	AurynResolver::DEFINITIONS	=> [
+	AurynConfig::DEFINITIONS	=> [
 		Example::class	=> [
 			':param'	=> 42,
 		]
@@ -166,7 +166,7 @@ $config = [
 	 * echo $class->param;
 	 * @see [Prepares and Setter Injection](https://github.com/rdlowrey/auryn#prepares-and-setter-injection)
 	 */
-	AurynResolver::PREPARATIONS	=> [
+	AurynConfig::PREPARATIONS	=> [
 		stdClass::class	=> function ( stdClass $class, Injector $injector ) {
 			$class->param = 42;
 		},
@@ -177,7 +177,7 @@ $config = [
 	 * This will be always used to get the instance of a class.
 	 * @see [Instantiation Delegates](https://github.com/rdlowrey/auryn#instantiation-delegates)
 	 */
-	AurynResolver::DELEGATIONS	=> [
+	AurynConfig::DELEGATIONS	=> [
 		ConfigInterface::class	=> [ ConfigFactory::class, 'make']
 	],
 ];
@@ -193,7 +193,7 @@ $injector = new \ItalyStrap\Empress\Injector();
  * Pass the $injector instance to the AurynResolver::class as first parameter and a
  * Config::class instance at the second parameters with the configuration array.
  */
-$app = new AurynResolver( $injector, ConfigFactory::make( $config ) );
+$app = new AurynConfig( $injector, ConfigFactory::make( $config ) );
 
 /**
  * Call the AurynResolver::resolve() method to do the autowiring of the application
@@ -216,8 +216,8 @@ namespace MyApp;
 use ItalyStrap\Config\Config;
 use ItalyStrap\Config\ConfigFactory;
 use ItalyStrap\Config\ConfigInterface;
-use ItalyStrap\Empress\AurynResolverInterface;
-use ItalyStrap\Empress\AurynResolver;
+use ItalyStrap\Empress\AurynConfigInterface;
+use ItalyStrap\Empress\AurynConfig;
 use ItalyStrap\Empress\Extension;
 use ItalyStrap\Empress\Injector;
 
@@ -228,7 +228,7 @@ $config = [
 ];
 
 $injector = new \ItalyStrap\Empress\Injector();
-$app = new AurynResolver( $injector, ConfigFactory::make( $config ) );
+$app = new AurynConfig( $injector, ConfigFactory::make( $config ) );
 
 /**
  * If you need more power you can extend the AurynResolver::class BEFORE calling the AurynResolver::resolve() method
@@ -253,9 +253,9 @@ $app->extend(
 
 		/**
 		 * Called inside the AurynResolver instance
-		 * @param AurynResolverInterface $application
+		 * @param AurynConfigInterface $application
 		 */
-		public function execute( AurynResolverInterface $application ) {
+		public function execute( AurynConfigInterface $application ) {
 
 			/**
 			 * ::walk() accept:

@@ -8,8 +8,8 @@ use Codeception\Test\Unit;
 use ItalyStrap\Config\Config;
 use ItalyStrap\Config\ConfigFactory;
 use ItalyStrap\Empress\Injector;
-use ItalyStrap\Empress\AurynResolver;
-use ItalyStrap\Empress\AurynResolverInterface;
+use ItalyStrap\Empress\AurynConfig;
+use ItalyStrap\Empress\AurynConfigInterface;
 use ItalyStrap\Empress\Extension;
 use PHPUnit\Framework\Assert;
 use Prophecy\Argument;
@@ -50,9 +50,9 @@ class AurynResolverTest extends Unit {
 	}
 
 	protected function getIntance( array $config = [] ) {
-		$sut = new AurynResolver( $this->fakeInjector(), ConfigFactory::make( $config ) );
-		$this->assertInstanceOf( AurynResolverInterface::class, $sut, '' );
-		$this->assertInstanceOf( AurynResolver::class, $sut, '' );
+		$sut = new AurynConfig( $this->fakeInjector(), ConfigFactory::make( $config ) );
+		$this->assertInstanceOf( AurynConfigInterface::class, $sut, '' );
+		$this->assertInstanceOf( AurynConfig::class, $sut, '' );
 		return $sut;
 	}
 
@@ -87,7 +87,7 @@ class AurynResolverTest extends Unit {
 
 		$sut = $this->getIntance(
 			[
-				AurynResolver::SHARING	=> [
+				AurynConfig::SHARING	=> [
 					$expected,
 				],
 			]
@@ -112,7 +112,7 @@ class AurynResolverTest extends Unit {
 
 		$sut = $this->getIntance(
 			[
-				AurynResolver::PROXY	=> [
+				AurynConfig::PROXY	=> [
 					$expected,
 				],
 			]
@@ -135,7 +135,7 @@ class AurynResolverTest extends Unit {
 
 		$sut = $this->getIntance(
 			[
-				AurynResolver::ALIASES	=> [
+				AurynConfig::ALIASES	=> [
 					'InterfaceName'	=> 'ClassName',
 				],
 			]
@@ -158,7 +158,7 @@ class AurynResolverTest extends Unit {
 
 		$sut = $this->getIntance(
 			[
-				AurynResolver::DEFINITIONS	=> [
+				AurynConfig::DEFINITIONS	=> [
 					'ClassName'	=> [
 						':config'	=> new class {
 						}
@@ -187,7 +187,7 @@ class AurynResolverTest extends Unit {
 
 		$sut = $this->getIntance(
 			[
-				AurynResolver::DEFINE_PARAM	=> [
+				AurynConfig::DEFINE_PARAM	=> [
 					':config'	=> $param_expected,
 				],
 			]
@@ -216,7 +216,7 @@ class AurynResolverTest extends Unit {
 
 		$sut = $this->getIntance(
 			[
-				AurynResolver::DELEGATIONS	=> [
+				AurynConfig::DELEGATIONS	=> [
 					':config'	=> $factory_delegation,
 				],
 			]
@@ -252,7 +252,7 @@ class AurynResolverTest extends Unit {
 
 		$sut = $this->getIntance(
 			[
-				AurynResolver::PREPARATIONS	=> [
+				AurynConfig::PREPARATIONS	=> [
 					'ClassName'	=> $preparation_callback,
 				],
 			]
@@ -348,7 +348,7 @@ class AurynResolverTest extends Unit {
 				return (string) self::SUBSCRIBERS;
 			}
 
-			public function execute( AurynResolverInterface $application ) {
+			public function execute( AurynConfigInterface $application ) {
 				$application->walk( (string) self::SUBSCRIBERS, [ $this, 'method' ] );
 			}
 
@@ -367,5 +367,13 @@ class AurynResolverTest extends Unit {
 		} );
 
 		$sut->resolve();
+	}
+
+	/**
+	 * @test
+	 */
+	public function testAlias() {
+		$auryn_config = new \ItalyStrap\Empress\AurynResolver( new Injector(), ConfigFactory::make([]) );
+		$auryn_config->resolve();
 	}
 }

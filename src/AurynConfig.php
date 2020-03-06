@@ -16,7 +16,7 @@ use function array_walk;
  * Class Application
  * @package ItalyStrap\Empress
  */
-class AurynResolver implements AurynResolverInterface {
+class AurynConfig implements AurynConfigInterface {
 
 	const PROXY = 'proxies';
 	const SHARING = 'sharing';

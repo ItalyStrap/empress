@@ -38,6 +38,7 @@
             "ItalyStrap\\Empress\\": "src/"
         },
         "files": [
+            "namespace-bc-aliases.php",
             "bridge/Injector.php"
         ]
     },
