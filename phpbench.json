@@ -12,5 +12,6 @@
       "description": "Benchmark how long it takes to resolve Auryn",
       "cols": [ "subject", "mode" ]
     }
-  }
+  },
+  "time_unit": "milliseconds"
 }
