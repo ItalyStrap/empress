@@ -68,7 +68,7 @@
     },
     "scripts": {
         "cs": [
-            "vendor\\bin\\phpcbf -p --ignore=./tests/_support/* ./src/ ./tests/ && vendor\\bin\\phpcs -p --ignore=./tests/_support/* ./src/ ./tests/"
+            "vendor\\bin\\phpcbf -p --ignore=./tests/_support/*,./tests/_data/* ./src/ ./tests/ && vendor\\bin\\phpcs -p --ignore=./tests/_support/*,./tests/_data/* ./src/ ./tests/"
         ],
         "analyze": [
             "vendor\\bin\\phpstan analyze --level=max && vendor\\bin\\psalm"
