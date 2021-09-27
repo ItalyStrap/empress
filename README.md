@@ -1,6 +1,6 @@
 # ItalyStrap Empress API
 
-[![Build Status](https://travis-ci.org/ItalyStrap/empress.svg?branch=master)](https://travis-ci.org/ItalyStrap/empress)
+[![Build Status](https://github.com/ItalyStrap/empress/actions/workflows/test.yml/badge.svg)](https://github.com/ItalyStrap/empress/actions)
 [![Latest Stable Version](https://img.shields.io/packagist/v/italystrap/empress.svg)](https://packagist.org/packages/italystrap/empress)
 [![Total Downloads](https://img.shields.io/packagist/dt/italystrap/empress.svg)](https://packagist.org/packages/italystrap/empress)
 [![Latest Unstable Version](https://img.shields.io/packagist/vpre/italystrap/empress.svg)](https://packagist.org/packages/italystrap/empress)
