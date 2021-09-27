@@ -8,11 +8,6 @@ use ItalyStrap\Empress\Injector;
 use Auryn\Test\PreparesImplementationTest;
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 
-// phpcs:disable
-require_once codecept_root_dir('/vendor/rdlowrey/auryn/test/fixtures.php');
-require_once codecept_root_dir('/vendor/rdlowrey/auryn/test/fixtures_5_6.php');
-//require_once codecept_root_dir('/vendor/rdlowrey/auryn/test/InjectorTest.php');
-// phpcs:enable
 /**
  * Class ProxyInjectorTest
  * @package ItalyStrap\Tests

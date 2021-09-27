@@ -13,6 +13,8 @@ use ItalyStrap\Empress\AurynConfigInterface;
 use ItalyStrap\Empress\Extension;
 use PHPUnit\Framework\Assert;
 use Prophecy\Argument;
+use Prophecy\Prophecy\ObjectProphecy;
+use Prophecy\Prophet;
 
 /**
  * Class AppTest
@@ -37,8 +39,9 @@ class AurynConfigTest extends Unit {
 
 	// phpcs:ignore -- Method from Codeception
 	protected function _before() {
-		$this->fake_injector = $this->prophesize( Injector::class );
-		$this->config = $this->prophesize( Config::class );
+		$this->prophet = new Prophet;
+		$this->fake_injector = $this->prophet->prophesize( Injector::class );
+		$this->config = $this->prophet->prophesize( Config::class );
 	}
 
 	// phpcs:ignore -- Method from Codeception
@@ -235,7 +238,7 @@ class AurynConfigTest extends Unit {
 			Assert::assertInstanceOf( Injector::class, $injector, '' );
 		};
 
-		$test = $this;
+		$test = $this->prophet;
 
 		$this->fake_injector
 			->prepare( Argument::type('string'), Argument::any() )
@@ -303,7 +306,7 @@ class AurynConfigTest extends Unit {
 			]
 		);
 
-		$extension = $this->prophesize( Extension::class );
+		$extension = $this->prophet->prophesize( Extension::class );
 
 		$extension->name()->willReturn( 'ExtensionName' );
 
