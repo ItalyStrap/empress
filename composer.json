@@ -16,7 +16,7 @@
         "php" : ">=7.2",
         "rdlowrey/auryn": "^1.4",
         "italystrap/config": "^2.2",
-        "ocramius/proxy-manager": "~2.9.0"
+        "ocramius/proxy-manager": "~2.10.0"
     },
     "require-dev": {
         "lucatume/wp-browser": "^3.0",
