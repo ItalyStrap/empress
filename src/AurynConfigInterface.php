@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace ItalyStrap\Empress;
 
 /**
- * Interface ApplicationInterface
- * @package ItalyStrap\Empress
+ * @psalm-api
  */
 interface AurynConfigInterface
 {

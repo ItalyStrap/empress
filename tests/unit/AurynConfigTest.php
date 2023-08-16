@@ -363,12 +363,12 @@ class AurynConfigTest extends Unit
 
             public function name(): string
             {
-                return (string) self::SUBSCRIBERS;
+                return self::SUBSCRIBERS;
             }
 
             public function execute(AurynConfigInterface $application)
             {
-                $application->walk((string) self::SUBSCRIBERS, [ $this, 'method' ]);
+                $application->walk(self::SUBSCRIBERS, [ $this, 'method' ]);
             }
 
             public function method(string $class, $index_or_optionName, Injector $injector)

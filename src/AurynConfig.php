@@ -14,9 +14,7 @@ use ProxyManager\Proxy\VirtualProxyInterface;
 use function array_walk;
 
 /**
- * AurynResolver
- * Class Application
- * @package ItalyStrap\Empress
+ * @psalm-api
  */
 class AurynConfig implements AurynConfigInterface
 {
@@ -53,7 +51,6 @@ class AurynConfig implements AurynConfigInterface
     private $extensions = [];
 
     /**
-     * Application constructor.
      * @param Config $dependencies
      * @param Injector $injector
      */
@@ -63,9 +60,6 @@ class AurynConfig implements AurynConfigInterface
         $this->dependencies = $dependencies;
     }
 
-    /**
-     * @inheritDoc
-     */
     public function resolve(): void
     {
 
@@ -75,32 +69,28 @@ class AurynConfig implements AurynConfigInterface
          */
         foreach (self::METHODS as $key => $method) {
             /** @var callable $callback */
-            $callback = [ $this, $method ];
+            $callback = [$this, $method];
             $this->walk($key, $callback);
         }
 
-        /** @var Extension $extension */
         foreach ($this->extensions as $extension) {
             $extension->execute($this);
         }
     }
 
-    /**
-     * @inheritDoc
-     */
     public function extend(Extension ...$extensions): void
     {
         foreach ($extensions as $extension) {
-            $this->extensions[ $extension->name() ] = $extension;
+            $this->extensions[$extension->name()] = $extension;
         }
     }
 
-    /**
-     * @inheritDoc
-     */
     public function walk(string $key, callable $callback): void
     {
-        $dependencies = $this->dependencies->get($key, []);
+        /**
+         * @var array<array-key, array<string>> $dependencies
+         */
+        $dependencies = (array)$this->dependencies->get($key, []);
         array_walk($dependencies, $callback, $this->injector);
     }
 
@@ -108,6 +98,7 @@ class AurynConfig implements AurynConfigInterface
      * @param mixed $nameOrInstance
      * @param int $index
      * @throws ConfigException
+     * @psalm-suppress PossiblyUnusedParam
      */
     protected function share($nameOrInstance, int $index): void
     {
@@ -118,11 +109,14 @@ class AurynConfig implements AurynConfigInterface
      * @param string $name
      * @param int $index
      * @throws ConfigException
+     * @psalm-suppress PossiblyUnusedParam
      */
     protected function proxy(string $name, int $index): void
     {
 
+        /** @psalm-suppress ArgumentTypeCoercion */
         $proxy = static function (string $className, callable $callback): VirtualProxyInterface {
+            /** @psalm-suppress MixedArgumentTypeCoercion */
             return (new LazyLoadingValueHolderFactory())->createProxy(
                 $className,
                 static function (
@@ -131,9 +125,11 @@ class AurynConfig implements AurynConfigInterface
                     string $method,
                     array $parameters,
                     ?Closure &$initializer
-                ) use ($callback) {
+                ) use ($callback): bool {
+                    /** @psalm-suppress MixedAssignment */
                     $object = $callback();
                     $initializer = null;
+                    return true;
                 }
             );
         };
