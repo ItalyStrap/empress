@@ -13,20 +13,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: 7.2
 
-      - uses: ramsey/composer-install@v1
-        with:
-          composer-options: "--prefer-dist --ignore-platform-reqs"
-
-      - name: PHPStan
-        run: vendor/bin/phpstan analyze
+      - uses: ramsey/composer-install@v2
 
       - name: Psalm
-        run: vendor/bin/psalm
+        run: composer run psalm
