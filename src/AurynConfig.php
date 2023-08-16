@@ -49,15 +49,20 @@ class AurynConfig implements AurynConfigInterface
      * @var array<Extension>
      */
     private $extensions = [];
+    private ProxyFactoryInterface $proxy_factory;
 
     /**
      * @param Config $dependencies
      * @param Injector $injector
      */
-    public function __construct(Injector $injector, Config $dependencies)
-    {
+    public function __construct(
+        Injector $injector,
+        Config $dependencies,
+        ProxyFactoryInterface $proxyFactory = null
+    ) {
         $this->injector = $injector;
         $this->dependencies = $dependencies;
+        $this->proxy_factory = $proxyFactory ?? new ProxyFactory();
     }
 
     public function resolve(): void
@@ -113,28 +118,7 @@ class AurynConfig implements AurynConfigInterface
      */
     protected function proxy(string $name, int $index): void
     {
-
-        /** @psalm-suppress ArgumentTypeCoercion */
-        $proxy = static function (string $className, callable $callback): VirtualProxyInterface {
-            /** @psalm-suppress MixedArgumentTypeCoercion */
-            return (new LazyLoadingValueHolderFactory())->createProxy(
-                $className,
-                static function (
-                    ?object &$object,
-                    ?object $proxy,
-                    string $method,
-                    array $parameters,
-                    ?Closure &$initializer
-                ) use ($callback): bool {
-                    /** @psalm-suppress MixedAssignment */
-                    $object = $callback();
-                    $initializer = null;
-                    return true;
-                }
-            );
-        };
-
-        $this->injector->proxy($name, $proxy);
+        $this->injector->proxy($name, $this->proxy_factory);
     }
 
     /**

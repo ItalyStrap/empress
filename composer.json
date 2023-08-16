@@ -50,7 +50,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "ItalyStrap\\Tests\\": "tests/"
+            "ItalyStrap\\Tests\\": "tests/src/",
+            "ItalyStrap\\Tests\\Unit\\": "tests/unit/"
         },
         "files": [
             "tests/_data/fixtures/fixtures.php",

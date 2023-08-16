@@ -38,6 +38,6 @@ if ( ! \function_exists( 'd_footer' ) ) {
 }
 
 add_action( 'plugins_loaded', function () {
-	require( __DIR__ . '/vendor/autoload.php' );
-	require 'example.php';
+	require_once __DIR__ . '/vendor/autoload.php';
+	require_once 'example.php';
 } );

@@ -2,32 +2,15 @@
 
 declare(strict_types=1);
 
-namespace ItalyStrap\Tests;
+namespace ItalyStrap\Tests\Unit;
 
-use Codeception\Test\Unit;
 use ItalyStrap\Empress\Injector;
 use Auryn\Test\PreparesImplementationTest;
+use ItalyStrap\Tests\UnitTestCase;
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 
-/**
- * Class ProxyInjectorTest
- * @package ItalyStrap\Tests
- */
-class ProxyInjectorTest extends Unit
+class ProxyInjectorTest extends UnitTestCase
 {
-    /**
-     * @var \UnitTester
-     */
-    protected $tester;
-
-	// phpcs:ignore -- Method from Codeception
-    protected function _before() {
-    }
-
-	// phpcs:ignore -- Method from Codeception
-    protected function _after() {
-    }
-
     public function testThrowException()
     {
         $injector = new Injector();
