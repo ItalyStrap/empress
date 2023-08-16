@@ -12,6 +12,8 @@ use ItalyStrap\Empress\Extension;
 use ItalyStrap\Empress\Injector;
 use stdClass;
 
+require_once __DIR__ . '/vendor/autoload.php';
+
 class Example {
 
 	/**

@@ -1,143 +1,133 @@
 <?php
+
 declare(strict_types=1);
 
-namespace ItalyStrap\Tests;
+namespace ItalyStrap\Tests\Unit;
 
-use Codeception\Test\Unit;
 use ItalyStrap\Empress\Injector;
 use Auryn\Test\PreparesImplementationTest;
+use ItalyStrap\Tests\UnitTestCase;
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 
-/**
- * Class ProxyInjectorTest
- * @package ItalyStrap\Tests
- */
-class ProxyInjectorTest extends Unit {
+class ProxyInjectorTest extends UnitTestCase
+{
+    public function testThrowException()
+    {
+        $injector = new Injector();
+        $this->expectException(\Auryn\ConfigException::class);
+        $injector->proxy('1', 'string');
+    }
 
-	/**
-	 * @var \UnitTester
-	 */
-	protected $tester;
+    public function testInstanceProxy()
+    {
+        $injector = new Injector();
+        $injector->proxy(
+            'Auryn\Test\TestDependency',
+            static function (string $className, callable $callback) {
+                return (new LazyLoadingValueHolderFactory())->createProxy(
+                    $className,
+                    static function (&$object, $proxy, $method, $parameters, &$initializer) use ($callback) {
+                        $object = $callback();
+                        $initializer = null;
+                    }
+                );
+            }
+        );
+        $class = $injector->make('Auryn\Test\TestDependency');
 
-	// phpcs:ignore -- Method from Codeception
-    protected function _before() {
-	}
+        $this->assertInstanceOf('Auryn\Test\TestDependency', $class, '');
+        $this->assertInstanceOf('ProxyManager\Proxy\LazyLoadingInterface', $class, '');
+        $this->assertEquals('testVal', $class->testProp, '');
+    }
 
-	// phpcs:ignore -- Method from Codeception
-    protected function _after() {
-	}
+    public function testMakeInstanceInjectsSimpleConcreteDependencyProxy()
+    {
+        $injector = new Injector();
+        $injector->proxy(
+            'Auryn\Test\TestDependency',
+            static function (string $className, callable $callback) {
+                return (new LazyLoadingValueHolderFactory())->createProxy(
+                    $className,
+                    static function (&$object, $proxy, $method, $parameters, &$initializer) use ($callback) {
+                        $object = $callback();
+                        $initializer = null;
+                    }
+                );
+            }
+        );
+        $need_dep = $injector->make('Auryn\Test\TestNeedsDep');
 
-	public function testThrowException() {
-		$injector = new Injector();
-		$this->expectException( \Auryn\ConfigException::class );
-		$injector->proxy( '1', 'string');
-	}
+        $this->assertInstanceOf('Auryn\Test\TestNeedsDep', $need_dep, '');
+    }
 
-	public function testInstanceProxy() {
-		$injector = new Injector();
-		$injector->proxy(
-			'Auryn\Test\TestDependency',
-			static function ( string $className, callable $callback ) {
-				return (new LazyLoadingValueHolderFactory)->createProxy(
-					$className,
-					static function ( &$object, $proxy, $method, $parameters, &$initializer ) use ( $callback ) {
-						$object = $callback();
-						$initializer = null;
-					}
-				);
-			}
-		);
-		$class = $injector->make('Auryn\Test\TestDependency');
+    public function testShareInstanceProxy()
+    {
+        $injector = new Injector();
+        $injector->proxy(
+            'Auryn\Test\TestDependency',
+            static function (string $className, callable $callback) {
+                return (new LazyLoadingValueHolderFactory())->createProxy(
+                    $className,
+                    static function (&$object, $proxy, $method, $parameters, &$initializer) use ($callback) {
+                        $object = $callback();
+                        $initializer = null;
+                    }
+                );
+            }
+        );
+        $injector->share('Auryn\Test\TestDependency');
+        $class = $injector->make('Auryn\Test\TestDependency');
+        $class2 = $injector->make('Auryn\Test\TestDependency');
 
-		$this->assertInstanceOf('Auryn\Test\TestDependency', $class, '');
-		$this->assertInstanceOf('ProxyManager\Proxy\LazyLoadingInterface', $class, '');
-		$this->assertEquals( 'testVal', $class->testProp, '' );
-	}
+        $this->assertEquals($class, $class2, '');
+    }
 
-	public function testMakeInstanceInjectsSimpleConcreteDependencyProxy() {
-		$injector = new Injector;
-		$injector->proxy(
-			'Auryn\Test\TestDependency',
-			static function ( string $className, callable $callback ) {
-				return (new LazyLoadingValueHolderFactory)->createProxy(
-					$className,
-					static function ( &$object, $proxy, $method, $parameters, &$initializer ) use ( $callback ) {
-						$object = $callback();
-						$initializer = null;
-					}
-				);
-			}
-		);
-		$need_dep = $injector->make('Auryn\Test\TestNeedsDep');
+    public function testProxyMakeInstanceReturnsAliasInstanceOnNonConcreteTypehint()
+    {
+        $injector = new Injector();
+        $injector->alias('Auryn\Test\DepInterface', 'Auryn\Test\DepImplementation');
+        $injector->proxy(
+            'Auryn\Test\DepInterface',
+            static function (string $className, callable $callback) {
+                return (new LazyLoadingValueHolderFactory())->createProxy(
+                    $className,
+                    static function (&$object, $proxy, $method, $parameters, &$initializer) use ($callback) {
+                        $object = $callback();
+                        $initializer = null;
+                    }
+                );
+            }
+        );
+        $object =  $injector->make('Auryn\Test\DepInterface');
 
-		$this->assertInstanceOf('Auryn\Test\TestNeedsDep', $need_dep, '');
-	}
+        $this->assertInstanceOf('Auryn\Test\DepInterface', $object, '');
+        $this->assertInstanceOf('Auryn\Test\DepImplementation', $object, '');
+        $this->assertInstanceOf('ProxyManager\Proxy\LazyLoadingInterface', $object, '');
+    }
 
-	public function testShareInstanceProxy() {
-		$injector = new Injector();
-		$injector->proxy(
-			'Auryn\Test\TestDependency',
-			static function ( string $className, callable $callback ) {
-				return (new LazyLoadingValueHolderFactory)->createProxy(
-					$className,
-					static function ( &$object, $proxy, $method, $parameters, &$initializer ) use ( $callback ) {
-						$object = $callback();
-						$initializer = null;
-					}
-				);
-			}
-		);
-		$injector->share('Auryn\Test\TestDependency');
-		$class = $injector->make('Auryn\Test\TestDependency');
-		$class2 = $injector->make('Auryn\Test\TestDependency');
+    public function testProxyPrepare()
+    {
+        $injector = new Injector();
+        $injector->proxy(
+            'Auryn\Test\PreparesImplementationTest',
+            static function (string $className, callable $callback) {
+                return (new LazyLoadingValueHolderFactory())->createProxy(
+                    $className,
+                    static function (&$object, $proxy, $method, $parameters, &$initializer) use ($callback) {
+                        $object = $callback();
+                        $initializer = null;
+                    }
+                );
+            }
+        );
+        $injector->prepare(
+            'Auryn\Test\PreparesImplementationTest',
+            function (PreparesImplementationTest $obj, $injector) {
+                $obj->testProp = 42;
+            }
+        );
+        $obj = $injector->make('Auryn\Test\PreparesImplementationTest');
 
-		$this->assertEquals( $class, $class2, '' );
-	}
-
-	public function testProxyMakeInstanceReturnsAliasInstanceOnNonConcreteTypehint() {
-		$injector = new Injector;
-		$injector->alias('Auryn\Test\DepInterface', 'Auryn\Test\DepImplementation');
-		$injector->proxy(
-			'Auryn\Test\DepInterface',
-			static function ( string $className, callable $callback ) {
-				return (new LazyLoadingValueHolderFactory)->createProxy(
-					$className,
-					static function ( &$object, $proxy, $method, $parameters, &$initializer ) use ( $callback ) {
-						$object = $callback();
-						$initializer = null;
-					}
-				);
-			}
-		);
-		$object =  $injector->make('Auryn\Test\DepInterface');
-
-		$this->assertInstanceOf('Auryn\Test\DepInterface', $object, '');
-		$this->assertInstanceOf('Auryn\Test\DepImplementation', $object, '');
-		$this->assertInstanceOf('ProxyManager\Proxy\LazyLoadingInterface', $object, '');
-	}
-
-	public function testProxyPrepare() {
-		$injector = new Injector();
-		$injector->proxy(
-			'Auryn\Test\PreparesImplementationTest',
-			static function ( string $className, callable $callback ) {
-				return (new LazyLoadingValueHolderFactory)->createProxy(
-					$className,
-					static function ( &$object, $proxy, $method, $parameters, &$initializer ) use ( $callback ) {
-						$object = $callback();
-						$initializer = null;
-					}
-				);
-			}
-		);
-		$injector->prepare(
-			'Auryn\Test\PreparesImplementationTest',
-			function ( PreparesImplementationTest $obj, $injector) {
-				$obj->testProp = 42;
-			}
-		);
-		$obj = $injector->make('Auryn\Test\PreparesImplementationTest');
-
-		$this->assertSame(42, $obj->testProp);
-	}
+        $this->assertSame(42, $obj->testProp);
+    }
 }
