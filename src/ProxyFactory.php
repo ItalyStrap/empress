@@ -6,7 +6,6 @@ namespace ItalyStrap\Empress;
 
 use Closure;
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;
-use ProxyManager\Proxy\ValueHolderInterface;
 use ProxyManager\Proxy\VirtualProxyInterface;
 
 class ProxyFactory implements ProxyFactoryInterface
