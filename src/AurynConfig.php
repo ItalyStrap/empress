@@ -6,10 +6,7 @@ namespace ItalyStrap\Empress;
 
 use Auryn\ConfigException;
 use Auryn\InjectionException;
-use Closure;
 use ItalyStrap\Config\ConfigInterface as Config;
-use ProxyManager\Factory\LazyLoadingValueHolderFactory;
-use ProxyManager\Proxy\VirtualProxyInterface;
 
 use function array_walk;
 
@@ -36,19 +33,15 @@ class AurynConfig implements AurynConfigInterface
         self::PREPARATIONS  => 'prepare',
     ];
 
-    /**
-     * @var Injector
-     */
-    private $injector;
-    /**
-     * @var Config
-     */
-    private $dependencies;
+    private Injector $injector;
+
+    private Config $dependencies;
 
     /**
      * @var array<Extension>
      */
-    private $extensions = [];
+    private array $extensions = [];
+
     private ProxyFactoryInterface $proxy_factory;
 
     /**
