@@ -16,7 +16,9 @@
         "php" : ">=7.4",
         "rdlowrey/auryn": "^1.4",
         "italystrap/config": "^2.2",
-        "ocramius/proxy-manager": "~2.11.0"
+        "ocramius/proxy-manager": "~2.11.0",
+        "brick/varexporter": "^0.3.8",
+        "webimpress/safe-writer": "^2.2"
     },
     "require-dev": {
         "lucatume/wp-browser": "^3.0",
@@ -37,7 +39,10 @@
         "infection/codeception-adapter": "^0.4.1",
 
         "rector/rector": "^0.15.17",
-        "italystrap/debug": "^2.1"
+        "italystrap/debug": "dev-master",
+        "italystrap/finder": "dev-master",
+        "laminas/laminas-config-aggregator": "^1.9",
+        "crellbar/prophecy-extensions": "^1.1"
     },
     "autoload": {
         "psr-4": {
@@ -50,6 +55,7 @@
     },
     "autoload-dev": {
         "psr-4": {
+            "ItalyStrap\\Tests\\Modules\\": "tests/_data/fixtures/modules/",
             "ItalyStrap\\Tests\\": "tests/src/",
             "ItalyStrap\\Tests\\Unit\\": "tests/unit/"
         },
@@ -73,12 +79,10 @@
             "@php ./vendor/bin/psalm --no-cache"
         ],
         "unit": [
-            "@php vendor/bin/codecept run unit",
-            "@clean"
+            "@php vendor/bin/codecept run unit"
         ],
         "unit:debug": [
-            "@php vendor/bin/codecept run unit --debug",
-            "@clean"
+            "@php vendor/bin/codecept run unit --debug"
         ],
         "infection": [
             "@php vendor/bin/infection --threads=4"
