@@ -38,6 +38,16 @@ class ProvidersCollectionTest extends UnitTestCase
                 'key' => 'value',
             ]);
 
+        $this->config
+            ->get('config_cache_enabled', false)
+            ->willReturn(true);
+
+        $this->config
+            ->get('config_cache_filemode', Argument::type('int'))
+            ->will(function ($args): int {
+                return (int)$args[1];
+            });
+
         $sut = $this->makeInstance();
 
         $this->assertFileExists($this->cachedConfigFile);

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace ItalyStrap\Tests\Unit;
 
-use Brick\VarExporter\VarExporter;
 use ItalyStrap\Empress\Injector;
 use ItalyStrap\Tests\Modules\ModuleStub1;
 use ItalyStrap\Empress\AurynConfig;
@@ -12,7 +11,6 @@ use ItalyStrap\Empress\PhpFileProvider;
 use ItalyStrap\Empress\ProvidersCollection;
 use ItalyStrap\Finder\FinderFactory;
 use ItalyStrap\Tests\UnitTestCase;
-use Prophecy\Argument;
 
 class ProvidersCollectionIntegrationTest extends UnitTestCase
 {
@@ -53,7 +51,15 @@ class ProvidersCollectionIntegrationTest extends UnitTestCase
                 function (): array {
                     return require \codecept_data_dir('fixtures/config/test.global.php');
                 },
-            ]
+                function (): array {
+                    return [
+                        'cache_config_path' => $this->cachedConfigFile,
+                    ];
+                },
+            ],
+//            (string)(new FinderFactory())->make()
+//                ->in(codecept_output_dir(''))
+//                ->firstFile('config-cache')
         );
     }
 

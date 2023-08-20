@@ -66,6 +66,6 @@ class UnitTestCase extends Unit
         $this->configReal = clone $this->configReal;
         $this->prophet->checkPredictions();
         unset($this->config);
-        \file_exists($this->cachedConfigFile) and unlink($this->cachedConfigFile);
+//        \file_exists($this->cachedConfigFile) and unlink($this->cachedConfigFile);
     }
 }
