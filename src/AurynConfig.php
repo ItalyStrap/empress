@@ -43,6 +43,7 @@ class AurynConfig implements AurynConfigInterface
     private array $extensions = [];
 
     private ProxyFactoryInterface $proxy_factory;
+    private array $extensionsClasses = [];
 
     /**
      * @param Config $dependencies
@@ -71,9 +72,19 @@ class AurynConfig implements AurynConfigInterface
             $this->walk($key, $callback);
         }
 
+        foreach ($this->extensionsClasses as $extensionClass) {
+            $extension = $this->injector->share($extensionClass)->make($extensionClass);
+            $extension->execute($this);
+        }
+
         foreach ($this->extensions as $extension) {
             $extension->execute($this);
         }
+    }
+
+    public function extendFromClassName(string $className): void
+    {
+        $this->extensionsClasses[] = $className;
     }
 
     public function extend(Extension ...$extensions): void
@@ -115,13 +126,13 @@ class AurynConfig implements AurynConfigInterface
     }
 
     /**
-     * @param string $implementation
-     * @param string $interface
+     * @param string $alias
+     * @param string $typeHint
      * @throws ConfigException
      */
-    protected function alias(string $implementation, string $interface): void
+    protected function alias(string $alias, string $typeHint): void
     {
-        $this->injector->alias($interface, $implementation);
+        $this->injector->alias($typeHint, $alias);
     }
 
     /**

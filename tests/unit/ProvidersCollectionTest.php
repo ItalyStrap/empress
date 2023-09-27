@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace ItalyStrap\Tests\Unit;
 
-use ItalyStrap\Config\ConfigFactory;
-use ItalyStrap\Config\ConfigInterface;
 use ItalyStrap\Empress\ProvidersCollection;
 use ItalyStrap\Tests\UnitTestCase;
 use Prophecy\Argument;
@@ -18,14 +16,12 @@ class ProvidersCollectionTest extends UnitTestCase
             $this->makeInjector(),
             $this->makeConfig(),
             [
-            ],
-            $this->cachedConfigFile
+            ]
         );
     }
 
     public function testShouldBeInstantiable()
     {
-        $this->assertInstanceOf(ConfigInterface::class, $this->makeConfig());
 
         $this->config
             ->merge(Argument::cetera())
@@ -48,7 +44,12 @@ class ProvidersCollectionTest extends UnitTestCase
                 return (int)$args[1];
             });
 
+        $this->config
+            ->get('cache_config_path', Argument::type('null'))
+            ->willReturn($this->cachedConfigFile);
+
         $sut = $this->makeInstance();
+        $sut->build();
 
         $this->assertFileExists($this->cachedConfigFile);
         $this->assertFileIsReadable($this->cachedConfigFile);

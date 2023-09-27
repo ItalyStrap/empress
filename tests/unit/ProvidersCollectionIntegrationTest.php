@@ -47,25 +47,44 @@ class ProvidersCollectionIntegrationTest extends UnitTestCase
                         ],
                     ];
                 },
+                function (): array {
+                    return [
+                        AurynConfig::ALIASES => [
+                            'ItalyStrap\Event\GlobalDispatcherInterface' => "ItalyStrap\Event\GlobalDispatcher",
+                            'talyStrap\Event\SubscriberRegisterInterface ' => "ItalyStrap\Event\SubscriberRegister",
+                            'ItalyStrap\View\ViewInterface' => "ItalyStrap\View\View",
+                            15 => 'value',
+                        ],
+                    ];
+                },
+                function (): array {
+                    return [
+                        AurynConfig::ALIASES => [
+                            'ItalyStrap\Event\GlobalDispatcherInterface' => "ItalyStrap\Event\DifferentDispatcher",
+                            'talyStrap\Event\SubscriberRegisterInterface ' => "ItalyStrap\Event\DifferentRegister",
+                            'ItalyStrap\HTML\TagInterface' => "ItalyStrap\HTML\Tag",
+                            15 => 'newValue',
+                        ],
+                    ];
+                },
                 ModuleStub1::class,
                 function (): array {
                     return require \codecept_data_dir('fixtures/config/test.global.php');
                 },
                 function (): array {
                     return [
+                        'config_cache_enabled' => true,
                         'cache_config_path' => $this->cachedConfigFile,
                     ];
                 },
             ],
-//            (string)(new FinderFactory())->make()
-//                ->in(codecept_output_dir(''))
-//                ->firstFile('config-cache')
         );
     }
 
     public function testIntegration()
     {
         $sut = $this->makeInstance();
+        $sut->build();
 
         $this->assertSame(
             'local config',
@@ -90,5 +109,17 @@ class ProvidersCollectionIntegrationTest extends UnitTestCase
                 self::CONFIG_KEY_3,
             ]))
         );
+
+        $this->assertFileExists($this->cachedConfigFile);
+        $this->assertFileIsReadable($this->cachedConfigFile);
+
+        $file = require $this->cachedConfigFile;
+        $this->assertIsArray($file);
+
+        \codecept_debug($sut->collection()->get(AurynConfig::ALIASES));
+        /**
+         * \array_merge() will append the value if the kew is numeric
+         */
+        $this->assertCount(10, $sut->collection()->get(AurynConfig::ALIASES), 'Should be 10');
     }
 }
