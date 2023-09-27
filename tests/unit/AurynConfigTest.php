@@ -292,21 +292,14 @@ class AurynConfigTest extends UnitTestCase
 
             public function execute(AurynConfigInterface $application)
             {
-                $application->walk(self::SUBSCRIBERS, [ $this, 'method' ]);
+                $application->walk(self::SUBSCRIBERS, $this);
             }
 
-            public function method(string $class, $index_or_optionName, Injector $injector)
+            public function __invoke(string $class, $index_or_optionName, Injector $injector)
             {
                 Assert::assertStringContainsString($class, 'ClassName', '');
                 $injector->share($class);
                 $injector->make($class, []);
-
-//              if ( empty( $config->get( $index_or_optionName, '' ) ) ) {
-//                  return;
-//              }
-//
-//              $event_manager = $injector->make( EventManager::class );
-//              $event_manager->add_subscriber( $injector->share( $class )->make( $class ) );
             }
         });
 
