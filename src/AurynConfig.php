@@ -43,6 +43,10 @@ class AurynConfig implements AurynConfigInterface
     private array $extensions = [];
 
     private ProxyFactoryInterface $proxy_factory;
+
+    /**
+     * @var array<array-key, class-string>
+     */
     private array $extensionsClasses = [];
 
     /**
@@ -73,6 +77,7 @@ class AurynConfig implements AurynConfigInterface
         }
 
         foreach ($this->extensionsClasses as $extensionClass) {
+            /** @var Extension $extension */
             $extension = $this->injector->share($extensionClass)->make($extensionClass);
             $extension->execute($this);
         }
@@ -82,6 +87,9 @@ class AurynConfig implements AurynConfigInterface
         }
     }
 
+    /**
+     * @param class-string $className
+     */
     public function extendFromClassName(string $className): void
     {
         $this->extensionsClasses[] = $className;

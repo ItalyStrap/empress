@@ -7,10 +7,14 @@ namespace ItalyStrap\Empress;
 use Brick\VarExporter\ExportException;
 use Brick\VarExporter\VarExporter;
 use ItalyStrap\Config\ConfigInterface;
+use phpDocumentor\Reflection\Types\Self_;
 use Safe\DateTimeImmutable;
 use Webimpress\SafeWriter\Exception\ExceptionInterface as FileWriterException;
 use Webimpress\SafeWriter\FileWriter;
 
+/**
+ * @psalm-api
+ */
 class ProvidersCache implements ProvidersCacheInterface
 {
     private const CACHE_TEMPLATE = <<<'EOT'
@@ -35,15 +39,19 @@ EOT;
         ConfigInterface $config
     ): bool {
 
-        $cachedConfigFile = (string)$config->get(static::CACHE_PATH, $this->file);
+        $cachedConfigFile = (string)$config->get(self::CACHE_PATH, $this->file);
 
         if (
-            !$cachedConfigFile
+            $cachedConfigFile === ''
             || !file_exists($cachedConfigFile)
+            || !is_readable($cachedConfigFile)
         ) {
             return false;
         }
 
+        /**
+         * @psalm-suppress UnresolvableInclude
+         */
         $config->merge((array)require $cachedConfigFile);
         return true;
     }
@@ -51,15 +59,15 @@ EOT;
     public function write(
         ConfigInterface $config
     ): void {
-        $cachedConfigFile = (string)$config->get(static::CACHE_PATH, $this->file);
+        $cachedConfigFile = (string)$config->get(self::CACHE_PATH, $this->file);
 
-        if (!$cachedConfigFile) {
+        if ($cachedConfigFile === '') {
             return;
         }
 
         try {
             $contents = sprintf(
-                static::CACHE_TEMPLATE,
+                self::CACHE_TEMPLATE,
                 static::class,
                 // Write an alternative to date('c')
                 (new DateTimeImmutable('now'))->format('c'),

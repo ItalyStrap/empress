@@ -18,7 +18,7 @@ class ProvidersCollection
 {
     private ConfigInterface $config;
     private Injector $injector;
-    private ProvidersCacheInterface $cache;
+    private ProvidersCache $cache;
     /**
      * @var array|callable[]|iterable|string[]
      */
@@ -28,14 +28,13 @@ class ProvidersCollection
      * @param Injector $injector
      * @param ConfigInterface $config
      * @param iterable<class-string|callable> $providers
-     * @param ProvidersCacheInterface|null $cache
-     * @throws \ErrorException
+     * @param ProvidersCache|null $cache
      */
     public function __construct(
         Injector $injector,
         ConfigInterface $config,
         iterable $providers = [],
-        ProvidersCacheInterface $cache = null
+        ProvidersCache $cache = null
     ) {
         $this->injector = $injector;
         $this->config = $config;
