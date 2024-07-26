@@ -38,7 +38,7 @@
         "infection/infection": "^0.26.6",
         "infection/codeception-adapter": "^0.4.1",
 
-        "rector/rector": "^0.15.17",
+        "rector/rector": "^0.18.0",
         "italystrap/debug": "dev-master",
         "italystrap/finder": "dev-master",
         "laminas/laminas-config-aggregator": "^1.9",
@@ -46,7 +46,10 @@
     },
     "autoload": {
         "psr-4": {
-            "ItalyStrap\\Empress\\": "src/"
+            "ItalyStrap\\Empress\\": [
+                "src/",
+                "bridge/"
+            ]
         },
         "files": [
             "namespace-bc-aliases.php",
