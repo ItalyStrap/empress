@@ -52,11 +52,10 @@ class UnitTestCase extends Unit
 
     // phpcs:ignore -- Method from Codeception
     protected function _before(): void {
-        $this->prophet = new Prophet();
-        $this->injector = $this->prophet->prophesize(Injector::class);
+        $this->injector = $this->prophesize(Injector::class);
         $this->configReal = new Config();
-        $this->config = $this->prophet->prophesize(Config::class);
-        $this->finder = $this->prophet->prophesize(FinderInterface::class);
+        $this->config = $this->prophesize(Config::class);
+        $this->finder = $this->prophesize(FinderInterface::class);
 
         $this->cachedConfigFile = codecept_output_dir('config-cache.php');
     }

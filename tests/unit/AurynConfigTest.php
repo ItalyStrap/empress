@@ -181,7 +181,7 @@ class AurynConfigTest extends UnitTestCase
             Assert::assertInstanceOf(Injector::class, $injector, '');
         };
 
-        $test = $this->prophet;
+        $test = $this;
 
         $this->injector
             ->prepare(Argument::type('string'), Argument::any())
@@ -247,7 +247,7 @@ class AurynConfigTest extends UnitTestCase
             ]
         );
 
-        $extension = $this->prophet->prophesize(Extension::class);
+        $extension = $this->prophesize(Extension::class);
 
         $extension->name()->willReturn('ExtensionName');
 
