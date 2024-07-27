@@ -19,6 +19,7 @@ class ProvidersCollection
     private ConfigInterface $config;
     private Injector $injector;
     private ProvidersCache $cache;
+
     /**
      * @var array|callable[]|iterable|string[]
      */
@@ -89,20 +90,7 @@ class ProvidersCollection
         foreach ($this->providers as $provider) {
             try {
                 $result = $this->injector->execute($provider);
-            } catch (InjectionException $e) {
-                throw new \ErrorException(
-                    \sprintf(
-                        'An error occurred when executing %s: %s',
-                        is_object($provider) ? get_class($provider) : gettype($provider),
-                        $e->getMessage()
-                    ),
-                    0,
-                    1,
-                    __FILE__,
-                    __LINE__,
-                    $e
-                );
-            } catch (\Throwable $e) {
+            } catch (InjectionException|\Throwable $e) {
                 throw new \ErrorException(
                     \sprintf(
                         'An error occurred when executing %s: %s',

@@ -11,7 +11,8 @@
             "role": "Developer"
         }
     ],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "require": {
         "php" : ">=7.4",
         "rdlowrey/auryn": "^1.4",
@@ -38,7 +39,7 @@
         "infection/infection": "^0.26.6",
         "infection/codeception-adapter": "^0.4.1",
 
-        "rector/rector": "^0.18.0",
+        "rector/rector": "^1.2",
         "italystrap/debug": "dev-master",
         "italystrap/finder": "dev-master",
         "laminas/laminas-config-aggregator": "^1.9",

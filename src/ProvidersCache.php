@@ -7,7 +7,6 @@ namespace ItalyStrap\Empress;
 use Brick\VarExporter\ExportException;
 use Brick\VarExporter\VarExporter;
 use ItalyStrap\Config\ConfigInterface;
-use phpDocumentor\Reflection\Types\Self_;
 use Safe\DateTimeImmutable;
 use Webimpress\SafeWriter\Exception\ExceptionInterface as FileWriterException;
 use Webimpress\SafeWriter\FileWriter;
