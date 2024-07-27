@@ -16,7 +16,7 @@
         "php" : ">=7.4",
         "rdlowrey/auryn": "^1.4",
         "italystrap/config": "^2.2",
-        "ocramius/proxy-manager": "~2.11.0",
+        "ocramius/proxy-manager": "~2.11.0 || ~2.14.1",
         "brick/varexporter": "^0.3.8",
         "webimpress/safe-writer": "^2.2"
     },
