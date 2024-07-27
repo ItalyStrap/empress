@@ -11,7 +11,7 @@ jobs:
     name: Test on PHP ${{ matrix.php }}
 
     runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.php == '8.1' }}
+    continue-on-error: ${{ contains('8.1,8.2', matrix.php) }}
     if: "!contains(github.event.head_commit.message, '--skip ci') && !github.event.pull_request.draft"
 
     strategy:
