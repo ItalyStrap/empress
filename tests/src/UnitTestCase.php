@@ -19,6 +19,8 @@ class UnitTestCase extends Unit
 
     protected UnitTester $tester;
 
+    protected ?Injector $realInjector;
+
     protected ObjectProphecy $injector;
 
     protected function makeInjector(): Injector
@@ -51,6 +53,7 @@ class UnitTestCase extends Unit
 
     // phpcs:ignore -- Method from Codeception
     protected function _before(): void {
+        $this->realInjector = new Injector();
         $this->injector = $this->prophesize(Injector::class);
         $this->configReal = new Config();
         $this->config = $this->prophesize(Config::class);
@@ -64,6 +67,7 @@ class UnitTestCase extends Unit
         $this->configReal = clone $this->configReal;
         $this->prophet->checkPredictions();
         unset($this->config);
+        unset($this->realInjector);
         \file_exists($this->cachedConfigFile) and unlink($this->cachedConfigFile);
     }
 }

@@ -9,18 +9,29 @@ use ItalyStrap\Empress\Injector;
 use ItalyStrap\Empress\AurynConfig;
 use ItalyStrap\Empress\AurynConfigInterface;
 use ItalyStrap\Empress\Extension;
+use ItalyStrap\Empress\ProxyFactory;
+use ItalyStrap\Tests\SomeExtension;
 use ItalyStrap\Tests\UnitTestCase;
 use PHPUnit\Framework\Assert;
 use Prophecy\Argument;
 
 class AurynConfigTest extends UnitTestCase
 {
+    private ?ProxyFactory $proxyFactory = null;
+
     protected function makeInstance(array $config = []): AurynConfig
     {
-        return new AurynConfig($this->makeInjector(), ConfigFactory::make($config));
+        return new AurynConfig($this->makeInjector(), ConfigFactory::make($config), $this->proxyFactory);
     }
 
-    public function shareProvider()
+    public function testItShouldBeInstantiable(): void
+    {
+        $this->proxyFactory = new ProxyFactory();
+        $sut = $this->makeInstance();
+        $this->assertInstanceOf(AurynConfig::class, $sut);
+    }
+
+    public function shareProvider(): iterable
     {
         return [
             'ClassName'     => [
@@ -304,6 +315,21 @@ class AurynConfigTest extends UnitTestCase
         });
 
         $sut->resolve();
+    }
+
+    public function testItShouldExtendClassString(): void
+    {
+        $sut = new AurynConfig(new Injector(), ConfigFactory::make());
+        $sut->extend(SomeExtension::class);
+        $this->expectOutputString(SomeExtension::class);
+        $sut->resolve();
+    }
+
+    public function testItShouldNotExtend(): void
+    {
+        $sut = new AurynConfig(new Injector(), ConfigFactory::make());
+        $this->expectException(\InvalidArgumentException::class);
+        $sut->extend('SomeGenericClass');
     }
 
     public function testOldClassNameShouldBeAliasedCorrectly(): void

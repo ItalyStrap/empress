@@ -8,6 +8,9 @@ use Closure;
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 use ProxyManager\Proxy\VirtualProxyInterface;
 
+/**
+ * @infection-ignore-all
+ */
 class ProxyFactory implements ProxyFactoryInterface
 {
     /**

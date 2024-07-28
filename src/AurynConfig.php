@@ -37,22 +37,18 @@ class AurynConfig implements AurynConfigInterface
 
     private Config $dependencies;
 
+    private ProxyFactoryInterface $proxy_factory;
+
     /**
-     * @var array<Extension>
+     * @var array<string, Extension>
      */
     private array $extensions = [];
-
-    private ProxyFactoryInterface $proxy_factory;
 
     /**
      * @var array<array-key, class-string>
      */
     private array $extensionsClasses = [];
 
-    /**
-     * @param Config $dependencies
-     * @param Injector $injector
-     */
     public function __construct(
         Injector $injector,
         Config $dependencies,
@@ -79,7 +75,7 @@ class AurynConfig implements AurynConfigInterface
         foreach ($this->extensionsClasses as $extensionClass) {
             /** @var Extension $extension */
             $extension = $this->injector->share($extensionClass)->make($extensionClass);
-            $extension->execute($this);
+            $this->extensions[$extension->name()] = $extension;
         }
 
         foreach ($this->extensions as $extension) {
@@ -87,18 +83,27 @@ class AurynConfig implements AurynConfigInterface
         }
     }
 
-    /**
-     * @param class-string $className
-     */
-    public function extendFromClassName(string $className): void
-    {
-        $this->extensionsClasses[] = $className;
-    }
-
-    public function extend(Extension ...$extensions): void
+    public function extend(...$extensions): void
     {
         foreach ($extensions as $extension) {
-            $this->extensions[$extension->name()] = $extension;
+            if (
+                \is_string($extension)
+                && \class_exists($extension)
+                && \is_subclass_of($extension, Extension::class)
+            ) {
+                $this->extensionsClasses[] = $extension;
+                continue;
+            }
+
+            if ($extension instanceof Extension) {
+                $this->extensions[$extension->name()] = $extension;
+                continue;
+            }
+
+            throw new \InvalidArgumentException(\sprintf(
+                'Invalid extension type, given: %s',
+                \gettype($extension)
+            ));
         }
     }
 

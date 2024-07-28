@@ -15,10 +15,10 @@ interface AurynConfigInterface
     public function resolve();
 
     /**
-     * @param Extension ...$extensions
+     * @param class-string|Extension ...$extensions
      * @return void
      */
-    public function extend(Extension ...$extensions);
+    public function extend(...$extensions);
 
     /**
      * @param string $key
