@@ -80,8 +80,6 @@ EOT;
         }
 
         $this->writeCache($cachedConfigFile, $contents, (int)$config->get(self::CACHE_FILEMODE, 0666));
-
-        return;
     }
 
     private function writeCache(string $cachedConfigFile, string $contents, int $mode): void

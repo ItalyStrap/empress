@@ -15,6 +15,7 @@ class ProvidersCollectionTest extends UnitTestCase
         return new ProvidersCollection(
             $this->makeInjector(),
             $this->makeConfig(),
+            null,
             [
             ]
         );

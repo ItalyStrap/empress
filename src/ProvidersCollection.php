@@ -5,11 +5,7 @@ declare(strict_types=1);
 namespace ItalyStrap\Empress;
 
 use Auryn\InjectionException;
-use Brick\VarExporter\ExportException;
-use Brick\VarExporter\VarExporter;
 use ItalyStrap\Config\ConfigInterface;
-use Webimpress\SafeWriter\Exception\ExceptionInterface as FileWriterException;
-use Webimpress\SafeWriter\FileWriter;
 
 /**
  * @psalm-api
@@ -19,28 +15,18 @@ class ProvidersCollection
     private ConfigInterface $config;
     private Injector $injector;
     private ProvidersCache $cache;
-
-    /**
-     * @var array|callable[]|iterable|string[]
-     */
     private iterable $providers;
 
-    /**
-     * @param Injector $injector
-     * @param ConfigInterface $config
-     * @param iterable<class-string|callable> $providers
-     * @param ProvidersCache|null $cache
-     */
     public function __construct(
         Injector $injector,
         ConfigInterface $config,
-        iterable $providers = [],
-        ProvidersCache $cache = null
+        ProvidersCache $cache = null,
+        iterable $providers = []
     ) {
         $this->injector = $injector;
         $this->config = $config;
-        $this->providers = $providers;
         $this->cache = $cache ?? new ProvidersCache();
+        $this->providers = $providers;
     }
 
     public function build(): void
@@ -50,47 +36,42 @@ class ProvidersCollection
         }
 
         $result = [];
+        /** @var array<string, int|string|array> $subArray */
         foreach ($this->loadCollectionFromProviders() as $subArray) {
-            foreach ($subArray as $key => $value) {
-                if (!array_key_exists($key, $result)) {
-                    $result[$key] = [];
-                }
-
-                if (!is_array($value)) {
-                    $result[$key] = $value;
-                    continue;
-                }
-
-                $result[$key] = \array_merge($result[$key], $value);
-            }
+            $this->processCollections($subArray, $result);
         }
 
         $this->config->merge($result);
 
-        if ($this->config->get(ProvidersCacheInterface::ENABLE_CACHE, false)) {
+        if ((bool)$this->config->get(ProvidersCacheInterface::ENABLE_CACHE, false)) {
             $this->cache->write($this->config);
         }
     }
 
-    /**
-     * @return ConfigInterface
-     */
-    public function collection(): ConfigInterface
+    private function processCollections(array $subArray, array &$result): void
     {
-        return $this->config;
+        foreach ($subArray as $key => $value) {
+            if (!array_key_exists($key, $result)) {
+                $result[$key] = [];
+            }
+
+            if (!is_array($value)) {
+                /** @psalm-suppress MixedAssignment */
+                $result[$key] = $value;
+                continue;
+            }
+
+            $result[$key] = \array_merge((array)$result[$key], $value);
+        }
     }
 
-    /**
-     * @return array<array-key, mixed>
-     * @throws \ErrorException
-     */
-    private function loadCollectionFromProviders(): array
+    private function loadCollectionFromProviders(): \Generator
     {
-        $collection = [];
+        /** @var object|array|class-string $provider */
         foreach ($this->providers as $provider) {
             try {
                 $result = $this->injector->execute($provider);
-            } catch (InjectionException|\Throwable $e) {
+            } catch (InjectionException | \Throwable $e) {
                 throw new \ErrorException(
                     \sprintf(
                         'An error occurred when executing %s: %s',
@@ -106,15 +87,26 @@ class ProvidersCollection
             }
 
             if ($result instanceof \Generator) {
-                foreach ($result as $item) {
-                    $collection[] = (array)$item;
-                }
+                yield from $result;
                 continue;
             }
 
-            $collection[] = (array)$result;
-        }
+            if (!\is_array($result)) {
+                throw new \RuntimeException(
+                    \sprintf(
+                        'The provider %s must return an array or a Generator, %s given',
+                        is_object($provider) ? get_class($provider) : gettype($provider),
+                        \gettype($result)
+                    )
+                );
+            }
 
-        return $collection;
+            yield $result;
+        }
+    }
+
+    public function collection(): ConfigInterface
+    {
+        return $this->config;
     }
 }

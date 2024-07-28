@@ -24,6 +24,7 @@ class ProvidersCollectionIntegrationTest extends UnitTestCase
         return new ProvidersCollection(
             new Injector(),
             $this->makeConfigReal(),
+            null,
             [
                 new PhpFileProvider(
                     '/config/autoload/{{,*.}global,{,*.}local}.php',
@@ -68,6 +69,7 @@ class ProvidersCollectionIntegrationTest extends UnitTestCase
                     ];
                 },
                 ModuleStub1::class,
+                [ModuleStub1::class, '__invoke'],
                 function (): array {
                     return require \codecept_data_dir('fixtures/config/test.global.php');
                 },
@@ -116,7 +118,6 @@ class ProvidersCollectionIntegrationTest extends UnitTestCase
         $file = require $this->cachedConfigFile;
         $this->assertIsArray($file);
 
-        \codecept_debug($sut->collection()->get(AurynConfig::ALIASES));
         /**
          * \array_merge() will append the value if the kew is numeric
          */

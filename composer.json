@@ -108,6 +108,11 @@
         ],
         "clean": [
             "@php vendor/bin/codecept clean"
+        ],
+        "qa": [
+            "@cs",
+            "@psalm",
+            "@unit"
         ]
     },
     "support"    : {

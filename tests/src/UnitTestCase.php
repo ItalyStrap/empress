@@ -11,7 +11,6 @@ use ItalyStrap\Empress\Injector;
 use ItalyStrap\Finder\FinderInterface;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
-use Prophecy\Prophet;
 use UnitTester;
 
 class UnitTestCase extends Unit
