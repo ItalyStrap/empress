@@ -10,6 +10,8 @@ use ItalyStrap\Empress\AurynConfig;
 use ItalyStrap\Empress\AurynConfigInterface;
 use ItalyStrap\Empress\Extension;
 use ItalyStrap\Empress\ProxyFactory;
+use ItalyStrap\Empress\ProxyFactoryInterface;
+use ItalyStrap\Tests\SomeConcrete;
 use ItalyStrap\Tests\SomeExtension;
 use ItalyStrap\Tests\UnitTestCase;
 use PHPUnit\Framework\Assert;
@@ -17,18 +19,52 @@ use Prophecy\Argument;
 
 class AurynConfigTest extends UnitTestCase
 {
-    private ?ProxyFactory $proxyFactory = null;
-
     protected function makeInstance(array $config = []): AurynConfig
     {
-        return new AurynConfig($this->makeInjector(), ConfigFactory::make($config), $this->proxyFactory);
+        return new AurynConfig($this->makeInjector(), ConfigFactory::make($config), $this->makeProxyFactory());
     }
 
-    public function testItShouldBeInstantiable(): void
+//    public function testItShouldProxy(): void
+//    {
+//        $mockProxyFactory = $this->prophesize(ProxyFactoryInterface::class);
+//        $mockProxyFactory->__invoke(Argument::type('string'), Argument::type('callable'))
+//            ->shouldBeCalledTimes(1);
+//
+//        $this->proxyFactory = $mockProxyFactory->reveal();
+//        $sut = $this->makeInstance(
+//            [
+//                AurynConfig::PROXY => [
+//                    SomeConcrete::class
+//                ],
+//            ]
+//        );
+//
+//        $sut->resolve();
+//
+//        $concrete = $this->realInjector->make(SomeConcrete::class);
+//    }
+
+    public function testItShouldProxy01(): void
     {
-        $this->proxyFactory = new ProxyFactory();
-        $sut = $this->makeInstance();
-        $this->assertInstanceOf(AurynConfig::class, $sut);
+
+        $expected = 'SomeClassProxies';
+
+        $this->injector->proxy(
+            Argument::type('string'),
+            Argument::type('callable')
+        )->will(function ($args) use ($expected) {
+            Assert::assertEquals($expected, $args[0], '');
+        });
+
+        $sut = $this->makeInstance(
+            [
+                AurynConfig::PROXY  => [
+                    $expected,
+                ],
+            ]
+        );
+
+        $sut->resolve();
     }
 
     public function shareProvider(): iterable
@@ -57,29 +93,6 @@ class AurynConfigTest extends UnitTestCase
         $sut = $this->makeInstance(
             [
                 AurynConfig::SHARING    => [
-                    $expected,
-                ],
-            ]
-        );
-
-        $sut->resolve();
-    }
-
-    public function testItShouldProxy(): void
-    {
-
-        $expected = 'SomeClassProxies';
-
-        $this->injector->proxy(
-            Argument::type('string'),
-            Argument::type('callable')
-        )->will(function ($args) use ($expected) {
-            Assert::assertEquals($expected, $args[0], '');
-        });
-
-        $sut = $this->makeInstance(
-            [
-                AurynConfig::PROXY  => [
                     $expected,
                 ],
             ]

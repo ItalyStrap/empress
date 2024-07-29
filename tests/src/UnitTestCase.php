@@ -8,6 +8,8 @@ use Codeception\Test\Unit;
 use ItalyStrap\Config\Config;
 use ItalyStrap\Config\ConfigInterface;
 use ItalyStrap\Empress\Injector;
+use ItalyStrap\Empress\ProxyFactory;
+use ItalyStrap\Empress\ProxyFactoryInterface;
 use ItalyStrap\Finder\FinderInterface;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -19,13 +21,22 @@ class UnitTestCase extends Unit
 
     protected UnitTester $tester;
 
-    protected ?Injector $realInjector;
+    protected Injector $realInjector;
 
     protected ObjectProphecy $injector;
 
     protected function makeInjector(): Injector
     {
         return $this->injector->reveal();
+    }
+
+    protected ProxyFactoryInterface $realProxyFactory;
+
+    protected ?ObjectProphecy $proxyFactory;
+
+    protected function makeProxyFactory(): ProxyFactoryInterface
+    {
+        return $this->proxyFactory->reveal();
     }
 
     protected ObjectProphecy $config;
@@ -54,8 +65,10 @@ class UnitTestCase extends Unit
     // phpcs:ignore -- Method from Codeception
     protected function _before(): void {
         $this->realInjector = new Injector();
-        $this->injector = $this->prophesize(Injector::class);
+        $this->realProxyFactory = new ProxyFactory();
         $this->configReal = new Config();
+        $this->injector = $this->prophesize(Injector::class);
+        $this->proxyFactory = $this->prophesize(ProxyFactoryInterface::class);
         $this->config = $this->prophesize(Config::class);
         $this->finder = $this->prophesize(FinderInterface::class);
 
@@ -64,10 +77,10 @@ class UnitTestCase extends Unit
 
     // phpcs:ignore -- Method from Codeception
     protected function _after(): void {
-        $this->configReal = clone $this->configReal;
         $this->prophet->checkPredictions();
-        unset($this->config);
+        unset($this->configReal);
         unset($this->realInjector);
+        unset($this->realProxyFactory);
         \file_exists($this->cachedConfigFile) and unlink($this->cachedConfigFile);
     }
 }
