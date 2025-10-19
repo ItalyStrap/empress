@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace ItalyStrap\Tests\Unit;
+namespace ItalyStrap\Empress\Tests\Unit;
 
 use ItalyStrap\Empress\Injector;
-use ItalyStrap\Tests\Modules\ModuleStub1;
 use ItalyStrap\Empress\AurynConfig;
 use ItalyStrap\Empress\PhpFileProvider;
 use ItalyStrap\Empress\ProvidersCollection;
 use ItalyStrap\Finder\FinderFactory;
-use ItalyStrap\Tests\UnitTestCase;
+use ItalyStrap\Empress\Tests\Modules\ModuleStub1;
+use ItalyStrap\Empress\Tests\UnitTestCase;
 
 class ProvidersCollectionIntegrationTest extends UnitTestCase
 {

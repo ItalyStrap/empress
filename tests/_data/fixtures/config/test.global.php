@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use ItalyStrap\Empress\AurynConfig;
-use ItalyStrap\Tests\Unit\ProvidersCollectionIntegrationTest;
+use ItalyStrap\Empress\Tests\Unit\ProvidersCollectionIntegrationTest;
 
 return [
     AurynConfig::ALIASES => [

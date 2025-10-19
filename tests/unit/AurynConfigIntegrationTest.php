@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace ItalyStrap\Tests\Unit;
+namespace ItalyStrap\Empress\Tests\Unit;
 
 use ItalyStrap\Config\ConfigFactory;
 use ItalyStrap\Empress\AurynConfig;
 use ItalyStrap\Empress\ProxyFactoryInterface;
-use ItalyStrap\Tests\ConcreteNeedsSomeInterface;
-use ItalyStrap\Tests\SomeConcrete;
-use ItalyStrap\Tests\SomeInterface;
-use ItalyStrap\Tests\UnitTestCase;
+use ItalyStrap\Empress\Tests\ConcreteNeedsSomeInterface;
+use ItalyStrap\Empress\Tests\SomeConcrete;
+use ItalyStrap\Empress\Tests\SomeInterface;
+use ItalyStrap\Empress\Tests\UnitTestCase;
 use Prophecy\Argument;
 
 class AurynConfigIntegrationTest extends UnitTestCase

@@ -1,3 +1,5 @@
+namespace: ItalyStrap\Empress\Tests
+support: Support
 paths:
     tests: tests
     output: tests/_output

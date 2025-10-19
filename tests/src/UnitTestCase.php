@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ItalyStrap\Tests;
+namespace ItalyStrap\Empress\Tests;
 
 use Codeception\Test\Unit;
 use ItalyStrap\Config\Config;
@@ -13,7 +13,6 @@ use ItalyStrap\Empress\ProxyFactoryInterface;
 use ItalyStrap\Finder\FinderInterface;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
-use UnitTester;
 
 class UnitTestCase extends Unit
 {

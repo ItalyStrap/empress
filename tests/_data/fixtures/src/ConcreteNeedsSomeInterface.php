@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ItalyStrap\Tests;
+namespace ItalyStrap\Empress\Tests;
 
 class ConcreteNeedsSomeInterface
 {

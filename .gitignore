@@ -1,3 +1,4 @@
+/.vscode/
 /vendor/
 
 /_others/
@@ -7,3 +8,4 @@ codeception.yml
 *.lock
 c3.php
 rector.php
+bone.json

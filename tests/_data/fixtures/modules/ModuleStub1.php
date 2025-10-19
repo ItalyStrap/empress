@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ItalyStrap\Tests\Modules;
+namespace ItalyStrap\Empress\Tests\Modules;
 
 use Auryn\Test\{SharedAliasedInterface, SharedClass};
 use ItalyStrap\Empress\AurynConfig;

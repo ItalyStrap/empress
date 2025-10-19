@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace ItalyStrap\Tests\Unit;
+namespace ItalyStrap\Empress\Tests\Unit;
 
 use ItalyStrap\Empress\PhpFileProvider;
-use ItalyStrap\Tests\UnitTestCase;
+use ItalyStrap\Empress\Tests\UnitTestCase;
 use PHPUnit\Framework\Assert;
 
 class PhpFileProviderTest extends UnitTestCase

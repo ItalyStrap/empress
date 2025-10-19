@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ItalyStrap\Tests\Unit;
+namespace ItalyStrap\Empress\Tests\Unit;
 
 use ItalyStrap\Config\ConfigFactory;
 use ItalyStrap\Empress\Injector;
@@ -11,9 +11,9 @@ use ItalyStrap\Empress\AurynConfigInterface;
 use ItalyStrap\Empress\Extension;
 use ItalyStrap\Empress\ProxyFactory;
 use ItalyStrap\Empress\ProxyFactoryInterface;
-use ItalyStrap\Tests\SomeConcrete;
-use ItalyStrap\Tests\SomeExtension;
-use ItalyStrap\Tests\UnitTestCase;
+use ItalyStrap\Empress\Tests\SomeConcrete;
+use ItalyStrap\Empress\Tests\SomeExtension;
+use ItalyStrap\Empress\Tests\UnitTestCase;
 use PHPUnit\Framework\Assert;
 use Prophecy\Argument;
 
