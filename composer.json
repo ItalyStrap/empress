@@ -15,10 +15,10 @@
     "prefer-stable": true,
     "require": {
         "php" : ">=7.4",
-        "rdlowrey/auryn": "^1.4",
-        "italystrap/config": "^2.2",
-        "ocramius/proxy-manager": "~2.11.0 || ~2.14.1",
         "brick/varexporter": "^0.3.8",
+        "friendsofphp/proxy-manager-lts": "^1.0",
+        "italystrap/config": "^2.10",
+        "overclokk/auryn": "dev-master",
         "webimpress/safe-writer": "^2.2"
     },
     "require-dev": {
@@ -48,13 +48,11 @@
     "autoload": {
         "psr-4": {
             "ItalyStrap\\Empress\\": [
-                "src/",
-                "bridge/"
+                "src/"
             ]
         },
         "files": [
-            "namespace-bc-aliases.php",
-            "bridge/Injector.php"
+            "namespace-bc-aliases.php"
         ]
     },
     "autoload-dev": {
