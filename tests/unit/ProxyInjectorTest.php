@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ItalyStrap\Empress\Tests\Unit;
 
-use ItalyStrap\Empress\Injector;
+use Auryn\Injector;
 use Auryn\Test\PreparesImplementationTest;
 use ItalyStrap\Empress\Tests\UnitTestCase;
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;

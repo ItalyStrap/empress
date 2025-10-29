@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ItalyStrap\Empress;
 
+use Auryn\Injector;
 use Auryn\InjectionException;
 use ItalyStrap\Config\ConfigInterface;
 
@@ -25,7 +26,7 @@ class ProvidersCollection
     ) {
         $this->injector = $injector;
         $this->config = $config;
-        $this->cache = $cache ?? new ProvidersCache();
+        $this->cache = $cache ??= new ProvidersCache();
         $this->providers = $providers;
     }
 

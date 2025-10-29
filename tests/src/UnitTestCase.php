@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace ItalyStrap\Empress\Tests;
 
+use Auryn\Injector;
 use Codeception\Test\Unit;
 use ItalyStrap\Config\Config;
 use ItalyStrap\Config\ConfigInterface;
-use ItalyStrap\Empress\Injector;
 use ItalyStrap\Empress\ProxyFactory;
 use ItalyStrap\Empress\ProxyFactoryInterface;
 use ItalyStrap\Finder\FinderInterface;

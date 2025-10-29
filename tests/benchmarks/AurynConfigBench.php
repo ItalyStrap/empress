@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace ItalyStrap\Tests\Benchmark;
 
+use Auryn\Injector;
 use ItalyStrap\Config\ConfigFactory;
 use ItalyStrap\Empress\AurynConfig;
-use ItalyStrap\Empress\Injector;
 use stdClass;
 
 class AurynConfigBench

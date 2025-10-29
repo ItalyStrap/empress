@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ItalyStrap\Empress;
 
+use Auryn\Injector;
 use Auryn\ConfigException;
 use Auryn\InjectionException;
 use ItalyStrap\Config\ConfigInterface as Config;

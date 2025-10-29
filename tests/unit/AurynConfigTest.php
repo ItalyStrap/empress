@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace ItalyStrap\Empress\Tests\Unit;
 
+use Auryn\Injector;
 use ItalyStrap\Config\ConfigFactory;
-use ItalyStrap\Empress\Injector;
 use ItalyStrap\Empress\AurynConfig;
 use ItalyStrap\Empress\AurynConfigInterface;
 use ItalyStrap\Empress\Extension;

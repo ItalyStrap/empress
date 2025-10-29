@@ -11,8 +11,3 @@ declare(strict_types=1);
     \ItalyStrap\Empress\AurynConfig::class,
     \ItalyStrap\Empress\AurynResolver::class
 );
-
-\class_alias(
-    \Auryn\Injector::class,
-    \ItalyStrap\Empress\Injector::class
-);
