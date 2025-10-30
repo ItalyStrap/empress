@@ -14,7 +14,6 @@
 
     <file>./src/</file>
     <file>./tests/</file>
-    <file>example.php</file>
     <file>namespace-bc-aliases.php</file>
 
     <rule ref="PSR12">

@@ -13,7 +13,7 @@ use ItalyStrap\Empress\Extension;
 use ItalyStrap\Empress\Injector;
 use stdClass;
 
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php'; // phpcs:ignore PSR1.Files.SideEffects
 
 class Example
 {

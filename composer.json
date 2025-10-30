@@ -74,7 +74,10 @@
             "@php vendor/bin/phpcs -p"
         ],
         "cs:fix": [
-            "@php vendor/bin/phpcbf -p"
+            "echo Fixing the package",
+            "@php vendor/bin/phpcbf -p",
+            "echo Fixing example.php",
+            "@php vendor/bin/phpcbf example.php"
         ],
         "psalm": [
             "@php ./vendor/bin/psalm --no-cache"
