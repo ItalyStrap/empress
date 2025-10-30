@@ -63,11 +63,7 @@
             ],
             "ItalyStrap\\Empress\\Tests\\Modules\\": "tests/_data/fixtures/modules/",
             "ItalyStrap\\Empress\\Tests\\Unit\\": "tests/unit/"
-        },
-        "files": [
-            "tests/_data/fixtures/fixtures.php",
-            "tests/_data/fixtures/fixtures_5_6.php"
-        ]
+        }
     },
     "suggest": {
         "elazar/auryn-container-interop": "Only if you want to add a psr/container adapter, not required for this package",

@@ -16,7 +16,7 @@ class AurynConfigBench
      * @Revs(1000)
      * @Iterations(5)
      */
-    public function benchResolver()
+    public function benchResolver(): void
     {
         $injector = new Injector();
         $config = (new ConfigFactory())->make([
@@ -36,7 +36,7 @@ class AurynConfigBench
      * @Revs(1000)
      * @Iterations(5)
      */
-    public function benchResolverP()
+    public function benchResolverP(): void
     {
         $injector = new Injector();
         $injector->share(stdClass::class);

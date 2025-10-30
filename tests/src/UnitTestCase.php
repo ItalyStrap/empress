@@ -31,7 +31,7 @@ class UnitTestCase extends Unit
 
     protected ProxyFactoryInterface $realProxyFactory;
 
-    protected ?ObjectProphecy $proxyFactory;
+    protected ?ObjectProphecy $proxyFactory = null;
 
     protected function makeProxyFactory(): ProxyFactoryInterface
     {

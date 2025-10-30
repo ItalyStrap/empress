@@ -32,15 +32,13 @@ class ProvidersCollectionIntegrationTest extends UnitTestCase
                         ->make()
                         ->in(codecept_data_dir('fixtures'))
                 ),
-                function (): array {
-                    return [
-                        AurynConfig::ALIASES => [
-                            self::CONFIG_KEY_2 => 'array config',
-                        ],
-                        AurynConfig::SHARING => [
-                        ],
-                    ];
-                },
+                fn(): array => [
+                    AurynConfig::ALIASES => [
+                        self::CONFIG_KEY_2 => 'array config',
+                    ],
+                    AurynConfig::SHARING => [
+                    ],
+                ],
                 function (): iterable {
                     yield [
                         AurynConfig::ALIASES => [
@@ -48,42 +46,34 @@ class ProvidersCollectionIntegrationTest extends UnitTestCase
                         ],
                     ];
                 },
-                function (): array {
-                    return [
-                        AurynConfig::ALIASES => [
-                            'ItalyStrap\Event\GlobalDispatcherInterface' => "ItalyStrap\Event\GlobalDispatcher",
-                            'talyStrap\Event\SubscriberRegisterInterface ' => "ItalyStrap\Event\SubscriberRegister",
-                            'ItalyStrap\View\ViewInterface' => "ItalyStrap\View\View",
-                            15 => 'value',
-                        ],
-                    ];
-                },
-                function (): array {
-                    return [
-                        AurynConfig::ALIASES => [
-                            'ItalyStrap\Event\GlobalDispatcherInterface' => "ItalyStrap\Event\DifferentDispatcher",
-                            'talyStrap\Event\SubscriberRegisterInterface ' => "ItalyStrap\Event\DifferentRegister",
-                            'ItalyStrap\HTML\TagInterface' => "ItalyStrap\HTML\Tag",
-                            15 => 'newValue',
-                        ],
-                    ];
-                },
+                fn(): array => [
+                    AurynConfig::ALIASES => [
+                        'ItalyStrap\Event\GlobalDispatcherInterface' => "ItalyStrap\Event\GlobalDispatcher",
+                        'talyStrap\Event\SubscriberRegisterInterface ' => "ItalyStrap\Event\SubscriberRegister",
+                        'ItalyStrap\View\ViewInterface' => "ItalyStrap\View\View",
+                        15 => 'value',
+                    ],
+                ],
+                fn(): array => [
+                    AurynConfig::ALIASES => [
+                        'ItalyStrap\Event\GlobalDispatcherInterface' => "ItalyStrap\Event\DifferentDispatcher",
+                        'talyStrap\Event\SubscriberRegisterInterface ' => "ItalyStrap\Event\DifferentRegister",
+                        'ItalyStrap\HTML\TagInterface' => "ItalyStrap\HTML\Tag",
+                        15 => 'newValue',
+                    ],
+                ],
                 ModuleStub1::class,
                 [ModuleStub1::class, '__invoke'],
-                function (): array {
-                    return require \codecept_data_dir('fixtures/config/test.global.php');
-                },
-                function (): array {
-                    return [
-                        'config_cache_enabled' => true,
-                        'cache_config_path' => $this->cachedConfigFile,
-                    ];
-                },
+                fn(): array => require \codecept_data_dir('fixtures/config/test.global.php'),
+                fn(): array => [
+                    'config_cache_enabled' => true,
+                    'cache_config_path' => $this->cachedConfigFile,
+                ],
             ],
         );
     }
 
-    public function testIntegration()
+    public function testIntegration(): void
     {
         $sut = $this->makeInstance();
         $sut->build();

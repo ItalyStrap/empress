@@ -21,7 +21,7 @@ class ProvidersCollectionTest extends UnitTestCase
         );
     }
 
-    public function testShouldBeInstantiable()
+    public function testShouldBeInstantiable(): void
     {
 
         $this->config
@@ -41,9 +41,7 @@ class ProvidersCollectionTest extends UnitTestCase
 
         $this->config
             ->get('config_cache_filemode', Argument::type('int'))
-            ->will(function ($args): int {
-                return (int)$args[1];
-            });
+            ->will(fn($args): int => (int)$args[1]);
 
         $this->config
             ->get('cache_config_path', Argument::type('null'))

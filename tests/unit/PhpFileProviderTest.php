@@ -15,7 +15,7 @@ class PhpFileProviderTest extends UnitTestCase
         return new PhpFileProvider('pattern', $this->makeFinder());
     }
 
-    public function testShouldBeInvokable()
+    public function testShouldBeInvokable(): void
     {
         $file = \codecept_data_dir('fixtures/config/autoload/config.global.php');
 
