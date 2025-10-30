@@ -17,7 +17,7 @@ class AurynConfigIntegrationTest extends UnitTestCase
 {
     private function makeInstance(array $config = []): AurynConfig
     {
-        return new AurynConfig($this->realInjector, ConfigFactory::make($config), $this->realProxyFactory);
+        return new AurynConfig($this->realInjector, (new ConfigFactory())->make($config), $this->realProxyFactory);
     }
 
     public function testItShouldAlias(): void

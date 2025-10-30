@@ -19,7 +19,7 @@ class AurynConfigBench
     public function benchResolver()
     {
         $injector = new Injector();
-        $config = ConfigFactory::make([
+        $config = (new ConfigFactory())->make([
             AurynConfig::SHARING    => [
                 stdClass::class,
             ],

@@ -21,7 +21,7 @@ class AurynConfigTest extends UnitTestCase
 {
     protected function makeInstance(array $config = []): AurynConfig
     {
-        return new AurynConfig($this->makeInjector(), ConfigFactory::make($config), $this->makeProxyFactory());
+        return new AurynConfig($this->makeInjector(), (new ConfigFactory())->make($config), $this->makeProxyFactory());
     }
 
 //    public function testItShouldProxy(): void
@@ -332,7 +332,7 @@ class AurynConfigTest extends UnitTestCase
 
     public function testItShouldExtendClassString(): void
     {
-        $sut = new AurynConfig(new Injector(), ConfigFactory::make());
+        $sut = new AurynConfig(new Injector(), (new ConfigFactory())->make());
         $sut->extend(SomeExtension::class);
         $this->expectOutputString(SomeExtension::class);
         $sut->resolve();
@@ -340,7 +340,7 @@ class AurynConfigTest extends UnitTestCase
 
     public function testItShouldNotExtend(): void
     {
-        $sut = new AurynConfig(new Injector(), ConfigFactory::make());
+        $sut = new AurynConfig(new Injector(), (new ConfigFactory())->make());
         $this->expectException(\InvalidArgumentException::class);
         $sut->extend('SomeGenericClass');
     }
@@ -350,7 +350,7 @@ class AurynConfigTest extends UnitTestCase
         /**
          * New name is AurynConfig::class
          */
-        $auryn_config = new \ItalyStrap\Empress\AurynResolver(new Injector(), ConfigFactory::make([]));
+        $auryn_config = new \ItalyStrap\Empress\AurynResolver(new Injector(), (new ConfigFactory())->make([]));
         $auryn_config->resolve();
     }
 }

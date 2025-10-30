@@ -21,12 +21,12 @@ class ProvidersCollection
     public function __construct(
         Injector $injector,
         ConfigInterface $config,
-        ProvidersCache $cache = null,
+        ?ProvidersCache $cache = null,
         iterable $providers = []
     ) {
         $this->injector = $injector;
         $this->config = $config;
-        $this->cache = $cache ??= new ProvidersCache();
+        $this->cache = $cache ?: new ProvidersCache();
         $this->providers = $providers;
     }
 

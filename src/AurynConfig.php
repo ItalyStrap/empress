@@ -53,7 +53,7 @@ class AurynConfig implements AurynConfigInterface
     public function __construct(
         Injector $injector,
         Config $dependencies,
-        ProxyFactoryInterface $proxyFactory = null
+        ?ProxyFactoryInterface $proxyFactory = null
     ) {
         $this->injector = $injector;
         $this->dependencies = $dependencies;

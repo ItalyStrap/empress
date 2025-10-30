@@ -38,6 +38,11 @@ class Example
         return $this->class;
     }
 
+    public function getParam(): string
+    {
+        return $this->param;
+    }
+
     public function execute(string $text): string
     {
         return $text;
@@ -79,7 +84,8 @@ $config = [
      * Example:
      * class MyCLass( ConfigInterface $global_config, \stdClass $class ) {}
      * class MyOtherCLass( ConfigInterface $global_config, \stdClass $class ) {}
-     * A new Config instance will be shared, think of it like a singleton but more better and OOP oriented (You can mock it ;-))
+     * A new Config instance will be shared, think of it like a singleton
+     * but better and OOP oriented (You can mock it ;-))
      * The same instance of Config will be injected to MyCLass and MyOtherCLass
      * $injector->make(MyCLass::class); // Will have $global_config
      * $injector->make(MyOtherCLass::class); // Will have $global_config
@@ -166,7 +172,7 @@ $config = [
 
     /**
      * You can delegate the instantiation of an object to a some kind of callable factory
-     * This will be always used to get the instance of a class.
+     * This will always be used to get the instance of a class.
      * @see [Instantiation Delegates](https://github.com/rdlowrey/auryn#instantiation-delegates)
      */
     AurynConfig::DELEGATIONS    => [
@@ -183,7 +189,7 @@ $injector = new Injector();
  * Pass the $injector instance to the AurynConfig::class as first parameter and a
  * Config::class instance at the second parameters with the configuration array.
  */
-$app = new AurynConfig($injector, ConfigFactory::make($config));
+$app = new AurynConfig($injector, (new ConfigFactory())->make($config));
 
 /**
  * Call the AurynConfig::resolve() method to do the autowiring of the application
@@ -196,7 +202,14 @@ $app->resolve();
  */
 $example = $injector->make(Example::class);
 // $example instanceof Example::class
+\var_dump(
+    $example instanceof Example
+        ? 'Yes, $example is an instance of Example::class'
+        : 'No, $example is NOT an instance of Example::class'
+);
 
+echo $example->execute('Hello World!');
+echo PHP_EOL;
 
 
 //$example2 = $injector->make( Example::class );
@@ -221,7 +234,7 @@ $example = $injector->make(Example::class);
 $app->extend(
     new class implements Extension {
         /** @var string */
-        const YOUR_KEY = 'your-key';
+        public const YOUR_KEY = 'your-key';
 
         public function name(): string
         {
