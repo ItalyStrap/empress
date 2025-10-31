@@ -22,7 +22,7 @@
         "webimpress/safe-writer": "^2.2"
     },
     "require-dev": {
-        "lucatume/wp-browser": "^3.0",
+        "lucatume/wp-browser": "<3.5",
         "lucatume/function-mocker-le": "^1.0.1",
         "codeception/module-asserts": "^1.0",
         "phpspec/prophecy-phpunit": "^2.0",
