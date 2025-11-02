@@ -22,6 +22,11 @@ class UnitTestCase extends Unit
 
     protected Injector $realInjector;
 
+    protected function makeRealInjector(): Injector
+    {
+        return $this->realInjector;
+    }
+
     protected ObjectProphecy $injector;
 
     protected function makeInjector(): Injector
