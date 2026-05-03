@@ -6,7 +6,6 @@ namespace ItalyStrap\Empress;
 
 use Auryn\Injector;
 use Psr\Container\ContainerInterface;
-use Psr\Container\NotFoundExceptionInterface;
 
 final class Container implements ContainerInterface
 {
@@ -21,11 +20,18 @@ final class Container implements ContainerInterface
     public function get(string $id)
     {
         if (!$this->has($id)) {
-            throw new class ("Service '$id' not found") extends \Exception implements NotFoundExceptionInterface {
-            };
+            throw new NotFoundException(\sprintf("Service '%s' not found", $id));
         }
 
-        return $this->injector->make($id);
+        try {
+            return $this->injector->make($id);
+        } catch (\Throwable $throwable) {
+            throw new ContainerException(
+                \sprintf("Error while retrieving service '%s'", $id),
+                0,
+                $throwable
+            );
+        }
     }
 
     public function has(string $id): bool
