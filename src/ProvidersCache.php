@@ -14,7 +14,7 @@ use Webimpress\SafeWriter\FileWriter;
 /**
  * @psalm-api
  */
-class ProvidersCache implements ProvidersCacheInterface
+final class ProvidersCache implements ProvidersCacheInterface
 {
     private const CACHE_TEMPLATE = <<<'EOT'
 <?php
@@ -43,15 +43,13 @@ EOT;
         if (
             $cachedConfigFile === ''
             || !file_exists($cachedConfigFile)
+            || !is_file($cachedConfigFile)
             || !is_readable($cachedConfigFile)
         ) {
             return false;
         }
 
-        /**
-         * @psalm-suppress UnresolvableInclude
-         */
-        $config->merge((array)require $cachedConfigFile);
+        $config->merge($this->loadCacheFile($cachedConfigFile));
         return true;
     }
 
@@ -87,7 +85,26 @@ EOT;
         try {
             FileWriter::writeFile($cachedConfigFile, $contents, $mode);
         } catch (FileWriterException $e) {
-            // ignore errors writing cache file
+            throw new \ErrorException('Configuration cache cannot be written', 0, 1, __FILE__, __LINE__, $e);
         }
+    }
+
+    /**
+     * @return array<array-key, mixed>
+     */
+    private function loadCacheFile(string $cachedConfigFile): array
+    {
+        try {
+            /** @psalm-suppress UnresolvableInclude */
+            $config = require $cachedConfigFile;
+        } catch (\Throwable $e) {
+            throw new \ErrorException('Configuration cache cannot be read', 0, 1, __FILE__, __LINE__, $e);
+        }
+
+        if (!\is_array($config)) {
+            throw new \ErrorException('Configuration cache must return an array');
+        }
+
+        return $config;
     }
 }
