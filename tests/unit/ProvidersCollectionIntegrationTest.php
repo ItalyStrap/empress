@@ -6,13 +6,17 @@ namespace ItalyStrap\Empress\Tests\Unit;
 
 use Auryn\Injector;
 use ItalyStrap\Empress\AurynConfig;
+use ItalyStrap\Empress\ModuleInterface;
 use ItalyStrap\Empress\PhpFileProvider;
 use ItalyStrap\Empress\ProvidersCollection;
+use ItalyStrap\Empress\Tests\ConcreteNeedsSomeInterface;
+use ItalyStrap\Empress\Tests\SomeInterface;
 use ItalyStrap\Finder\FinderFactory;
 use ItalyStrap\Empress\Tests\Modules\ModuleStub1;
 use ItalyStrap\Empress\Tests\UnitTestCase;
+use Psr\Container\ContainerInterface;
 
-class ProvidersCollectionIntegrationTest extends UnitTestCase
+final class ProvidersCollectionIntegrationTest extends UnitTestCase
 {
     public const CONFIG_KEY_1 = 'Test alias should be override by local config';
     public const CONFIG_KEY_2 = 'Iterable below should override this';
@@ -32,21 +36,21 @@ class ProvidersCollectionIntegrationTest extends UnitTestCase
                         ->make()
                         ->in(codecept_data_dir('fixtures'))
                 ),
-                fn(): array => [
+                static fn(): array => [
                     AurynConfig::ALIASES => [
                         self::CONFIG_KEY_2 => 'array config',
                     ],
                     AurynConfig::SHARING => [
                     ],
                 ],
-                function (): iterable {
+                static function (): iterable {
                     yield [
                         AurynConfig::ALIASES => [
                             self::CONFIG_KEY_2 => 'iterable config',
                         ],
                     ];
                 },
-                fn(): array => [
+                static fn(): array => [
                     AurynConfig::ALIASES => [
                         'ItalyStrap\Event\GlobalDispatcherInterface' => "ItalyStrap\Event\GlobalDispatcher",
                         'talyStrap\Event\SubscriberRegisterInterface ' => "ItalyStrap\Event\SubscriberRegister",
@@ -54,7 +58,7 @@ class ProvidersCollectionIntegrationTest extends UnitTestCase
                         15 => 'value',
                     ],
                 ],
-                fn(): array => [
+                static fn(): array => [
                     AurynConfig::ALIASES => [
                         'ItalyStrap\Event\GlobalDispatcherInterface' => "ItalyStrap\Event\DifferentDispatcher",
                         'talyStrap\Event\SubscriberRegisterInterface ' => "ItalyStrap\Event\DifferentRegister",
@@ -64,6 +68,20 @@ class ProvidersCollectionIntegrationTest extends UnitTestCase
                 ],
                 ModuleStub1::class,
                 [ModuleStub1::class, '__invoke'],
+                new class implements ModuleInterface {
+                    public function __invoke(): iterable
+                    {
+                        return [
+                            AurynConfig::DELEGATIONS => [
+                                ConcreteNeedsSomeInterface::class
+                                => static function (ContainerInterface $container): ConcreteNeedsSomeInterface {
+                                    $some = $container->get(SomeInterface::class);
+                                    return new ConcreteNeedsSomeInterface($some);
+                                }
+                            ],
+                        ];
+                    }
+                },
                 fn(): array => require \codecept_data_dir('fixtures/config/test.global.php'),
                 fn(): array => [
                     'config_cache_enabled' => true,
@@ -76,11 +94,12 @@ class ProvidersCollectionIntegrationTest extends UnitTestCase
     public function testIntegration(): void
     {
         $sut = $this->makeInstance();
-        $sut->build();
+        $sut->aggregate();
+        $config = $this->makeConfigReal();
 
         $this->assertSame(
             'local config',
-            $sut->collection()->get(\implode('.', [
+            $config->get(\implode('.', [
                 AurynConfig::ALIASES,
                 self::CONFIG_KEY_1,
             ]))
@@ -88,7 +107,7 @@ class ProvidersCollectionIntegrationTest extends UnitTestCase
 
         $this->assertSame(
             'iterable config',
-            $sut->collection()->get(\implode('.', [
+            $config->get(\implode('.', [
                 AurynConfig::ALIASES,
                 self::CONFIG_KEY_2,
             ]))
@@ -96,7 +115,7 @@ class ProvidersCollectionIntegrationTest extends UnitTestCase
 
         $this->assertSame(
             'test.global.php',
-            $sut->collection()->get(\implode('.', [
+            $config->get(\implode('.', [
                 AurynConfig::ALIASES,
                 self::CONFIG_KEY_3,
             ]))
@@ -108,9 +127,6 @@ class ProvidersCollectionIntegrationTest extends UnitTestCase
         $file = require $this->cachedConfigFile;
         $this->assertIsArray($file);
 
-        /**
-         * \array_merge() will append the value if the kew is numeric
-         */
-        $this->assertCount(10, $sut->collection()->get(AurynConfig::ALIASES), 'Should be 10');
+        $this->assertCount(9, $config->get(AurynConfig::ALIASES), 'Should be 9');
     }
 }
