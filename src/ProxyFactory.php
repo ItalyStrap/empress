@@ -13,6 +13,9 @@ use ProxyManager\Proxy\VirtualProxyInterface;
  */
 class ProxyFactory implements ProxyFactoryInterface
 {
+    /**
+     * @param class-string<object> $className
+     */
     public function __invoke(string $className, callable $callback): VirtualProxyInterface
     {
         return (new LazyLoadingValueHolderFactory())->createProxy(

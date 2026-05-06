@@ -14,7 +14,13 @@ interface ProvidersCacheInterface
 
     public const CACHE_PATH = 'cache_config_path';
 
+    /**
+     * @param ConfigInterface<array-key, mixed> $config
+     */
     public function read(ConfigInterface $config): bool;
 
+    /**
+     * @param ConfigInterface<array-key, mixed> $config
+     */
     public function write(ConfigInterface $config): void;
 }

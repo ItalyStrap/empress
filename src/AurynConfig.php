@@ -35,6 +35,9 @@ class AurynConfig implements AurynConfigInterface
 
     private Injector $injector;
 
+    /**
+     * @var Config<array-key, mixed>
+     */
     private Config $dependencies;
 
     private ProxyFactoryInterface $proxy_factory;
@@ -49,6 +52,9 @@ class AurynConfig implements AurynConfigInterface
      */
     private array $extensionsClasses = [];
 
+    /**
+     * @param Config<array-key, mixed> $dependencies
+     */
     public function __construct(
         Injector $injector,
         Config $dependencies,
@@ -155,7 +161,7 @@ class AurynConfig implements AurynConfigInterface
     }
 
     /**
-     * @param array $class_args
+     * @param array<array-key, mixed> $class_args
      * @param string $class_name
      */
     protected function define(array $class_args, string $class_name): void

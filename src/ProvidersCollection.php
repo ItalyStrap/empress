@@ -16,7 +16,7 @@ final class ProvidersCollection
 {
     private Injector $injector;
     /**
-     * @var ConfigInterface&NodeManipulationInterface
+     * @var ConfigInterface<array-key, mixed>&NodeManipulationInterface<array-key, mixed>
      */
     private ConfigInterface $config;
     private ProvidersCacheInterface $cache;
@@ -26,7 +26,7 @@ final class ProvidersCollection
     private iterable $providers;
 
     /**
-     * @param ConfigInterface&NodeManipulationInterface $config
+     * @param ConfigInterface<array-key, mixed>&NodeManipulationInterface<array-key, mixed> $config
      * @param iterable<Provider> $providers
      */
     public function __construct(
@@ -72,8 +72,8 @@ final class ProvidersCollection
 
     /**
      * @param Configuration $configuration
-     * @param array $result
-     * @param array $appendSections
+     * @param array<array-key, mixed> $result
+     * @param array<array-key, array<int, mixed>> $appendSections
      */
     private function mergeConfiguration(
         array $configuration,

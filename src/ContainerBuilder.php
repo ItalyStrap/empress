@@ -15,7 +15,7 @@ class ContainerBuilder
     private Injector $injector;
 
     /**
-     * @var ConfigInterface&NodeManipulationInterface
+     * @var ConfigInterface<array-key, mixed>&NodeManipulationInterface<array-key, mixed>
      */
     private ConfigInterface $config;
 
@@ -33,6 +33,9 @@ class ContainerBuilder
      */
     private array $extensions = [];
 
+    /**
+     * @param ConfigInterface<array-key, mixed>|null $config
+     */
     public function __construct(
         ?Injector $injector = null,
         ?ConfigInterface $config = null,
@@ -47,7 +50,9 @@ class ContainerBuilder
         }
 
         $this->injector = $injector ?: new Injector();
-        $this->config = $config ?: new Config();
+        /** @var ConfigInterface<array-key, mixed>&NodeManipulationInterface<array-key, mixed> $configInstance */
+        $configInstance = $config ?: new Config();
+        $this->config = $configInstance;
         $this->cache = $cache;
         $this->proxyFactory = $proxyFactory;
     }

@@ -31,11 +31,13 @@ EOT;
         $this->file = $file;
     }
 
-    public function read(
-        ConfigInterface $config
-    ): bool {
+    /**
+     * @param ConfigInterface<array-key, mixed> $config
+     */
+    public function read(ConfigInterface $config): bool
+    {
 
-        $cachedConfigFile = (string)$config->get(self::CACHE_PATH, $this->file);
+        $cachedConfigFile = $this->stringValue($config->get(self::CACHE_PATH, $this->file));
 
         if (
             $cachedConfigFile === ''
@@ -50,10 +52,12 @@ EOT;
         return true;
     }
 
-    public function write(
-        ConfigInterface $config
-    ): void {
-        $cachedConfigFile = (string)$config->get(self::CACHE_PATH, $this->file);
+    /**
+     * @param ConfigInterface<array-key, mixed> $config
+     */
+    public function write(ConfigInterface $config): void
+    {
+        $cachedConfigFile = $this->stringValue($config->get(self::CACHE_PATH, $this->file));
 
         if ($cachedConfigFile === '') {
             return;
@@ -74,7 +78,7 @@ EOT;
             throw new \ErrorException('Configuration cannot be cached', 0, 1, __FILE__, __LINE__, $e);
         }
 
-        $this->writeCache($cachedConfigFile, $contents, (int)$config->get(self::CACHE_FILEMODE, 0666));
+        $this->writeCache($cachedConfigFile, $contents, $this->intValue($config->get(self::CACHE_FILEMODE, 0666)));
     }
 
     private function writeCache(string $cachedConfigFile, string $contents, int $mode): void
@@ -84,6 +88,38 @@ EOT;
         } catch (FileWriterException $e) {
             throw new \ErrorException('Configuration cache cannot be written', 0, 1, __FILE__, __LINE__, $e);
         }
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private function stringValue($value): string
+    {
+        if ($value === null) {
+            return '';
+        }
+
+        if (\is_scalar($value) || $value instanceof \Stringable) {
+            return (string)$value;
+        }
+
+        throw new \ErrorException('Configuration cache path must be a string');
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private function intValue($value): int
+    {
+        if (\is_int($value)) {
+            return $value;
+        }
+
+        if (\is_string($value) && \is_numeric($value)) {
+            return (int)$value;
+        }
+
+        throw new \ErrorException('Configuration cache file mode must be an integer');
     }
 
     /**
