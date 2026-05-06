@@ -15,6 +15,9 @@ use ItalyStrap\Config\NodeManipulationInterface;
 final class ProvidersCollection
 {
     private Injector $injector;
+    /**
+     * @var ConfigInterface&NodeManipulationInterface
+     */
     private ConfigInterface $config;
     private ProvidersCacheInterface $cache;
     /**

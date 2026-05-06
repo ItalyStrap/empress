@@ -17,6 +17,6 @@ tests/ export-ignore
 /Makefile export-ignore
 /phpbench.json export-ignore
 /phpcs.xml export-ignore
-/psalm.xml export-ignore
+/phpstan.neon.dist export-ignore
 /index.php export-ignore
 /rector.php export-ignore

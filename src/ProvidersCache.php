@@ -11,9 +11,6 @@ use Safe\DateTimeImmutable;
 use Webimpress\SafeWriter\Exception\ExceptionInterface as FileWriterException;
 use Webimpress\SafeWriter\FileWriter;
 
-/**
- * @psalm-api
- */
 final class ProvidersCache implements ProvidersCacheInterface
 {
     private const CACHE_TEMPLATE = <<<'EOT'
@@ -65,7 +62,7 @@ EOT;
         try {
             $contents = sprintf(
                 self::CACHE_TEMPLATE,
-                static::class,
+                self::class,
                 // Write an alternative to date('c')
                 (new DateTimeImmutable('now'))->format('c'),
                 VarExporter::export(
@@ -95,7 +92,6 @@ EOT;
     private function loadCacheFile(string $cachedConfigFile): array
     {
         try {
-            /** @psalm-suppress UnresolvableInclude */
             $config = require $cachedConfigFile;
         } catch (\Throwable $e) {
             throw new \ErrorException('Configuration cache cannot be read', 0, 1, __FILE__, __LINE__, $e);

@@ -7,12 +7,16 @@ namespace ItalyStrap\Empress;
 use Auryn\Injector;
 use ItalyStrap\Config\Config;
 use ItalyStrap\Config\ConfigInterface;
+use ItalyStrap\Config\NodeManipulationInterface;
 use Psr\Container\ContainerInterface;
 
 class ContainerBuilder
 {
     private Injector $injector;
 
+    /**
+     * @var ConfigInterface&NodeManipulationInterface
+     */
     private ConfigInterface $config;
 
     private ?ProvidersCacheInterface $cache;
@@ -35,6 +39,13 @@ class ContainerBuilder
         ?ProvidersCacheInterface $cache = null,
         ?ProxyFactoryInterface $proxyFactory = null
     ) {
+        if ($config instanceof ConfigInterface && !$config instanceof NodeManipulationInterface) {
+            throw new \InvalidArgumentException(\sprintf(
+                '$config must implement %s',
+                NodeManipulationInterface::class
+            ));
+        }
+
         $this->injector = $injector ?: new Injector();
         $this->config = $config ?: new Config();
         $this->cache = $cache;

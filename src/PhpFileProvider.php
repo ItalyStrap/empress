@@ -6,9 +6,6 @@ namespace ItalyStrap\Empress;
 
 use ItalyStrap\Finder\FinderInterface;
 
-/**
- * @psalm-api
- */
 final class PhpFileProvider
 {
     private string $pattern;
@@ -34,7 +31,6 @@ final class PhpFileProvider
          * @var \SplFileInfo $file
          */
         foreach ($this->finder as $file) {
-            /** @psalm-suppress UnresolvableInclude */
             yield include $file;
         }
     }

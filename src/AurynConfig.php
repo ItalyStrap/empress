@@ -11,9 +11,6 @@ use ItalyStrap\Config\ConfigInterface as Config;
 
 use function array_walk;
 
-/**
- * @psalm-api
- */
 class AurynConfig implements AurynConfigInterface
 {
     public const PROXY = 'proxies';
@@ -86,7 +83,9 @@ class AurynConfig implements AurynConfigInterface
         }
     }
 
-    #[\Deprecated(message: 'Use apply() instead', since: '2.0.0')]
+    /**
+     * @deprecated Use apply() instead.
+     */
     public function resolve(): void
     {
         $this->apply();
@@ -129,7 +128,6 @@ class AurynConfig implements AurynConfigInterface
      * @param mixed $nameOrInstance
      * @param int $index
      * @throws ConfigException
-     * @psalm-suppress PossiblyUnusedParam
      */
     protected function share($nameOrInstance, int $index): void
     {
@@ -140,7 +138,6 @@ class AurynConfig implements AurynConfigInterface
      * @param string $name
      * @param int $index
      * @throws ConfigException
-     * @psalm-suppress PossiblyUnusedParam
      */
     protected function proxy(string $name, int $index): void
     {

@@ -26,7 +26,7 @@ class AurynConfigBench
         ]);
 
         $resolver = new AurynConfig($injector, $config);
-        $resolver->resolve();
+        $resolver->apply();
 
         $class = $injector->make(stdClass::class);
     }
