@@ -8,7 +8,7 @@ use ItalyStrap\Empress\PhpFileProvider;
 use ItalyStrap\Empress\Tests\UnitTestCase;
 use PHPUnit\Framework\Assert;
 
-class PhpFileProviderTest extends UnitTestCase
+final class PhpFileProviderTest extends UnitTestCase
 {
     protected function makeInstance(): PhpFileProvider
     {

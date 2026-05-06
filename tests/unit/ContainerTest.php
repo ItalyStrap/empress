@@ -11,7 +11,7 @@ use ItalyStrap\Empress\Tests\UnitTestCase;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
-final class ComtainerTest extends UnitTestCase
+final class ContainerTest extends UnitTestCase
 {
     private function makeInstance(): Container
     {
