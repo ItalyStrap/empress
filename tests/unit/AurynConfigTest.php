@@ -17,7 +17,7 @@ use ItalyStrap\Empress\Tests\UnitTestCase;
 use PHPUnit\Framework\Assert;
 use Prophecy\Argument;
 
-class AurynConfigTest extends UnitTestCase
+final class AurynConfigTest extends UnitTestCase
 {
     protected function makeInstance(array $config = []): AurynConfig
     {
@@ -39,7 +39,7 @@ class AurynConfigTest extends UnitTestCase
 //            ]
 //        );
 //
-//        $sut->resolve();
+//        $sut->$this->apply();
 //
 //        $concrete = $this->realInjector->make(SomeConcrete::class);
 //    }
@@ -64,7 +64,7 @@ class AurynConfigTest extends UnitTestCase
             ]
         );
 
-        $sut->resolve();
+        $sut->apply();
     }
 
     public function shareProvider(): iterable
@@ -98,7 +98,7 @@ class AurynConfigTest extends UnitTestCase
             ]
         );
 
-        $sut->resolve();
+        $sut->apply();
     }
 
     public function testItShouldAlias(): void
@@ -119,7 +119,7 @@ class AurynConfigTest extends UnitTestCase
             ]
         );
 
-        $sut->resolve();
+        $sut->apply();
     }
 
     public function testItShouldDefine(): void
@@ -143,7 +143,7 @@ class AurynConfigTest extends UnitTestCase
             ]
         );
 
-        $sut->resolve();
+        $sut->apply();
     }
 
     public function testItShouldDefineParam(): void
@@ -167,7 +167,7 @@ class AurynConfigTest extends UnitTestCase
             ]
         );
 
-        $sut->resolve();
+        $sut->apply();
     }
 
     public function testItShouldDelegate(): void
@@ -192,7 +192,7 @@ class AurynConfigTest extends UnitTestCase
             ]
         );
 
-        $sut->resolve();
+        $sut->apply();
     }
 
     public function testItShouldPrepare(): void
@@ -226,7 +226,7 @@ class AurynConfigTest extends UnitTestCase
             ]
         );
 
-        $sut->resolve();
+        $sut->apply();
     }
 
     public function testItShouldWalk(): void
@@ -278,7 +278,7 @@ class AurynConfigTest extends UnitTestCase
 
         $sut->extend($extension->reveal());
 
-        $sut->resolve();
+        $sut->apply();
     }
 
     public function testItShouldExtendRealClass(): void
@@ -325,7 +325,7 @@ class AurynConfigTest extends UnitTestCase
             }
         });
 
-        $sut->resolve();
+        $sut->apply();
     }
 
     public function testItShouldExtendClassString(): void
@@ -333,7 +333,7 @@ class AurynConfigTest extends UnitTestCase
         $sut = new AurynConfig(new Injector(), (new ConfigFactory())->make());
         $sut->extend(SomeExtension::class);
         $this->expectOutputString(SomeExtension::class);
-        $sut->resolve();
+        $sut->apply();
     }
 
     public function testItShouldNotExtend(): void
@@ -349,6 +349,6 @@ class AurynConfigTest extends UnitTestCase
          * New name is AurynConfig::class
          */
         $auryn_config = new \ItalyStrap\Empress\AurynResolver(new Injector(), (new ConfigFactory())->make([]));
-        $auryn_config->resolve();
+        $auryn_config->apply();
     }
 }

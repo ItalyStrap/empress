@@ -22,6 +22,7 @@ class AurynConfig implements AurynConfigInterface
     public const DEFINITIONS = 'definitions';
     public const DEFINE_PARAM = 'define_param';
     public const DELEGATIONS = 'delegations';
+    public const FACTORIES = 'factories';
     public const PREPARATIONS = 'preparations';
 
     private const METHODS = [
@@ -31,6 +32,7 @@ class AurynConfig implements AurynConfigInterface
         self::DEFINITIONS   => 'define',
         self::DEFINE_PARAM  => 'defineParam',
         self::DELEGATIONS   => 'delegate',
+        self::FACTORIES     => 'delegate',
         self::PREPARATIONS  => 'prepare',
     ];
 
@@ -60,7 +62,7 @@ class AurynConfig implements AurynConfigInterface
         $this->proxy_factory = $proxyFactory ?? new ProxyFactory();
     }
 
-    public function resolve(): void
+    public function apply(): void
     {
 
         /**
@@ -82,6 +84,12 @@ class AurynConfig implements AurynConfigInterface
         foreach ($this->extensions as $extension) {
             $extension->execute($this);
         }
+    }
+
+    #[\Deprecated(message: 'Use apply() instead', since: '2.0.0')]
+    public function resolve(): void
+    {
+        $this->apply();
     }
 
     public function extend(...$extensions): void

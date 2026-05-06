@@ -13,7 +13,7 @@ use ItalyStrap\Empress\Tests\SomeInterface;
 use ItalyStrap\Empress\Tests\UnitTestCase;
 use Prophecy\Argument;
 
-class AurynConfigIntegrationTest extends UnitTestCase
+final class AurynConfigIntegrationTest extends UnitTestCase
 {
     private function makeInstance(array $config = []): AurynConfig
     {
@@ -30,7 +30,7 @@ class AurynConfigIntegrationTest extends UnitTestCase
             ]
         );
 
-        $aurynConfig->resolve();
+        $aurynConfig->apply();
 
         $this->assertInstanceOf(SomeConcrete::class, $this->realInjector->make(SomeInterface::class));
         $this->assertInstanceOf(SomeConcrete::class, $this->realInjector->make(SomeConcrete::class));
@@ -50,7 +50,7 @@ class AurynConfigIntegrationTest extends UnitTestCase
             ]
         );
 
-        $aurynConfig->resolve();
+        $aurynConfig->apply();
 
         $shared = $this->realInjector->make(SomeConcrete::class);
         $this->assertSame($shared, $this->realInjector->make(SomeConcrete::class));
@@ -77,7 +77,7 @@ class AurynConfigIntegrationTest extends UnitTestCase
             ]
         );
 
-        $sut->resolve();
+        $sut->apply();
 
         /** @var SomeConcrete $concrete */
         $concrete = $this->realInjector->make(SomeConcrete::class);

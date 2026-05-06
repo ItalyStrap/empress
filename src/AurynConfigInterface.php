@@ -12,7 +12,7 @@ interface AurynConfigInterface
     /**
      * @return void
      */
-    public function resolve();
+    public function apply();
 
     /**
      * @param class-string|Extension ...$extensions
