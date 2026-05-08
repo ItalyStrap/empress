@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace ItalyStrap;
 
+use Auryn\Injector;
 use ItalyStrap\Config\Config;
 use ItalyStrap\Config\ConfigFactory;
 use ItalyStrap\Config\ConfigInterface;
 use ItalyStrap\Empress\AurynConfigInterface;
 use ItalyStrap\Empress\AurynConfig;
+use ItalyStrap\Empress\ContainerBuilder;
 use ItalyStrap\Empress\Extension;
-use ItalyStrap\Empress\Injector;
+use Psr\Container\ContainerInterface;
 use stdClass;
 
 require_once __DIR__ . '/vendor/autoload.php'; // phpcs:ignore PSR1.Files.SideEffects
@@ -122,7 +124,7 @@ $config = [
      * add_{filter|action}( 'event_name', [ $proxy, 'doSomeStuff' ] );
      * ::doSomeStuff() will just work as before.
      *
-     * @see [Lazy Loading Value Holder Proxy](https://github.com/Ocramius/ProxyManager/blob/master/docs/lazy-loading-value-holder.md)
+     * @see https://github.com/Ocramius/ProxyManager/blob/master/docs/lazy-loading-value-holder.md
      */
     AurynConfig::PROXY      => [
         Config::class,
@@ -192,9 +194,9 @@ $injector = new Injector();
 $app = new AurynConfig($injector, (new ConfigFactory())->make($config));
 
 /**
- * Call the AurynConfig::resolve() method to do the autowiring of the application
+ * Call the AurynConfig::$this->apply() method to do the autowiring of the application
  */
-$app->resolve();
+$app->apply();
 
 /**
  * Now that you have autoloaded your application dependency you can call $injector for instantiating objects
@@ -211,6 +213,57 @@ $example = $injector->make(Example::class);
 echo $example->execute('Hello World!');
 echo PHP_EOL;
 
+/**
+ * ContainerBuilder usage
+ *
+ * This is the quickest way to aggregate providers, configure Auryn,
+ * and receive a PSR-11 container.
+ */
+$containerBuilder = new ContainerBuilder();
+
+$containerBuilder
+    ->addProvider(static fn(): array => [
+        AurynConfig::ALIASES => [
+            ConfigInterface::class => Config::class,
+        ],
+        AurynConfig::SHARING => [
+            stdClass::class,
+            ConfigInterface::class,
+        ],
+        AurynConfig::DEFINE_PARAM => [
+            'param' => 'Builder Text',
+        ],
+        AurynConfig::DELEGATIONS => [
+            Example::class => static function (ContainerInterface $container): Example {
+                return new Example(
+                    $container->get(stdClass::class),
+                    $container->get(ConfigInterface::class),
+                    'Builder Text'
+                );
+            },
+        ],
+    ])
+    ->extend(new class implements Extension {
+        public function name(): string
+        {
+            return 'container-builder-extension';
+        }
+
+        public function execute(AurynConfigInterface $application): void
+        {
+            // Add custom Auryn configuration logic here.
+        }
+    });
+
+$container = $containerBuilder->build();
+$builderExample = $container->get(Example::class);
+
+\var_dump(
+    $builderExample instanceof Example
+        ? 'Yes, $builderExample is an instance of Example::class'
+        : 'No, $builderExample is NOT an instance of Example::class'
+);
+
 
 //$example2 = $injector->make( Example::class );
 //
@@ -221,7 +274,7 @@ echo PHP_EOL;
  */
 
 /**
- * If you need more power you can extend the AurynConfig::class BEFORE calling the AurynConfig::resolve() method
+ * If you need more power you can extend the AurynConfig::class BEFORE calling the AurynConfig::$this->apply() method
  * Create your custom configuration like the follow:
  * $config = [
  *  'your-key'  => [
@@ -270,8 +323,8 @@ $app->extend(
 
 /**
  * You can add as many extensions as you need
- * Now you can call the ::resolve() method
+ * Now you can call the ::$this->apply() method
  */
-$app->resolve();
+$app->apply();
 
 // Do the rest of your stuff
