@@ -132,7 +132,6 @@ class AurynConfig implements AurynConfigInterface
 
     /**
      * @param mixed $nameOrInstance
-     * @param int $index
      * @throws ConfigException
      */
     protected function share($nameOrInstance, int $index): void
@@ -141,8 +140,6 @@ class AurynConfig implements AurynConfigInterface
     }
 
     /**
-     * @param string $name
-     * @param int $index
      * @throws ConfigException
      */
     protected function proxy(string $name, int $index): void
@@ -151,8 +148,6 @@ class AurynConfig implements AurynConfigInterface
     }
 
     /**
-     * @param string $alias
-     * @param string $typeHint
      * @throws ConfigException
      */
     protected function alias(string $alias, string $typeHint): void
@@ -162,7 +157,6 @@ class AurynConfig implements AurynConfigInterface
 
     /**
      * @param array<array-key, mixed> $class_args
-     * @param string $class_name
      */
     protected function define(array $class_args, string $class_name): void
     {
@@ -171,7 +165,6 @@ class AurynConfig implements AurynConfigInterface
 
     /**
      * @param mixed $param_args
-     * @param string $param_name
      */
     protected function defineParam($param_args, string $param_name): void
     {
@@ -180,7 +173,6 @@ class AurynConfig implements AurynConfigInterface
 
     /**
      * @param string $callableOrMethodStr
-     * @param string $name
      * @throws ConfigException
      */
     protected function delegate($callableOrMethodStr, string $name): void
@@ -190,7 +182,6 @@ class AurynConfig implements AurynConfigInterface
 
     /**
      * @param mixed $callableOrMethodStr
-     * @param string $name
      * @throws InjectionException
      */
     protected function prepare($callableOrMethodStr, string $name): void

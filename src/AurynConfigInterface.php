@@ -18,8 +18,6 @@ interface AurynConfigInterface
     public function extend(...$extensions);
 
     /**
-     * @param string $key
-     * @param callable $callback
      * @return void
      */
     public function walk(string $key, callable $callback);

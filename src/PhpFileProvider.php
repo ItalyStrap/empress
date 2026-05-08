@@ -21,9 +21,6 @@ final class PhpFileProvider
         $this->finder = $finder;
     }
 
-    /**
-     * @return \Generator
-     */
     public function __invoke(): \Generator
     {
         $this->finder->names([$this->pattern]);

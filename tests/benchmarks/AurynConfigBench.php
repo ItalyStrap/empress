@@ -28,7 +28,7 @@ class AurynConfigBench
         $resolver = new AurynConfig($injector, $config);
         $resolver->apply();
 
-        $class = $injector->make(stdClass::class);
+        $injector->make(stdClass::class);
     }
 
     /**
@@ -40,6 +40,6 @@ class AurynConfigBench
     {
         $injector = new Injector();
         $injector->share(stdClass::class);
-        $class = $injector->make(stdClass::class);
+        $injector->make(stdClass::class);
     }
 }
