@@ -82,7 +82,7 @@
             "@php vendor/bin/phpcbf example.php"
         ],
         "stan": [
-            "@php ./vendor/bin/phpstan analyse --debug --no-progress"
+            "@php ./vendor/bin/phpstan analyse --no-progress"
         ],
         "unit": [
             "@php vendor/bin/codecept run unit"
