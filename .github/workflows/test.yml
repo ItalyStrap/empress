@@ -35,7 +35,8 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          coverage: xdebug2
+          coverage: xdebug
+          ini-values: register_argc_argv=On
 
       - uses: ramsey/composer-install@v3
         with:
