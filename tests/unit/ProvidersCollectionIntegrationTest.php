@@ -25,9 +25,14 @@ final class ProvidersCollectionIntegrationTest extends UnitTestCase
 
     private function makeInstance(): ProvidersCollection
     {
+        $config = $this->makeConfigReal();
+        $config->merge([
+            'config_cache_enabled' => true,
+            'cache_config_path' => $this->cachedConfigFile,
+        ]);
         return new ProvidersCollection(
             new Injector(),
-            $this->makeConfigReal(),
+            $config,
             null,
             [
                 new PhpFileProvider(
@@ -83,10 +88,6 @@ final class ProvidersCollectionIntegrationTest extends UnitTestCase
                     }
                 },
                 fn(): array => require \codecept_data_dir('fixtures/config/test.global.php'),
-                fn(): array => [
-                    'config_cache_enabled' => true,
-                    'cache_config_path' => $this->cachedConfigFile,
-                ],
             ],
         );
     }
@@ -99,26 +100,26 @@ final class ProvidersCollectionIntegrationTest extends UnitTestCase
 
         $this->assertSame(
             'local config',
-            $config->get(\implode('.', [
+            $config->get([
                 AurynConfig::ALIASES,
                 self::CONFIG_KEY_1,
-            ]))
+            ])
         );
 
         $this->assertSame(
             'iterable config',
-            $config->get(\implode('.', [
+            $config->get([
                 AurynConfig::ALIASES,
                 self::CONFIG_KEY_2,
-            ]))
+            ])
         );
 
         $this->assertSame(
             'test.global.php',
-            $config->get(\implode('.', [
+            $config->get([
                 AurynConfig::ALIASES,
                 self::CONFIG_KEY_3,
-            ]))
+            ])
         );
 
         $this->assertFileExists($this->cachedConfigFile);
@@ -127,6 +128,10 @@ final class ProvidersCollectionIntegrationTest extends UnitTestCase
         $file = require $this->cachedConfigFile;
         $this->assertIsArray($file);
 
-        $this->assertCount(9, $config->get(AurynConfig::ALIASES), 'Should be 9');
+        $aliases = $config->get(AurynConfig::ALIASES);
+
+        $this->assertSame('value', $aliases[0]);
+        $this->assertSame('newValue', $aliases[1]);
+        $this->assertCount(10, $aliases, 'Should be 10');
     }
 }

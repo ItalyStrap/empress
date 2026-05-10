@@ -57,7 +57,7 @@ final class ProvidersCollectionTest extends UnitTestCase
         new ProvidersCollection(new Injector(), $config);
     }
 
-    public function testAggregateAppendsListSectionsAndReplacesMapSectionsRecursively(): void
+    public function testAggregateAppendsListValuesAndReplacesMapValuesRecursively(): void
     {
         $config = new Config();
         $sut = $this->makeInstance([
@@ -68,11 +68,9 @@ final class ProvidersCollectionTest extends UnitTestCase
                 ],
                 AurynConfig::SHARING => [
                     'FirstShared',
-                    'SecondShared',
                 ],
                 AurynConfig::ALIASES => [
                     'InterfaceName' => 'FirstClass',
-                    15 => 'first numeric value',
                 ],
                 AurynConfig::DEFINITIONS => [
                     'ServiceName' => [
@@ -88,11 +86,9 @@ final class ProvidersCollectionTest extends UnitTestCase
                 ],
                 AurynConfig::SHARING => [
                     'SecondShared',
-                    'FirstShared',
                 ],
                 AurynConfig::ALIASES => [
                     'InterfaceName' => 'SecondClass',
-                    15 => 'second numeric value',
                 ],
                 AurynConfig::DEFINITIONS => [
                     'ServiceName' => [
@@ -112,8 +108,9 @@ final class ProvidersCollectionTest extends UnitTestCase
             'FirstShared',
             'SecondShared',
         ], $config->get(AurynConfig::SHARING));
-        $this->assertSame('SecondClass', $config->get(AurynConfig::ALIASES . '.InterfaceName'));
-        $this->assertSame('second numeric value', $config->get([AurynConfig::ALIASES, 15]));
+        $this->assertSame([
+            'InterfaceName' => 'SecondClass',
+        ], $config->get(AurynConfig::ALIASES));
         $this->assertSame(
             [
                 ':overridden' => 'second',
@@ -123,59 +120,71 @@ final class ProvidersCollectionTest extends UnitTestCase
         );
     }
 
-    public function testAggregateUsesAppendToForListSections(): void
+    public function testAggregateMergesMixedExternalSectionsByArrayShape(): void
     {
-        $config = new class extends Config {
-            /**
-             * @var array<int, array{0: mixed, 1: mixed}>
-             */
-            public array $appendCalls = [];
-
-            public function appendTo($key, $value): bool
-            {
-                $this->appendCalls[] = [$key, $value];
-
-                return parent::appendTo($key, $value);
-            }
-        };
-
+        $config = new Config();
         $sut = $this->makeInstance([
             static fn(): array => [
-                AurynConfig::PROXY => [
-                    'FirstProxy',
-                ],
-                AurynConfig::SHARING => [
-                    'FirstShared',
+                'external_section' => [
+                    'FirstService',
+                    'feature_flag' => 'ConditionalService',
+                    'nested' => [
+                        'kept' => 'kept',
+                        'overridden' => 'first',
+                    ],
                 ],
             ],
             static fn(): array => [
-                AurynConfig::PROXY => [
-                    'SecondProxy',
-                ],
-                AurynConfig::SHARING => [
-                    'SecondShared',
+                'external_section' => [
+                    'FirstService',
+                    'SecondService',
+                    'feature_flag' => 'UpdatedConditionalService',
+                    'nested' => [
+                        'overridden' => 'second',
+                        'added' => 'added',
+                    ],
                 ],
             ],
         ], null, $config);
 
         $sut->aggregate();
 
+        $externalSection = $config->get('external_section');
+
+        $this->assertSame('FirstService', $externalSection[0]);
+        $this->assertSame('SecondService', $externalSection[1]);
+        $this->assertSame('UpdatedConditionalService', $externalSection['feature_flag']);
         $this->assertSame([
-            [
-                AurynConfig::PROXY,
-                [
-                    'FirstProxy',
-                    'SecondProxy',
+            'kept' => 'kept',
+            'overridden' => 'second',
+            'added' => 'added',
+        ], $externalSection['nested']);
+    }
+
+    public function testAggregateAppendsProviderListsToPreloadedConfig(): void
+    {
+        $config = new Config([
+            'external_section' => [
+                'PreloadedService',
+                'feature_flag' => 'PreloadedConditionalService',
+            ],
+        ]);
+        $sut = $this->makeInstance([
+            static fn(): array => [
+                'external_section' => [
+                    'ProviderService',
+                    'feature_flag' => 'ProviderConditionalService',
                 ],
             ],
-            [
-                AurynConfig::SHARING,
-                [
-                    'FirstShared',
-                    'SecondShared',
-                ],
-            ],
-        ], $config->appendCalls);
+        ], null, $config);
+
+        $sut->aggregate();
+
+        $externalSection = $config->get('external_section');
+
+        $this->assertSame('PreloadedService', $externalSection[0]);
+        $this->assertSame('ProviderService', $externalSection[1]);
+        $this->assertSame('ProviderConditionalService', $externalSection['feature_flag']);
     }
 
     public function testAggregateAcceptsTraversableProvidersYieldingConfigurationArrays(): void

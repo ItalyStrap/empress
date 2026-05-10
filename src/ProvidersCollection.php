@@ -54,16 +54,12 @@ final class ProvidersCollection
             return;
         }
 
-        $result = [];
-        $appendSections = [];
+        $result = $this->config->toArray();
         foreach ($this->loadConfigurationsFromProviders() as $configuration) {
-            $this->mergeConfiguration($configuration, $result, $appendSections);
+            $this->mergeConfiguration($configuration, $result);
         }
 
         $this->config->merge($result);
-        foreach ($appendSections as $key => $value) {
-            $this->config->appendTo($key, $value);
-        }
 
         if ((bool)$this->config->get(ProvidersCacheInterface::ENABLE_CACHE, false)) {
             $this->cache->write($this->config);
@@ -73,52 +69,54 @@ final class ProvidersCollection
     /**
      * @param Configuration $configuration
      * @param array<array-key, mixed> $result
-     * @param array<array-key, array<int, mixed>> $appendSections
      */
     private function mergeConfiguration(
         array $configuration,
-        array &$result,
-        array &$appendSections
+        array &$result
     ): void {
-        foreach ($configuration as $key => $value) {
-            if ($this->isAppendSection((string)$key)) {
-                $appendSections[$key] = $this->uniqueValues(\array_merge(
-                    (array)($appendSections[$key] ?? []),
-                    (array)$value
-                ));
-                continue;
-            }
-
-            if (!is_array($value)) {
-                $result[$key] = $value;
-                continue;
-            }
-
-            $current = [];
-
-            if (array_key_exists($key, $result) && is_array($result[$key])) {
-                $current = $result[$key];
-            }
-
-            $result[$key] = \array_replace_recursive($current, $value);
-        }
+        $result = $this->mergeValue($result, $configuration);
     }
 
-    private function isAppendSection(string $key): bool
+    /**
+     * @param mixed $current
+     * @param mixed $incoming
+     * @return mixed
+     */
+    private function mergeValue($current, $incoming)
     {
-        return \in_array($key, [
-            AurynConfig::PROXY,
-            AurynConfig::SHARING,
-        ], true);
+        if (!\is_array($incoming)) {
+            return $incoming;
+        }
+
+        $current = \is_array($current) ? $current : [];
+
+        foreach ($incoming as $key => $value) {
+            if (!\is_int($key)) {
+                $current[$key] = $this->mergeValue($current[$key] ?? null, $value);
+                continue;
+            }
+
+            if (!$this->hasListValue($current, $value)) {
+                $current[] = $value;
+            }
+        }
+
+        return $current;
     }
 
     /**
      * @param array<array-key, mixed> $values
-     * @return array<int, mixed>
+     * @param mixed $valueToFind
      */
-    private function uniqueValues(array $values): array
+    private function hasListValue(array $values, $valueToFind): bool
     {
-        return \array_values(\array_unique($values, \SORT_REGULAR));
+        foreach ($values as $key => $value) {
+            if (\is_int($key) && $value === $valueToFind) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
