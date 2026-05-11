@@ -59,11 +59,10 @@ final class ProvidersCollection
             $this->mergeConfiguration($configuration, $result);
         }
 
+        $this->config->exchangeArray([]);
         $this->config->merge($result);
 
-        if ((bool)$this->config->get(ProvidersCacheInterface::ENABLE_CACHE, false)) {
-            $this->cache->write($this->config);
-        }
+        $this->cache->write($this->config);
     }
 
     /**

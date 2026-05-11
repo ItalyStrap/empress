@@ -6,7 +6,6 @@ namespace ItalyStrap\Empress\Tests\Unit;
 
 use ItalyStrap\Config\Config;
 use ItalyStrap\Empress\ProvidersCache;
-use ItalyStrap\Empress\ProvidersCacheInterface;
 use ItalyStrap\Empress\Tests\UnitTestCase;
 
 final class ProvidersCacheTest extends UnitTestCase
@@ -41,7 +40,7 @@ final class ProvidersCacheTest extends UnitTestCase
 
     public function testReadReturnsFalseWhenCachePathDoesNotExist(): void
     {
-        $sut = new ProvidersCache($this->cacheFile('missing-cache.php'));
+        $sut = new ProvidersCache($this->cacheFile('missing-cache.php'), 0666, true);
 
         $this->assertFalse($sut->read(new Config()));
     }
@@ -49,7 +48,7 @@ final class ProvidersCacheTest extends UnitTestCase
     public function testReadReturnsFalseWhenCachePathIsNotAFile(): void
     {
         $directory = $this->cacheDirectory('cache-directory');
-        $sut = new ProvidersCache($directory);
+        $sut = new ProvidersCache($directory, 0666, true);
 
         $this->assertFalse($sut->read(new Config()));
     }
@@ -67,36 +66,11 @@ return [
 ];
 PHP);
         $config = new Config();
-        $sut = new ProvidersCache($file);
+        $sut = new ProvidersCache($file, 0666, true);
 
         $this->assertTrue($sut->read($config));
         $this->assertSame('value', $config->get('key'));
         $this->assertSame('nested-value', $config->get('nested.key'));
-    }
-
-    public function testReadUsesConfigCachePathBeforeConstructorPath(): void
-    {
-        $constructorFile = $this->writeCacheFile('constructor-cache.php', <<<'PHP'
-<?php
-
-return [
-    'source' => 'constructor',
-];
-PHP);
-        $configFile = $this->writeCacheFile('config-cache-override.php', <<<'PHP'
-<?php
-
-return [
-    'source' => 'config',
-];
-PHP);
-        $config = new Config([
-            ProvidersCacheInterface::CACHE_PATH => $configFile,
-        ]);
-        $sut = new ProvidersCache($constructorFile);
-
-        $this->assertTrue($sut->read($config));
-        $this->assertSame('config', $config->get('source'));
     }
 
     public function testReadThrowsWhenCacheFileDoesNotReturnArray(): void
@@ -106,7 +80,7 @@ PHP);
 
 return 'invalid';
 PHP);
-        $sut = new ProvidersCache($file);
+        $sut = new ProvidersCache($file, 0666, true);
 
         $this->expectException(\ErrorException::class);
         $this->expectExceptionMessage('Configuration cache must return an array');
@@ -121,7 +95,7 @@ PHP);
 
 throw new RuntimeException('Broken cache file');
 PHP);
-        $sut = new ProvidersCache($file);
+        $sut = new ProvidersCache($file, 0666, true);
 
         try {
             $sut->read(new Config());
@@ -133,15 +107,16 @@ PHP);
         }
     }
 
-    public function testWriteReturnsWhenNoCachePathIsConfigured(): void
+    public function testWriteReturnsWhenCacheIsDisabled(): void
     {
-        $sut = new ProvidersCache();
+        $file = $this->cacheFile('disabled-write-cache.php');
+        $sut = new ProvidersCache($file);
 
         $sut->write(new Config([
             'key' => 'value',
         ]));
 
-        $this->assertTrue(true);
+        $this->assertFalse(\is_file($file));
     }
 
     public function testWriteCreatesReadableCacheFile(): void
@@ -149,10 +124,9 @@ PHP);
         $file = $this->cacheFile('written-cache.php');
         $this->pathsToRemove[] = $file;
         $config = new Config([
-            ProvidersCacheInterface::CACHE_PATH => $file,
             'key' => 'value',
         ]);
-        $sut = new ProvidersCache();
+        $sut = new ProvidersCache($file, 0666, true);
 
         $sut->write($config);
 
@@ -166,10 +140,8 @@ PHP);
 
     public function testWriteThrowsWhenCacheFileCannotBeWritten(): void
     {
-        $config = new Config([
-            ProvidersCacheInterface::CACHE_PATH => $this->cacheFile('missing-directory/cache.php'),
-        ]);
-        $sut = new ProvidersCache();
+        $config = new Config();
+        $sut = new ProvidersCache($this->cacheFile('missing-directory/cache.php'), 0666, true);
 
         $this->expectException(\ErrorException::class);
         $this->expectExceptionMessage('Configuration cache cannot be written');

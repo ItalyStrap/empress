@@ -11,6 +11,7 @@ use ItalyStrap\Config\Config;
 use ItalyStrap\Config\ConfigInterface;
 use ItalyStrap\Config\NodeManipulationInterface;
 use ItalyStrap\Empress\AurynConfig;
+use ItalyStrap\Empress\ProvidersCache;
 use ItalyStrap\Empress\ProvidersCacheInterface;
 use ItalyStrap\Empress\ProvidersCollection;
 use ItalyStrap\Empress\Tests\Modules\ModuleStub1;
@@ -284,7 +285,7 @@ final class ProvidersCollectionTest extends UnitTestCase
         $this->assertFalse($cache->written);
     }
 
-    public function testAggregateWritesCacheWhenEnabledByProviders(): void
+    public function testAggregateWritesCacheWhenCacheIsProvided(): void
     {
         $cache = new class implements ProvidersCacheInterface {
             /**
@@ -305,7 +306,6 @@ final class ProvidersCollectionTest extends UnitTestCase
 
         $sut = $this->makeInstance([
             static fn(): array => [
-                ProvidersCacheInterface::ENABLE_CACHE => true,
                 'key' => 'value',
             ],
         ], $cache);
@@ -317,29 +317,20 @@ final class ProvidersCollectionTest extends UnitTestCase
 
     public function testAggregateDoesNotWriteCacheWhenCacheIsDisabled(): void
     {
-        $cache = new class implements ProvidersCacheInterface {
-            public bool $written = false;
-
-            public function read(ConfigInterface $config): bool
-            {
-                return false;
-            }
-
-            public function write(ConfigInterface $config): void
-            {
-                $this->written = true;
-            }
-        };
+        $file = \codecept_output_dir('disabled-providers-cache.php');
+        if (\is_file($file)) {
+            \unlink($file);
+        }
 
         $sut = $this->makeInstance([
             static fn(): array => [
                 'key' => 'value',
             ],
-        ], $cache);
+        ], new ProvidersCache($file));
 
         $sut->aggregate();
 
-        $this->assertFalse($cache->written);
+        $this->assertFalse(\is_file($file));
     }
 
     public function testAggregateThrowsWhenProviderReturnsInvalidResult(): void

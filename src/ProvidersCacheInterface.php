@@ -8,12 +8,6 @@ use ItalyStrap\Config\ConfigInterface;
 
 interface ProvidersCacheInterface
 {
-    public const ENABLE_CACHE = 'config_cache_enabled';
-
-    public const CACHE_FILEMODE = 'config_cache_filemode';
-
-    public const CACHE_PATH = 'cache_config_path';
-
     /**
      * @param ConfigInterface<array-key, mixed> $config
      */

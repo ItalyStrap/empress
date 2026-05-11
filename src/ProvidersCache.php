@@ -24,11 +24,15 @@ declare(strict_types=1);
 
 %s
 EOT;
-    private ?string $file;
+    private string $file;
+    private int $fileMode;
+    private bool $enabled;
 
-    public function __construct(?string $file = null)
+    public function __construct(string $file = '', int $fileMode = 0666, bool $enabled = false)
     {
         $this->file = $file;
+        $this->fileMode = $fileMode;
+        $this->enabled = $enabled;
     }
 
     /**
@@ -36,19 +40,20 @@ EOT;
      */
     public function read(ConfigInterface $config): bool
     {
-
-        $cachedConfigFile = $this->stringValue($config->get(self::CACHE_PATH, $this->file));
+        if (!$this->enabled) {
+            return false;
+        }
 
         if (
-            $cachedConfigFile === ''
-            || !file_exists($cachedConfigFile)
-            || !is_file($cachedConfigFile)
-            || !is_readable($cachedConfigFile)
+            $this->file === ''
+            || !file_exists($this->file)
+            || !is_file($this->file)
+            || !is_readable($this->file)
         ) {
             return false;
         }
 
-        $config->merge($this->loadCacheFile($cachedConfigFile));
+        $config->merge($this->loadCacheFile($this->file));
         return true;
     }
 
@@ -57,9 +62,7 @@ EOT;
      */
     public function write(ConfigInterface $config): void
     {
-        $cachedConfigFile = $this->stringValue($config->get(self::CACHE_PATH, $this->file));
-
-        if ($cachedConfigFile === '') {
+        if (!$this->enabled || $this->file === '') {
             return;
         }
 
@@ -78,7 +81,7 @@ EOT;
             throw new \ErrorException('Configuration cannot be cached', 0, 1, __FILE__, __LINE__, $e);
         }
 
-        $this->writeCache($cachedConfigFile, $contents, $this->intValue($config->get(self::CACHE_FILEMODE, 0666)));
+        $this->writeCache($this->file, $contents, $this->fileMode);
     }
 
     private function writeCache(string $cachedConfigFile, string $contents, int $mode): void
@@ -88,38 +91,6 @@ EOT;
         } catch (FileWriterException $e) {
             throw new \ErrorException('Configuration cache cannot be written', 0, 1, __FILE__, __LINE__, $e);
         }
-    }
-
-    /**
-     * @param mixed $value
-     */
-    private function stringValue($value): string
-    {
-        if ($value === null) {
-            return '';
-        }
-
-        if (\is_scalar($value) || $value instanceof \Stringable) {
-            return (string)$value;
-        }
-
-        throw new \ErrorException('Configuration cache path must be a string');
-    }
-
-    /**
-     * @param mixed $value
-     */
-    private function intValue($value): int
-    {
-        if (\is_int($value)) {
-            return $value;
-        }
-
-        if (\is_string($value) && \is_numeric($value)) {
-            return (int)$value;
-        }
-
-        throw new \ErrorException('Configuration cache file mode must be an integer');
     }
 
     /**

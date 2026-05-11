@@ -8,6 +8,7 @@ use Auryn\Injector;
 use ItalyStrap\Empress\AurynConfig;
 use ItalyStrap\Empress\ModuleInterface;
 use ItalyStrap\Empress\PhpFileProvider;
+use ItalyStrap\Empress\ProvidersCache;
 use ItalyStrap\Empress\ProvidersCollection;
 use ItalyStrap\Empress\Tests\ConcreteNeedsSomeInterface;
 use ItalyStrap\Empress\Tests\SomeInterface;
@@ -26,14 +27,10 @@ final class ProvidersCollectionIntegrationTest extends UnitTestCase
     private function makeInstance(): ProvidersCollection
     {
         $config = $this->makeConfigReal();
-        $config->merge([
-            'config_cache_enabled' => true,
-            'cache_config_path' => $this->cachedConfigFile,
-        ]);
         return new ProvidersCollection(
             new Injector(),
             $config,
-            null,
+            new ProvidersCache($this->cachedConfigFile, 0666, true),
             [
                 new PhpFileProvider(
                     '/config/autoload/{{,*.}global,{,*.}local}.php',
