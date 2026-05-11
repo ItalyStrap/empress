@@ -13,6 +13,8 @@ use Webimpress\SafeWriter\FileWriter;
 
 final class ProvidersCache implements ProvidersCacheInterface
 {
+    use ConfigReplacementTrait;
+
     private const CACHE_TEMPLATE = <<<'EOT'
 <?php
 
@@ -53,7 +55,7 @@ EOT;
             return false;
         }
 
-        $config->merge($this->loadCacheFile($this->file));
+        $this->replaceConfig($config, $this->loadCacheFile($this->file));
         return true;
     }
 

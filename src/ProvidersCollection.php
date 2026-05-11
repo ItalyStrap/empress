@@ -14,6 +14,8 @@ use ItalyStrap\Config\NodeManipulationInterface;
  */
 final class ProvidersCollection
 {
+    use ConfigReplacementTrait;
+
     private Injector $injector;
     /**
      * @var ConfigInterface<array-key, mixed>&NodeManipulationInterface<array-key, mixed>
@@ -59,8 +61,7 @@ final class ProvidersCollection
             $this->mergeConfiguration($configuration, $result);
         }
 
-        $this->config->exchangeArray([]);
-        $this->config->merge($result);
+        $this->replaceConfig($this->config, $result);
 
         $this->cache->write($this->config);
     }
