@@ -16,7 +16,6 @@
     "require": {
         "php" : ">=7.4",
         "brick/varexporter": "^0.3.8",
-        "friendsofphp/proxy-manager-lts": "^1.0",
         "italystrap/config": "^2.11",
         "overclokk/auryn": "dev-master",
         "webimpress/safe-writer": "^2.2",
@@ -46,7 +45,9 @@
         "italystrap/finder": "dev-master",
         "laminas/laminas-config-aggregator": "^1.9",
         "crellbar/prophecy-extensions": "^1.1",
-        "rector/swiss-knife": "^2.3"
+        "rector/swiss-knife": "^2.3",
+
+        "friendsofphp/proxy-manager-lts": "^1.0"
     },
     "autoload": {
         "psr-4": {
@@ -70,7 +71,8 @@
     },
     "suggest": {
         "elazar/auryn-container-interop": "Only if you want to add a psr/container adapter, not required for this package",
-        "northwoods/container": "Only if you want to add a psr/container adapter, not required for this package"
+        "northwoods/container": "Only if you want to add a psr/container adapter, not required for this package",
+        "friendsofphp/proxy-manager-lts": "Only if you want to add support for lazy loading classes"
     },
     "scripts": {
         "cs": [
