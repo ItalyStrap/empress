@@ -6,7 +6,6 @@ namespace ItalyStrap\Empress\Tests\Unit;
 
 use ItalyStrap\Config\ConfigFactory;
 use ItalyStrap\Empress\AurynConfig;
-use ItalyStrap\Empress\ProxyFactoryInterface;
 use ItalyStrap\Empress\Tests\ConcreteNeedsSomeInterface;
 use ItalyStrap\Empress\Tests\SomeConcrete;
 use ItalyStrap\Empress\Tests\SomeInterface;
@@ -82,5 +81,23 @@ final class AurynConfigIntegrationTest extends UnitTestCase
         /** @var SomeConcrete $concrete */
         $concrete = $this->realInjector->make(SomeConcrete::class);
         $this->assertSame('DifferentConcrete', $concrete->render());
+    }
+
+    public function testItShouldIgnoreProxyConfigurationWhenProxyFactoryIsMissing(): void
+    {
+        $sut = new AurynConfig(
+            $this->realInjector,
+            (new ConfigFactory())->make([
+                AurynConfig::PROXY => [
+                    SomeConcrete::class,
+                ],
+            ])
+        );
+
+        $sut->apply();
+
+        /** @var SomeConcrete $concrete */
+        $concrete = $this->realInjector->make(SomeConcrete::class);
+        $this->assertSame('SomeConcrete', $concrete->render());
     }
 }

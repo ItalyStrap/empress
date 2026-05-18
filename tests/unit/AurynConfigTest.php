@@ -9,8 +9,6 @@ use ItalyStrap\Config\ConfigFactory;
 use ItalyStrap\Empress\AurynConfig;
 use ItalyStrap\Empress\AurynConfigInterface;
 use ItalyStrap\Empress\Extension;
-use ItalyStrap\Empress\ProxyFactory;
-use ItalyStrap\Empress\ProxyFactoryInterface;
 use ItalyStrap\Empress\Tests\SomeConcrete;
 use ItalyStrap\Empress\Tests\SomeExtension;
 use ItalyStrap\Empress\Tests\UnitTestCase;
@@ -62,6 +60,24 @@ final class AurynConfigTest extends UnitTestCase
                     $expected,
                 ],
             ]
+        );
+
+        $sut->apply();
+    }
+
+    public function testItShouldSkipProxyConfigurationWhenProxyFactoryIsMissing(): void
+    {
+        $this->injector
+            ->proxy(Argument::any(), Argument::any())
+            ->shouldNotBeCalled();
+
+        $sut = new AurynConfig(
+            $this->makeInjector(),
+            (new ConfigFactory())->make([
+                AurynConfig::PROXY => [
+                    'SomeClassProxies',
+                ],
+            ])
         );
 
         $sut->apply();

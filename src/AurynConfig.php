@@ -40,7 +40,7 @@ class AurynConfig implements AurynConfigInterface
      */
     private Config $dependencies;
 
-    private ProxyFactoryInterface $proxy_factory;
+    private ?ProxyFactoryInterface $proxy_factory;
 
     /**
      * @var array<string, Extension>
@@ -62,7 +62,7 @@ class AurynConfig implements AurynConfigInterface
     ) {
         $this->injector = $injector;
         $this->dependencies = $dependencies;
-        $this->proxy_factory = $proxyFactory ?? new ProxyFactory();
+        $this->proxy_factory = $proxyFactory;
     }
 
     public function apply(): void
@@ -144,6 +144,10 @@ class AurynConfig implements AurynConfigInterface
      */
     protected function proxy(string $name, int $index): void
     {
+        if ($this->proxy_factory === null) {
+            return;
+        }
+
         $this->injector->proxy($name, $this->proxy_factory);
     }
 

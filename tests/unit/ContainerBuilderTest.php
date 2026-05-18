@@ -275,4 +275,19 @@ final class ContainerBuilderTest extends UnitTestCase
         $this->assertTrue($factory->called);
         $this->assertSame('ProxiedConcrete', $service->render());
     }
+
+    public function testBuildIgnoresProxyConfigurationWhenProxyFactoryIsMissing(): void
+    {
+        $builder = new ContainerBuilder();
+        $builder->addProvider(static fn(): array => [
+            AurynConfig::PROXY => [
+                SomeConcrete::class,
+            ],
+        ]);
+
+        /** @var SomeConcrete $service */
+        $service = $builder->build()->get(SomeConcrete::class);
+
+        $this->assertSame('SomeConcrete', $service->render());
+    }
 }
