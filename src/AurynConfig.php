@@ -144,6 +144,13 @@ class AurynConfig implements AurynConfigInterface
      */
     protected function proxy(string $name, int $index): void
     {
+        if ($name !== '' && \class_exists($name) && $this->proxy_factory === null) {
+            throw new ConfigException(\sprintf(
+                'Proxy factory is required for proxying %s',
+                $name
+            ));
+        }
+
         if ($this->proxy_factory === null) {
             return;
         }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ItalyStrap\Empress\Tests\Unit;
 
 use Auryn\Injector;
+use Auryn\ConfigException;
 use ItalyStrap\Config\ConfigFactory;
 use ItalyStrap\Empress\AurynConfig;
 use ItalyStrap\Empress\AurynConfigInterface;
@@ -79,6 +80,22 @@ final class AurynConfigTest extends UnitTestCase
                 ],
             ])
         );
+
+        $sut->apply();
+    }
+
+    public function testItShouldThrowWhenProxyFactoryIsMissingForRealClassProxyConfiguration(): void
+    {
+        $sut = new AurynConfig(
+            $this->makeInjector(),
+            (new ConfigFactory())->make([
+                AurynConfig::PROXY => [
+                    SomeConcrete::class,
+                ],
+            ])
+        );
+
+        $this->expectException(ConfigException::class);
 
         $sut->apply();
     }

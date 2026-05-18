@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ItalyStrap\Empress\Tests\Unit;
 
+use Auryn\ConfigException;
 use Auryn\Injector;
 use ItalyStrap\Config\Config;
 use ItalyStrap\Config\ConfigInterface;
@@ -281,7 +282,7 @@ final class ContainerBuilderTest extends UnitTestCase
         $builder = new ContainerBuilder();
         $builder->addProvider(static fn(): array => [
             AurynConfig::PROXY => [
-                SomeConcrete::class,
+                'SomeClassProxies',
             ],
         ]);
 
@@ -289,5 +290,19 @@ final class ContainerBuilderTest extends UnitTestCase
         $service = $builder->build()->get(SomeConcrete::class);
 
         $this->assertSame('SomeConcrete', $service->render());
+    }
+
+    public function testBuildThrowsWhenProxyFactoryIsMissingForRealClassProxyConfiguration(): void
+    {
+        $builder = new ContainerBuilder();
+        $builder->addProvider(static fn(): array => [
+            AurynConfig::PROXY => [
+                SomeConcrete::class,
+            ],
+        ]);
+
+        $this->expectException(ConfigException::class);
+
+        $builder->build();
     }
 }
