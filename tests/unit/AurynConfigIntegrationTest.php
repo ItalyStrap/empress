@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace ItalyStrap\Empress\Tests\Unit;
 
+use Auryn\ConfigException;
 use ItalyStrap\Config\ConfigFactory;
 use ItalyStrap\Empress\AurynConfig;
 use ItalyStrap\Empress\Tests\ConcreteNeedsSomeInterface;
@@ -83,7 +84,7 @@ final class AurynConfigIntegrationTest extends UnitTestCase
         $this->assertSame('DifferentConcrete', $concrete->render());
     }
 
-    public function testItShouldIgnoreProxyConfigurationWhenProxyFactoryIsMissing(): void
+    public function testItShouldThrowWhenProxyFactoryIsMissingForRealClassProxyConfiguration(): void
     {
         $sut = new AurynConfig(
             $this->realInjector,
@@ -94,10 +95,8 @@ final class AurynConfigIntegrationTest extends UnitTestCase
             ])
         );
 
-        $sut->apply();
+        $this->expectException(ConfigException::class);
 
-        /** @var SomeConcrete $concrete */
-        $concrete = $this->realInjector->make(SomeConcrete::class);
-        $this->assertSame('SomeConcrete', $concrete->render());
+        $sut->apply();
     }
 }
