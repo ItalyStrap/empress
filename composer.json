@@ -11,16 +11,20 @@
             "role": "Developer"
         }
     ],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "require": {
         "php" : ">=7.4",
-        "rdlowrey/auryn": "^1.4",
-        "italystrap/config": "^2.2",
-        "ocramius/proxy-manager": "~2.11.0"
+        "brick/varexporter": "^0.3.8",
+        "italystrap/config": "^2.11",
+        "overclokk/auryn": "dev-master",
+        "webimpress/safe-writer": "^2.2",
+        "psr/container": "^1.1 || ^2.0"
     },
     "require-dev": {
-        "lucatume/wp-browser": "^3.0",
+        "lucatume/wp-browser": ">=3.2.3 <3.5",
         "lucatume/function-mocker-le": "^1.0.1",
+        "behat/gherkin": ">=4.4 <4.11",
         "codeception/module-asserts": "^1.0",
         "phpspec/prophecy-phpunit": "^2.0",
 
@@ -28,7 +32,7 @@
         "phpcompatibility/php-compatibility": "^9.3",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
 
-        "vimeo/psalm": "^5.6",
+        "phpstan/phpstan": "^1.12",
 
         "phpbench/phpbench": "^1.2",
         "phpmetrics/phpmetrics": "^2.8",
@@ -36,49 +40,58 @@
         "infection/infection": "^0.26.6",
         "infection/codeception-adapter": "^0.4.1",
 
-        "rector/rector": "^0.15.17",
-        "italystrap/debug": "^2.1"
+        "rector/rector": "^1.2",
+        "italystrap/debug": "dev-master",
+        "italystrap/finder": "dev-master",
+        "laminas/laminas-config-aggregator": "^1.9",
+        "crellbar/prophecy-extensions": "^1.1",
+        "rector/swiss-knife": "^2.3",
+
+        "friendsofphp/proxy-manager-lts": "^1.0"
     },
     "autoload": {
         "psr-4": {
-            "ItalyStrap\\Empress\\": "src/"
+            "ItalyStrap\\Empress\\": [
+                "src/"
+            ]
         },
         "files": [
-            "namespace-bc-aliases.php",
-            "bridge/Injector.php"
+            "namespace-bc-aliases.php"
         ]
     },
     "autoload-dev": {
         "psr-4": {
-            "ItalyStrap\\Tests\\": "tests/src/",
-            "ItalyStrap\\Tests\\Unit\\": "tests/unit/"
-        },
-        "files": [
-            "tests/_data/fixtures/fixtures.php",
-            "tests/_data/fixtures/fixtures_5_6.php"
-        ]
+            "ItalyStrap\\Empress\\Tests\\": [
+                "tests/src/",
+                "tests/_data/fixtures/src/"
+            ],
+            "ItalyStrap\\Empress\\Tests\\Modules\\": "tests/_data/fixtures/modules/",
+            "ItalyStrap\\Empress\\Tests\\Unit\\": "tests/unit/"
+        }
     },
     "suggest": {
         "elazar/auryn-container-interop": "Only if you want to add a psr/container adapter, not required for this package",
-        "northwoods/container": "Only if you want to add a psr/container adapter, not required for this package"
+        "northwoods/container": "Only if you want to add a psr/container adapter, not required for this package",
+        "friendsofphp/proxy-manager-lts": "Only if you want to add support for lazy loading classes"
     },
     "scripts": {
         "cs": [
             "@php vendor/bin/phpcs -p"
         ],
         "cs:fix": [
-            "@php vendor/bin/phpcbf -p"
+            "echo Fixing the package",
+            "@php vendor/bin/phpcbf -p",
+            "echo Fixing example.php",
+            "@php vendor/bin/phpcbf example.php"
         ],
-        "psalm": [
-            "@php ./vendor/bin/psalm --no-cache"
+        "stan": [
+            "@php ./vendor/bin/phpstan analyse --no-progress"
         ],
         "unit": [
-            "@php vendor/bin/codecept run unit",
-            "@clean"
+            "@php vendor/bin/codecept run unit"
         ],
         "unit:debug": [
-            "@php vendor/bin/codecept run unit --debug",
-            "@clean"
+            "@php vendor/bin/codecept run unit --debug"
         ],
         "infection": [
             "@php vendor/bin/infection --threads=4"
@@ -97,6 +110,11 @@
         ],
         "clean": [
             "@php vendor/bin/codecept clean"
+        ],
+        "qa": [
+            "@cs",
+            "@stan",
+            "@unit"
         ]
     },
     "support"    : {

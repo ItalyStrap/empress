@@ -2,13 +2,19 @@
   "source": {
     "directories": [
       "src"
+    ],
+    "excludes": [
+        "/Provider/"
     ]
   },
   "timeout": 10,
+  "logs": {
+    "text": "php://stdout"
+  },
   "mutators": {
     "@default": true
   },
-  "tmpDir": "\/tests\/_output",
+  "tmpDir": "tests\/_output",
   "testFramework": "codeception",
   "testFrameworkOptions": "--skip=wpunit --skip=acceptance --skip=functional"
 }

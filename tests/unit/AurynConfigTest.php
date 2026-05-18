@@ -2,25 +2,105 @@
 
 declare(strict_types=1);
 
-namespace ItalyStrap\Tests\Unit;
+namespace ItalyStrap\Empress\Tests\Unit;
 
+use Auryn\Injector;
+use Auryn\ConfigException;
 use ItalyStrap\Config\ConfigFactory;
-use ItalyStrap\Empress\Injector;
 use ItalyStrap\Empress\AurynConfig;
 use ItalyStrap\Empress\AurynConfigInterface;
 use ItalyStrap\Empress\Extension;
-use ItalyStrap\Tests\UnitTestCase;
+use ItalyStrap\Empress\Tests\SomeConcrete;
+use ItalyStrap\Empress\Tests\SomeExtension;
+use ItalyStrap\Empress\Tests\UnitTestCase;
 use PHPUnit\Framework\Assert;
 use Prophecy\Argument;
 
-class AurynConfigTest extends UnitTestCase
+final class AurynConfigTest extends UnitTestCase
 {
     protected function makeInstance(array $config = []): AurynConfig
     {
-        return new AurynConfig($this->makeInjector(), ConfigFactory::make($config));
+        return new AurynConfig($this->makeInjector(), (new ConfigFactory())->make($config), $this->makeProxyFactory());
     }
 
-    public function shareProvider()
+//    public function testItShouldProxy(): void
+//    {
+//        $mockProxyFactory = $this->prophesize(ProxyFactoryInterface::class);
+//        $mockProxyFactory->__invoke(Argument::type('string'), Argument::type('callable'))
+//            ->shouldBeCalledTimes(1);
+//
+//        $this->proxyFactory = $mockProxyFactory->reveal();
+//        $sut = $this->makeInstance(
+//            [
+//                AurynConfig::PROXY => [
+//                    SomeConcrete::class
+//                ],
+//            ]
+//        );
+//
+//        $sut->$this->apply();
+//
+//        $concrete = $this->realInjector->make(SomeConcrete::class);
+//    }
+
+    public function testItShouldProxy01(): void
+    {
+
+        $expected = 'SomeClassProxies';
+
+        $this->injector->proxy(
+            Argument::type('string'),
+            Argument::type('callable')
+        )->will(function ($args) use ($expected): void {
+            Assert::assertEquals($expected, $args[0], '');
+        });
+
+        $sut = $this->makeInstance(
+            [
+                AurynConfig::PROXY  => [
+                    $expected,
+                ],
+            ]
+        );
+
+        $sut->apply();
+    }
+
+    public function testItShouldSkipProxyConfigurationWhenProxyFactoryIsMissing(): void
+    {
+        $this->injector
+            ->proxy(Argument::any(), Argument::any())
+            ->shouldNotBeCalled();
+
+        $sut = new AurynConfig(
+            $this->makeInjector(),
+            (new ConfigFactory())->make([
+                AurynConfig::PROXY => [
+                    'SomeClassProxies',
+                ],
+            ])
+        );
+
+        $sut->apply();
+    }
+
+    public function testItShouldThrowWhenProxyFactoryIsMissingForRealClassProxyConfiguration(): void
+    {
+        $sut = new AurynConfig(
+            $this->makeInjector(),
+            (new ConfigFactory())->make([
+                AurynConfig::PROXY => [
+                    SomeConcrete::class,
+                ],
+            ])
+        );
+
+        $this->expectException(ConfigException::class);
+
+        $sut->apply();
+    }
+
+    public function shareProvider(): iterable
     {
         return [
             'ClassName'     => [
@@ -39,7 +119,7 @@ class AurynConfigTest extends UnitTestCase
     public function testItShouldShare($expected): void
     {
 
-        $this->injector->share(Argument::any())->will(function ($args) use ($expected) {
+        $this->injector->share(Argument::any())->will(function ($args) use ($expected): void {
             Assert::assertEquals($expected, $args[0], '');
         });
 
@@ -51,30 +131,7 @@ class AurynConfigTest extends UnitTestCase
             ]
         );
 
-        $sut->resolve();
-    }
-
-    public function testItShouldProxy(): void
-    {
-
-        $expected = 'SomeClassProxies';
-
-        $this->injector->proxy(
-            Argument::type('string'),
-            Argument::type('callable')
-        )->will(function ($args) use ($expected) {
-            Assert::assertEquals($expected, $args[0], '');
-        });
-
-        $sut = $this->makeInstance(
-            [
-                AurynConfig::PROXY  => [
-                    $expected,
-                ],
-            ]
-        );
-
-        $sut->resolve();
+        $sut->apply();
     }
 
     public function testItShouldAlias(): void
@@ -82,7 +139,7 @@ class AurynConfigTest extends UnitTestCase
 
         $this->injector
             ->alias(Argument::type('string'), Argument::type('string'))
-            ->will(function ($args) {
+            ->will(function ($args): void {
                 Assert::assertEquals('InterfaceName', $args[0], '');
                 Assert::assertEquals('ClassName', $args[1], '');
             });
@@ -95,7 +152,7 @@ class AurynConfigTest extends UnitTestCase
             ]
         );
 
-        $sut->resolve();
+        $sut->apply();
     }
 
     public function testItShouldDefine(): void
@@ -103,7 +160,7 @@ class AurynConfigTest extends UnitTestCase
 
         $this->injector
             ->define(Argument::type('string'), Argument::type('array'))
-            ->will(function ($args) {
+            ->will(function ($args): void {
                 Assert::assertEquals('ClassName', $args[0], '');
                 Assert::assertArrayHasKey(':config', $args[1], '');
             });
@@ -119,7 +176,7 @@ class AurynConfigTest extends UnitTestCase
             ]
         );
 
-        $sut->resolve();
+        $sut->apply();
     }
 
     public function testItShouldDefineParam(): void
@@ -130,7 +187,7 @@ class AurynConfigTest extends UnitTestCase
 
         $this->injector
             ->defineParam(Argument::type('string'), Argument::any())
-            ->will(function ($args) use ($param_expected) {
+            ->will(function ($args) use ($param_expected): void {
                 Assert::assertEquals(':config', $args[0], '');
                 Assert::assertEquals($param_expected, $args[1], '');
             });
@@ -143,20 +200,18 @@ class AurynConfigTest extends UnitTestCase
             ]
         );
 
-        $sut->resolve();
+        $sut->apply();
     }
 
     public function testItShouldDelegate(): void
     {
 
-        $factory_delegation = function () {
-            return new class {
-            };
+        $factory_delegation = fn(): object => new class {
         };
 
         $this->injector
             ->delegate(Argument::type('string'), Argument::any())
-            ->will(function ($args) use ($factory_delegation) {
+            ->will(function ($args) use ($factory_delegation): void {
                 Assert::assertEquals(':config', $args[0], '');
                 Assert::assertEquals($factory_delegation, $args[1], '');
                 Assert::assertIsCallable($args[1], '');
@@ -170,22 +225,22 @@ class AurynConfigTest extends UnitTestCase
             ]
         );
 
-        $sut->resolve();
+        $sut->apply();
     }
 
     public function testItShouldPrepare(): void
     {
 
-        $preparation_callback = function ($class, $injector) {
+        $preparation_callback = function ($class, $injector): void {
             Assert::assertEquals('ClassName', $class, '');
             Assert::assertInstanceOf(Injector::class, $injector, '');
         };
 
-        $test = $this->prophet;
+        $test = $this;
 
         $this->injector
             ->prepare(Argument::type('string'), Argument::any())
-            ->will(function ($args) use ($preparation_callback, $test) {
+            ->will(function ($args) use ($preparation_callback, $test): void {
                 Assert::assertEquals('ClassName', $args[0], '');
                 Assert::assertEquals($preparation_callback, $args[1], '');
                 Assert::assertIsCallable($args[1], '');
@@ -204,7 +259,7 @@ class AurynConfigTest extends UnitTestCase
             ]
         );
 
-        $sut->resolve();
+        $sut->apply();
     }
 
     public function testItShouldWalk(): void
@@ -217,7 +272,7 @@ class AurynConfigTest extends UnitTestCase
             ]
         );
 
-        $sut->walk('Test', function (string $value, $key) {
+        $sut->walk('Test', function (string $value, $key): void {
             Assert::assertStringContainsString($value, 'ClassName', '');
             Assert::assertStringContainsString($key, 'Key', '');
         });
@@ -229,12 +284,12 @@ class AurynConfigTest extends UnitTestCase
         $this
             ->injector
             ->share(Argument::type('string'), Argument::any())
-            ->will(function ($args) {
+            ->will(function ($args): void {
                 Assert::assertStringContainsString('ClassName', $args[0], '');
             });
 
         $this->injector->make(Argument::type('string'), Argument::type('array'))
-            ->will(function ($args) {
+            ->will(function ($args): void {
                 Assert::assertStringContainsString('ClassName', $args[0], '');
             });
 
@@ -247,28 +302,28 @@ class AurynConfigTest extends UnitTestCase
             ]
         );
 
-        $extension = $this->prophet->prophesize(Extension::class);
+        $extension = $this->prophesize(Extension::class);
 
         $extension->name()->willReturn('ExtensionName');
 
-        $extension->execute(Argument::exact($sut))->will(function ($args) {
+        $extension->execute(Argument::exact($sut))->will(function ($args): void {
         });
 
         $sut->extend($extension->reveal());
 
-        $sut->resolve();
+        $sut->apply();
     }
 
     public function testItShouldExtendRealClass(): void
     {
 
         $this->injector->share(Argument::type('string'), Argument::any())
-            ->will(function ($args) {
+            ->will(function ($args): void {
                 Assert::assertStringContainsString('ClassName', $args[0], '');
             });
 
         $this->injector->make(Argument::type('string'), Argument::type('array'))
-            ->will(function ($args) {
+            ->will(function ($args): void {
                 Assert::assertStringContainsString('ClassName', $args[0], '');
             });
 
@@ -290,27 +345,35 @@ class AurynConfigTest extends UnitTestCase
                 return self::SUBSCRIBERS;
             }
 
-            public function execute(AurynConfigInterface $application)
+            public function execute(AurynConfigInterface $application): void
             {
-                $application->walk(self::SUBSCRIBERS, [ $this, 'method' ]);
+                $application->walk(self::SUBSCRIBERS, $this);
             }
 
-            public function method(string $class, $index_or_optionName, Injector $injector)
+            public function __invoke(string $class, $index_or_optionName, Injector $injector): void
             {
                 Assert::assertStringContainsString($class, 'ClassName', '');
                 $injector->share($class);
                 $injector->make($class, []);
-
-//              if ( empty( $config->get( $index_or_optionName, '' ) ) ) {
-//                  return;
-//              }
-//
-//              $event_manager = $injector->make( EventManager::class );
-//              $event_manager->add_subscriber( $injector->share( $class )->make( $class ) );
             }
         });
 
-        $sut->resolve();
+        $sut->apply();
+    }
+
+    public function testItShouldExtendClassString(): void
+    {
+        $sut = new AurynConfig(new Injector(), (new ConfigFactory())->make());
+        $sut->extend(SomeExtension::class);
+        $this->expectOutputString(SomeExtension::class);
+        $sut->apply();
+    }
+
+    public function testItShouldNotExtend(): void
+    {
+        $sut = new AurynConfig(new Injector(), (new ConfigFactory())->make());
+        $this->expectException(\InvalidArgumentException::class);
+        $sut->extend('SomeGenericClass');
     }
 
     public function testOldClassNameShouldBeAliasedCorrectly(): void
@@ -318,7 +381,7 @@ class AurynConfigTest extends UnitTestCase
         /**
          * New name is AurynConfig::class
          */
-        $auryn_config = new \ItalyStrap\Empress\AurynResolver(new Injector(), ConfigFactory::make([]));
-        $auryn_config->resolve();
+        $auryn_config = new \ItalyStrap\Empress\AurynResolver(new Injector(), (new ConfigFactory())->make([]));
+        $auryn_config->apply();
     }
 }
