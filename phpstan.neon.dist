@@ -1,0 +1,8 @@
+parameters:
+    level: 9
+    phpVersion: 70400
+    paths:
+        - src
+    tmpDir: tests/_output/phpstan
+    parallel:
+        maximumNumberOfProcesses: 1

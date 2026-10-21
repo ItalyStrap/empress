@@ -14,10 +14,12 @@
 
     <file>./src/</file>
     <file>./tests/</file>
+    <file>namespace-bc-aliases.php</file>
 
     <rule ref="PSR12">
     </rule>
 
     <exclude-pattern>*/vendor/*</exclude-pattern>
     <exclude-pattern>*/tests/_support/*</exclude-pattern>
+    <exclude-pattern>*/tests/_output/*</exclude-pattern>
 </ruleset>

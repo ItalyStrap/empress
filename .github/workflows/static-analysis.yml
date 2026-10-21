@@ -22,5 +22,5 @@ jobs:
 
       - uses: ramsey/composer-install@v2
 
-      - name: Psalm
-        run: composer run psalm
+      - name: PHPStan
+        run: composer run stan

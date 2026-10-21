@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace ItalyStrap\Empress;
 
+use Auryn\Injector;
 use Auryn\ConfigException;
 use Auryn\InjectionException;
 use ItalyStrap\Config\ConfigInterface as Config;
 
 use function array_walk;
 
-/**
- * @psalm-api
- */
 class AurynConfig implements AurynConfigInterface
 {
     public const PROXY = 'proxies';
@@ -21,6 +19,7 @@ class AurynConfig implements AurynConfigInterface
     public const DEFINITIONS = 'definitions';
     public const DEFINE_PARAM = 'define_param';
     public const DELEGATIONS = 'delegations';
+    public const FACTORIES = 'factories';
     public const PREPARATIONS = 'preparations';
 
     private const METHODS = [
@@ -30,35 +29,43 @@ class AurynConfig implements AurynConfigInterface
         self::DEFINITIONS   => 'define',
         self::DEFINE_PARAM  => 'defineParam',
         self::DELEGATIONS   => 'delegate',
+        self::FACTORIES     => 'delegate',
         self::PREPARATIONS  => 'prepare',
     ];
 
     private Injector $injector;
 
+    /**
+     * @var Config<array-key, mixed>
+     */
     private Config $dependencies;
 
+    private ?ProxyFactoryInterface $proxy_factory;
+
     /**
-     * @var array<Extension>
+     * @var array<string, Extension>
      */
     private array $extensions = [];
 
-    private ProxyFactoryInterface $proxy_factory;
+    /**
+     * @var array<array-key, class-string>
+     */
+    private array $extensionsClasses = [];
 
     /**
-     * @param Config $dependencies
-     * @param Injector $injector
+     * @param Config<array-key, mixed> $dependencies
      */
     public function __construct(
         Injector $injector,
         Config $dependencies,
-        ProxyFactoryInterface $proxyFactory = null
+        ?ProxyFactoryInterface $proxyFactory = null
     ) {
         $this->injector = $injector;
         $this->dependencies = $dependencies;
-        $this->proxy_factory = $proxyFactory ?? new ProxyFactory();
+        $this->proxy_factory = $proxyFactory;
     }
 
-    public function resolve(): void
+    public function apply(): void
     {
 
         /**
@@ -71,15 +78,46 @@ class AurynConfig implements AurynConfigInterface
             $this->walk($key, $callback);
         }
 
+        foreach ($this->extensionsClasses as $extensionClass) {
+            /** @var Extension $extension */
+            $extension = $this->injector->share($extensionClass)->make($extensionClass);
+            $this->extensions[$extension->name()] = $extension;
+        }
+
         foreach ($this->extensions as $extension) {
             $extension->execute($this);
         }
     }
 
-    public function extend(Extension ...$extensions): void
+    /**
+     * @deprecated Use apply() instead.
+     */
+    public function resolve(): void
+    {
+        $this->apply();
+    }
+
+    public function extend(...$extensions): void
     {
         foreach ($extensions as $extension) {
-            $this->extensions[$extension->name()] = $extension;
+            if (
+                \is_string($extension)
+                && \class_exists($extension)
+                && \is_subclass_of($extension, Extension::class)
+            ) {
+                $this->extensionsClasses[] = $extension;
+                continue;
+            }
+
+            if ($extension instanceof Extension) {
+                $this->extensions[$extension->name()] = $extension;
+                continue;
+            }
+
+            throw new \InvalidArgumentException(\sprintf(
+                'Invalid extension type, given: %s',
+                \gettype($extension)
+            ));
         }
     }
 
@@ -94,9 +132,7 @@ class AurynConfig implements AurynConfigInterface
 
     /**
      * @param mixed $nameOrInstance
-     * @param int $index
      * @throws ConfigException
-     * @psalm-suppress PossiblyUnusedParam
      */
     protected function share($nameOrInstance, int $index): void
     {
@@ -104,29 +140,34 @@ class AurynConfig implements AurynConfigInterface
     }
 
     /**
-     * @param string $name
-     * @param int $index
      * @throws ConfigException
-     * @psalm-suppress PossiblyUnusedParam
      */
     protected function proxy(string $name, int $index): void
     {
+        if ($name !== '' && \class_exists($name) && $this->proxy_factory === null) {
+            throw new ConfigException(\sprintf(
+                'Proxy factory is required for proxying %s',
+                $name
+            ));
+        }
+
+        if ($this->proxy_factory === null) {
+            return;
+        }
+
         $this->injector->proxy($name, $this->proxy_factory);
     }
 
     /**
-     * @param string $implementation
-     * @param string $interface
      * @throws ConfigException
      */
-    protected function alias(string $implementation, string $interface): void
+    protected function alias(string $alias, string $typeHint): void
     {
-        $this->injector->alias($interface, $implementation);
+        $this->injector->alias($typeHint, $alias);
     }
 
     /**
-     * @param array $class_args
-     * @param string $class_name
+     * @param array<array-key, mixed> $class_args
      */
     protected function define(array $class_args, string $class_name): void
     {
@@ -135,7 +176,6 @@ class AurynConfig implements AurynConfigInterface
 
     /**
      * @param mixed $param_args
-     * @param string $param_name
      */
     protected function defineParam($param_args, string $param_name): void
     {
@@ -144,7 +184,6 @@ class AurynConfig implements AurynConfigInterface
 
     /**
      * @param string $callableOrMethodStr
-     * @param string $name
      * @throws ConfigException
      */
     protected function delegate($callableOrMethodStr, string $name): void
@@ -154,7 +193,6 @@ class AurynConfig implements AurynConfigInterface
 
     /**
      * @param mixed $callableOrMethodStr
-     * @param string $name
      * @throws InjectionException
      */
     protected function prepare($callableOrMethodStr, string $name): void
