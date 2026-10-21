@@ -68,6 +68,10 @@ EOT;
             return;
         }
 
+        if (!\class_exists(VarExporter::class)) {
+            throw new \LogicException('Writing the providers cache requires the brick/varexporter package');
+        }
+
         try {
             $contents = sprintf(
                 self::CACHE_TEMPLATE,
