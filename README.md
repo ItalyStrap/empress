@@ -35,11 +35,71 @@ This package adheres to the [SemVer](http://semver.org/) specification and will 
 
 ## Basic Usage
 
+- PhpFileProvider: loads config arrays from files.
+- ModuleInterface: standard callable module contract.
+- ProvidersCollection: executes providers/modules and aggregates their returned config.
+- AurynConfig: applies the config array to Auryn.
+- Container: PSR-11 adapter around Auryn.
+- ContainerBuilder: coordinates the build process.
+
+```php
+$providers->aggregate();
+$aurynConfig->apply();
+$containerBuilder->build();
+```
+
+This reads as: aggregate config, apply DI config, build container.
+
+### PSR-11 ContainerBuilder
+
+`ContainerBuilder` is the quickest way to aggregate providers, apply the Auryn configuration, and receive a PSR-11 container.
+
+```php
+use ItalyStrap\Config\Config;
+use ItalyStrap\Config\ConfigInterface;
+use ItalyStrap\Empress\AurynConfig;
+use ItalyStrap\Empress\AurynConfigInterface;
+use ItalyStrap\Empress\ContainerBuilder;
+use ItalyStrap\Empress\Extension;
+use Psr\Container\ContainerInterface;
+
+$builder = new ContainerBuilder();
+
+$builder
+    ->addProvider(static fn(): array => [
+        AurynConfig::ALIASES => [
+            ConfigInterface::class => Config::class,
+        ],
+        AurynConfig::SHARING => [
+            ConfigInterface::class,
+        ],
+        AurynConfig::DELEGATIONS => [
+            SomeService::class => static function (ContainerInterface $container): SomeService {
+                return new SomeService($container->get(ConfigInterface::class));
+            },
+        ],
+    ])
+    ->extend(new class implements Extension {
+        public function name(): string
+        {
+            return 'my-extension';
+        }
+
+        public function execute(AurynConfigInterface $application): void
+        {
+            // Add custom Auryn configuration logic here.
+        }
+    });
+
+$container = $builder->build();
+$service = $container->get(SomeService::class);
+```
+
 > For more information on how to use Auryn\Injector see the [Auryn README](https://github.com/rdlowrey/auryn/blob/master/README.md)
 
-Keep in mind that `$injector->(SomeClass::class)` hides the word `new` and does the instantiation for you.
+Keep in mind that `$injector->make(SomeClass::class)` hides the word `new` and does the instantiation for you.
 
-Do not use Injector as a service locator or your server will blown up.
+Do not use Injector as a service locator, or your server will blow up.
 
 ```php
 namespace MyApp;
@@ -304,3 +364,5 @@ This code is licensed under the [MIT](LICENSE).
 
 * [`rdlowrey/auryn`](https://github.com/rdlowrey/auryn)
 * [`brightnucleus/injector`](https://github.com/brightnucleus/injector)
+* [`Ocramius/ProxyManager`](https://github.com/Ocramius/ProxyManager)
+* [`laminas/laminas-config-aggregator`](https://github.com/laminas/laminas-config-aggregator)
