@@ -381,15 +381,4 @@ final class AurynConfigTest extends UnitTestCase
         $this->expectException(\TypeError::class);
         $sut->extend(42);
     }
-
-    public function testOldClassNameShouldBeAliasedCorrectly(): void
-    {
-        /**
-         * New name is AurynConfig::class
-         */
-        $auryn_config = new \ItalyStrap\Empress\AurynResolver(new Injector(), (new ConfigFactory())->make([]));
-        $auryn_config->apply();
-
-        $this->assertInstanceOf(AurynConfig::class, $auryn_config);
-    }
 }

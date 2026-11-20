@@ -2,9 +2,6 @@
   "source": {
     "directories": [
       "src"
-    ],
-    "excludes": [
-        "/Provider/"
     ]
   },
   "timeout": 10,

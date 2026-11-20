@@ -109,21 +109,22 @@ use ItalyStrap\Config\ConfigInterface;
 use ItalyStrap\Empress\AurynConfigInterface;
 use ItalyStrap\Empress\AurynConfig;
 use ItalyStrap\Empress\Extension;
-use ItalyStrap\Empress\Injector;
+use Auryn\Injector;
 
 /**
  * The better way to add keys to the array configuration is to use the
- * AurynResolver::<CONSTANT KEYS>
+ * AurynConfig::<CONSTANT KEYS>
  *
  * Keys available are:
  *
- * AurynResolver::PROXY = 'proxies';
- * AurynResolver::SHARING = 'sharing';
- * AurynResolver::ALIASES = 'aliases';
- * AurynResolver::DEFINITIONS = 'definitions';
- * AurynResolver::DEFINE_PARAM = 'define_param';
- * AurynResolver::DELEGATIONS = 'delegations';
- * AurynResolver::PREPARATIONS = 'preparations';
+ * AurynConfig::PROXY = 'proxies';
+ * AurynConfig::SHARING = 'sharing';
+ * AurynConfig::ALIASES = 'aliases';
+ * AurynConfig::DEFINITIONS = 'definitions';
+ * AurynConfig::DEFINE_PARAM = 'define_param';
+ * AurynConfig::DELEGATIONS = 'delegations';
+ * AurynConfig::FACTORIES = 'factories';
+ * AurynConfig::PREPARATIONS = 'preparations';
  */
 
 /**
@@ -243,21 +244,20 @@ $config = [
 
 /**
  * Instantiate the Injector
- * Remember that ItalyStrap\Empress\Injector() is the extended class with the proxy functionality
- * The superclass \Auryn\Injector() does not have the ProxyManager in it.
+ * Proxies need a ProxyFactoryInterface passed as third argument of AurynConfig.
  */
-$injector = new \ItalyStrap\Empress\Injector();
+$injector = new Injector();
 
 /**
- * Pass the $injector instance to the AurynResolver::class as first parameter and a
+ * Pass the $injector instance to the AurynConfig::class as first parameter and a
  * Config::class instance at the second parameters with the configuration array.
  */
-$app = new AurynConfig( $injector, ConfigFactory::make( $config ) );
+$app = new AurynConfig( $injector, ( new ConfigFactory() )->make( $config ) );
 
 /**
- * Call the AurynResolver::resolve() method to do the autowiring of the application
+ * Call the AurynConfig::apply() method to do the autowiring of the application
  */
-$app->resolve();
+$app->apply();
 
 /**
  * Now that you have autoload your application dependency you can call $injector for instantiating objects
@@ -278,7 +278,7 @@ use ItalyStrap\Config\ConfigInterface;
 use ItalyStrap\Empress\AurynConfigInterface;
 use ItalyStrap\Empress\AurynConfig;
 use ItalyStrap\Empress\Extension;
-use ItalyStrap\Empress\Injector;
+use Auryn\Injector;
 
 $config = [
     'your-key'	=> [
@@ -286,11 +286,11 @@ $config = [
     ],
 ];
 
-$injector = new \ItalyStrap\Empress\Injector();
-$app = new AurynConfig( $injector, ConfigFactory::make( $config ) );
+$injector = new Injector();
+$app = new AurynConfig( $injector, ( new ConfigFactory() )->make( $config ) );
 
 /**
- * If you need more power you can extend the AurynResolver::class BEFORE calling the AurynResolver::resolve() method
+ * If you need more power you can extend the AurynConfig::class BEFORE calling the AurynConfig::apply() method
  * Create your custom configuration like the follow:
  * $config = [
  * 	'your-key'	=> [
@@ -298,7 +298,7 @@ $app = new AurynConfig( $injector, ConfigFactory::make( $config ) );
  *  ],
  * ];
  *
- * Now extend the AurynResolver:
+ * Now extend the AurynConfig:
  */
 $app->extend(
 	new class implements Extension {
@@ -311,7 +311,7 @@ $app->extend(
 		}
 
 		/**
-		 * Called inside the AurynResolver instance
+		 * Called inside the AurynConfig instance
 		 * @param AurynConfigInterface $application
 		 */
 		public function execute( AurynConfigInterface $application ): void {
@@ -337,9 +337,9 @@ $app->extend(
 
 /**
  * You can add as many extensions as you need
- * Now you can call the ::resolve() method
+ * Now you can call the ::apply() method
  */
-$app->resolve();
+$app->apply();
 
 // Do the rest of your stuff
 

@@ -46,10 +46,7 @@
             "ItalyStrap\\Empress\\": [
                 "src/"
             ]
-        },
-        "files": [
-            "namespace-bc-aliases.php"
-        ]
+        }
     },
     "autoload-dev": {
         "psr-4": {
