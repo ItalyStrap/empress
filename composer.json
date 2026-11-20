@@ -16,7 +16,7 @@
     "require": {
         "php": ">=8.2",
         "italystrap/config": "^2.12",
-        "overclokk/auryn": "dev-master",
+        "overclokk/auryn": "^2.0",
         "psr/container": "^1.1 || ^2.0"
     },
     "require-dev": {

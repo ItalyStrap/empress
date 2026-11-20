@@ -54,8 +54,9 @@ final class AurynConfigTest extends UnitTestCase
         $this->injector->proxy(
             Argument::type('string'),
             Argument::type('callable')
-        )->will(function ($args) use ($expected): void {
+        )->will(function ($args) use ($expected) {
             Assert::assertEquals($expected, $args[0], '');
+            return $this->reveal();
         });
 
         $sut = $this->makeInstance(
@@ -120,8 +121,9 @@ final class AurynConfigTest extends UnitTestCase
     public function testItShouldShare(string|object $expected): void
     {
 
-        $this->injector->share(Argument::any())->will(function ($args) use ($expected): void {
+        $this->injector->share(Argument::any())->will(function ($args) use ($expected) {
             Assert::assertEquals($expected, $args[0], '');
+            return $this->reveal();
         });
 
         $sut = $this->makeInstance(
@@ -140,9 +142,10 @@ final class AurynConfigTest extends UnitTestCase
 
         $this->injector
             ->alias(Argument::type('string'), Argument::type('string'))
-            ->will(function ($args): void {
+            ->will(function ($args) {
                 Assert::assertEquals('InterfaceName', $args[0], '');
                 Assert::assertEquals('ClassName', $args[1], '');
+                return $this->reveal();
             });
 
         $sut = $this->makeInstance(
@@ -161,9 +164,10 @@ final class AurynConfigTest extends UnitTestCase
 
         $this->injector
             ->define(Argument::type('string'), Argument::type('array'))
-            ->will(function ($args): void {
+            ->will(function ($args) {
                 Assert::assertEquals('ClassName', $args[0], '');
                 Assert::assertArrayHasKey(':config', $args[1], '');
+                return $this->reveal();
             });
 
         $sut = $this->makeInstance(
@@ -188,9 +192,10 @@ final class AurynConfigTest extends UnitTestCase
 
         $this->injector
             ->defineParam(Argument::type('string'), Argument::any())
-            ->will(function ($args) use ($param_expected): void {
+            ->will(function ($args) use ($param_expected) {
                 Assert::assertEquals(':config', $args[0], '');
                 Assert::assertEquals($param_expected, $args[1], '');
+                return $this->reveal();
             });
 
         $sut = $this->makeInstance(
@@ -212,10 +217,11 @@ final class AurynConfigTest extends UnitTestCase
 
         $this->injector
             ->delegate(Argument::type('string'), Argument::any())
-            ->will(function ($args) use ($factory_delegation): void {
+            ->will(function ($args) use ($factory_delegation) {
                 Assert::assertEquals(':config', $args[0], '');
                 Assert::assertEquals($factory_delegation, $args[1], '');
                 Assert::assertIsCallable($args[1], '');
+                return $this->reveal();
             });
 
         $sut = $this->makeInstance(
@@ -241,7 +247,7 @@ final class AurynConfigTest extends UnitTestCase
 
         $this->injector
             ->prepare(Argument::type('string'), Argument::any())
-            ->will(function ($args) use ($preparation_callback, $test): void {
+            ->will(function ($args) use ($preparation_callback, $test) {
                 Assert::assertEquals('ClassName', $args[0], '');
                 Assert::assertEquals($preparation_callback, $args[1], '');
                 Assert::assertIsCallable($args[1], '');
@@ -250,6 +256,7 @@ final class AurynConfigTest extends UnitTestCase
                     'ClassName',
                     $test->prophesize(Injector::class)->reveal()
                 );
+                return $this->reveal();
             });
 
         $sut = $this->makeInstance(
@@ -285,8 +292,9 @@ final class AurynConfigTest extends UnitTestCase
         $this
             ->injector
             ->share(Argument::type('string'), Argument::any())
-            ->will(function ($args): void {
+            ->will(function ($args) {
                 Assert::assertStringContainsString('ClassName', $args[0], '');
+                return $this->reveal();
             });
 
         $this->injector->make(Argument::type('string'), Argument::type('array'))
@@ -318,8 +326,9 @@ final class AurynConfigTest extends UnitTestCase
     {
 
         $this->injector->share(Argument::type('string'), Argument::any())
-            ->will(function ($args): void {
+            ->will(function ($args) {
                 Assert::assertStringContainsString('ClassName', $args[0], '');
+                return $this->reveal();
             });
 
         $this->injector->make(Argument::type('string'), Argument::type('array'))
