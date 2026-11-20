@@ -441,6 +441,20 @@ final class ProvidersCollectionTest extends UnitTestCase
             $this->fail('Expected provider failure');
         } catch (ProviderException $exception) {
             $this->assertSame($original, $exception->getPrevious());
+            $this->assertSame(0, $exception->getCode());
         }
+    }
+
+    public function testExecutionErrorMessageNamesClassAndMethodOfArrayProvider(): void
+    {
+        $sut = $this->makeInstance([
+            [ModuleStub1::class, 'missingMethod'],
+        ]);
+
+        $this->expectExceptionMessage(
+            \sprintf('An error occurred when executing %s::missingMethod:', ModuleStub1::class)
+        );
+
+        $sut->aggregate();
     }
 }

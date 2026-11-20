@@ -9,7 +9,12 @@
     "text": "php://stdout"
   },
   "mutators": {
-    "@default": true
+    "@default": true,
+    "UnwrapArrayValues": {
+      "ignore": [
+        "ItalyStrap\\Empress\\ContainerBuilder::extend"
+      ]
+    }
   },
   "tmpDir": "tests\/_output",
   "testFramework": "phpunit"

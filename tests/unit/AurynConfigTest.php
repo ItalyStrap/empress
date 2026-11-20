@@ -11,7 +11,9 @@ use ItalyStrap\Config\ConfigFactory;
 use ItalyStrap\Empress\AurynConfig;
 use ItalyStrap\Empress\AurynConfigInterface;
 use ItalyStrap\Empress\Extension;
+use ItalyStrap\Empress\Tests\ContainerBuilderExtensionStub;
 use ItalyStrap\Empress\Tests\SomeConcrete;
+use ItalyStrap\Empress\Tests\SomeInterface;
 use ItalyStrap\Empress\Tests\SomeExtension;
 use ItalyStrap\Empress\Tests\UnitTestCase;
 use PHPUnit\Framework\Assert;
@@ -380,5 +382,47 @@ final class AurynConfigTest extends UnitTestCase
         $sut = new AurynConfig(new Injector(), (new ConfigFactory())->make());
         $this->expectException(\TypeError::class);
         $sut->extend(42);
+    }
+
+    public function testDeprecatedResolveStillAppliesTheConfiguration(): void
+    {
+        $injector = new Injector();
+        $sut = new AurynConfig($injector, (new ConfigFactory())->make([
+            AurynConfig::ALIASES => [
+                SomeInterface::class => SomeConcrete::class,
+            ],
+        ]));
+
+        $sut->resolve();
+
+        $this->assertInstanceOf(SomeConcrete::class, $injector->make(SomeInterface::class));
+    }
+
+    public function testSectionWithASingleScalarValueIsApplied(): void
+    {
+        $injector = new Injector();
+        $sut = new AurynConfig($injector, (new ConfigFactory())->make([
+            AurynConfig::SHARING => SomeConcrete::class,
+        ]));
+
+        $sut->apply();
+
+        $this->assertSame($injector->make(SomeConcrete::class), $injector->make(SomeConcrete::class));
+    }
+
+    public function testExtendRegistersEveryClassStringExtension(): void
+    {
+        $injector = new Injector();
+        $sut = new AurynConfig($injector, (new ConfigFactory())->make([
+            'container_builder_test_aliases' => [
+                SomeInterface::class => SomeConcrete::class,
+            ],
+        ]));
+
+        $sut->extend(SomeExtension::class, ContainerBuilderExtensionStub::class);
+
+        $this->expectOutputString(SomeExtension::class);
+        $sut->apply();
+        $this->assertInstanceOf(SomeConcrete::class, $injector->make(SomeInterface::class));
     }
 }

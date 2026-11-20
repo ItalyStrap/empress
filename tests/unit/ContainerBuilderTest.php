@@ -8,6 +8,7 @@ use Auryn\ConfigException;
 use Auryn\Injector;
 use ItalyStrap\Config\Config;
 use ItalyStrap\Config\ConfigInterface;
+use ItalyStrap\Config\NodeManipulationInterface;
 use ItalyStrap\Empress\AurynConfig;
 use ItalyStrap\Empress\AurynConfigInterface;
 use ItalyStrap\Empress\ContainerBuilder;
@@ -146,6 +147,40 @@ final class ContainerBuilderTest extends UnitTestCase
                 $this->executed = true;
             }
         };
+    }
+
+    public function testConstructorRejectsConfigWithoutNodeManipulation(): void
+    {
+        $config = $this->prophesize(ConfigInterface::class)->reveal();
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage(NodeManipulationInterface::class);
+
+        new ContainerBuilder(null, $config);
+    }
+
+    public function testExtendAcceptsMultipleExtensionsInOneCall(): void
+    {
+        $first = $this->makeExecutionTrackingExtension('first');
+        $second = $this->makeExecutionTrackingExtension('second');
+        $builder = new ContainerBuilder();
+
+        $builder->extend($first, $second);
+        $builder->build();
+
+        $this->assertTrue($first->executed);
+        $this->assertTrue($second->executed);
+    }
+
+    public function testExtendIgnoresStringKeysOfSpreadExtensions(): void
+    {
+        $extension = $this->makeExecutionTrackingExtension('named');
+        $builder = new ContainerBuilder();
+
+        $builder->extend(...['custom' => $extension]);
+        $builder->build();
+
+        $this->assertTrue($extension->executed);
     }
 
     public function testExtendAcceptsExtensionClassString(): void

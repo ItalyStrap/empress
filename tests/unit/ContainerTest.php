@@ -73,6 +73,7 @@ final class ContainerTest extends UnitTestCase
                 $exception->getMessage()
             );
             $this->assertNotNull($exception->getPrevious());
+            $this->assertSame(0, $exception->getCode());
         }
     }
 }
