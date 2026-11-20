@@ -11,7 +11,7 @@ use ItalyStrap\Config\ConfigInterface as Config;
 
 use function array_walk;
 
-class AurynConfig implements AurynConfigInterface
+final class AurynConfig implements AurynConfigInterface
 {
     public const PROXY = 'proxies';
     public const SHARING = 'sharing';
@@ -21,17 +21,6 @@ class AurynConfig implements AurynConfigInterface
     public const DELEGATIONS = 'delegations';
     public const FACTORIES = 'factories';
     public const PREPARATIONS = 'preparations';
-
-    private const METHODS = [
-        self::PROXY         => 'proxy',
-        self::SHARING       => 'share',
-        self::ALIASES       => 'alias',
-        self::DEFINITIONS   => 'define',
-        self::DEFINE_PARAM  => 'defineParam',
-        self::DELEGATIONS   => 'delegate',
-        self::FACTORIES     => 'delegate',
-        self::PREPARATIONS  => 'prepare',
-    ];
 
     /**
      * @var array<string, Extension>
@@ -55,15 +44,8 @@ class AurynConfig implements AurynConfigInterface
 
     public function apply(): void
     {
-
-        /**
-         * @var string $key
-         * @var callable $method
-         */
-        foreach (self::METHODS as $key => $method) {
-            /** @var callable $callback */
-            $callback = [$this, $method];
-            $this->walk($key, $callback);
+        foreach ($this->sectionHandlers() as $key => $handler) {
+            $this->walk($key, $handler);
         }
 
         foreach ($this->extensionsClasses as $extensionClass) {
@@ -75,6 +57,23 @@ class AurynConfig implements AurynConfigInterface
         foreach ($this->extensions as $extension) {
             $extension->execute($this);
         }
+    }
+
+    /**
+     * @return array<string, callable>
+     */
+    private function sectionHandlers(): array
+    {
+        return [
+            self::PROXY        => $this->proxy(...),
+            self::SHARING      => $this->share(...),
+            self::ALIASES      => $this->alias(...),
+            self::DEFINITIONS  => $this->define(...),
+            self::DEFINE_PARAM => $this->defineParam(...),
+            self::DELEGATIONS  => $this->delegate(...),
+            self::FACTORIES    => $this->delegate(...),
+            self::PREPARATIONS => $this->prepare(...),
+        ];
     }
 
     /**
@@ -121,7 +120,7 @@ class AurynConfig implements AurynConfigInterface
     /**
      * @throws ConfigException
      */
-    protected function share(mixed $nameOrInstance, int $index): void
+    private function share(mixed $nameOrInstance, int $index): void
     {
         $this->injector->share($nameOrInstance);
     }
@@ -129,7 +128,7 @@ class AurynConfig implements AurynConfigInterface
     /**
      * @throws ConfigException
      */
-    protected function proxy(string $name, int $index): void
+    private function proxy(string $name, int $index): void
     {
         if ($name !== '' && \class_exists($name) && $this->proxy_factory === null) {
             throw new ConfigException(\sprintf(
@@ -148,7 +147,7 @@ class AurynConfig implements AurynConfigInterface
     /**
      * @throws ConfigException
      */
-    protected function alias(string $alias, string $typeHint): void
+    private function alias(string $alias, string $typeHint): void
     {
         $this->injector->alias($typeHint, $alias);
     }
@@ -156,12 +155,12 @@ class AurynConfig implements AurynConfigInterface
     /**
      * @param array<array-key, mixed> $class_args
      */
-    protected function define(array $class_args, string $class_name): void
+    private function define(array $class_args, string $class_name): void
     {
         $this->injector->define($class_name, $class_args);
     }
 
-    protected function defineParam(mixed $param_args, string $param_name): void
+    private function defineParam(mixed $param_args, string $param_name): void
     {
         $this->injector->defineParam($param_name, $param_args);
     }
@@ -170,7 +169,7 @@ class AurynConfig implements AurynConfigInterface
      * @param string $callableOrMethodStr
      * @throws ConfigException
      */
-    protected function delegate($callableOrMethodStr, string $name): void
+    private function delegate($callableOrMethodStr, string $name): void
     {
         $this->injector->delegate($name, $callableOrMethodStr);
     }
@@ -178,7 +177,7 @@ class AurynConfig implements AurynConfigInterface
     /**
      * @throws InjectionException
      */
-    protected function prepare(mixed $callableOrMethodStr, string $name): void
+    private function prepare(mixed $callableOrMethodStr, string $name): void
     {
         $this->injector->prepare($name, $callableOrMethodStr);
     }

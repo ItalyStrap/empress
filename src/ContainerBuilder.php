@@ -10,7 +10,7 @@ use ItalyStrap\Config\ConfigInterface;
 use ItalyStrap\Config\NodeManipulationInterface;
 use Psr\Container\ContainerInterface;
 
-class ContainerBuilder
+final class ContainerBuilder
 {
     private readonly Injector $injector;
 
