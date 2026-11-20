@@ -33,15 +33,6 @@ class AurynConfig implements AurynConfigInterface
         self::PREPARATIONS  => 'prepare',
     ];
 
-    private Injector $injector;
-
-    /**
-     * @var Config<array-key, mixed>
-     */
-    private Config $dependencies;
-
-    private ?ProxyFactoryInterface $proxy_factory;
-
     /**
      * @var array<string, Extension>
      */
@@ -56,13 +47,10 @@ class AurynConfig implements AurynConfigInterface
      * @param Config<array-key, mixed> $dependencies
      */
     public function __construct(
-        Injector $injector,
-        Config $dependencies,
-        ?ProxyFactoryInterface $proxyFactory = null
+        private readonly Injector $injector,
+        private readonly Config $dependencies,
+        private readonly ?ProxyFactoryInterface $proxy_factory = null
     ) {
-        $this->injector = $injector;
-        $this->dependencies = $dependencies;
-        $this->proxy_factory = $proxyFactory;
     }
 
     public function apply(): void
@@ -131,10 +119,9 @@ class AurynConfig implements AurynConfigInterface
     }
 
     /**
-     * @param mixed $nameOrInstance
      * @throws ConfigException
      */
-    protected function share($nameOrInstance, int $index): void
+    protected function share(mixed $nameOrInstance, int $index): void
     {
         $this->injector->share($nameOrInstance);
     }
@@ -174,10 +161,7 @@ class AurynConfig implements AurynConfigInterface
         $this->injector->define($class_name, $class_args);
     }
 
-    /**
-     * @param mixed $param_args
-     */
-    protected function defineParam($param_args, string $param_name): void
+    protected function defineParam(mixed $param_args, string $param_name): void
     {
         $this->injector->defineParam($param_name, $param_args);
     }
@@ -192,10 +176,9 @@ class AurynConfig implements AurynConfigInterface
     }
 
     /**
-     * @param mixed $callableOrMethodStr
      * @throws InjectionException
      */
-    protected function prepare($callableOrMethodStr, string $name): void
+    protected function prepare(mixed $callableOrMethodStr, string $name): void
     {
         $this->injector->prepare($name, $callableOrMethodStr);
     }

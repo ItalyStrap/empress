@@ -16,26 +16,21 @@ final class ProvidersCollection
 {
     use ConfigReplacementTrait;
 
-    private Injector $injector;
     /**
      * @var ConfigInterface<array-key, mixed>&NodeManipulationInterface<array-key, mixed>
      */
     private ConfigInterface $config;
     private ProvidersCacheInterface $cache;
-    /**
-     * @var iterable<Provider>
-     */
-    private iterable $providers;
 
     /**
      * @param ConfigInterface<array-key, mixed>&NodeManipulationInterface<array-key, mixed> $config
      * @param iterable<Provider> $providers
      */
     public function __construct(
-        Injector $injector,
+        private Injector $injector,
         ConfigInterface $config,
         ?ProvidersCacheInterface $cache = null,
-        iterable $providers = []
+        private iterable $providers = []
     ) {
         if (!$config instanceof NodeManipulationInterface) {
             throw new \InvalidArgumentException(\sprintf(
@@ -43,11 +38,8 @@ final class ProvidersCollection
                 NodeManipulationInterface::class
             ));
         }
-
-        $this->injector = $injector;
         $this->config = $config;
         $this->cache = $cache ?: new NullProvidersCache();
-        $this->providers = $providers;
     }
 
     public function aggregate(): void
@@ -78,11 +70,9 @@ final class ProvidersCollection
     }
 
     /**
-     * @param mixed $current
-     * @param mixed $incoming
      * @return mixed
      */
-    private function mergeValue($current, $incoming)
+    private function mergeValue(mixed $current, mixed $incoming)
     {
         if (!\is_array($incoming)) {
             return $incoming;
@@ -106,9 +96,8 @@ final class ProvidersCollection
 
     /**
      * @param array<array-key, mixed> $values
-     * @param mixed $valueToFind
      */
-    private function hasListValue(array $values, $valueToFind): bool
+    private function hasListValue(array $values, mixed $valueToFind): bool
     {
         foreach ($values as $key => $value) {
             if (\is_int($key) && $value === $valueToFind) {
@@ -164,10 +153,9 @@ final class ProvidersCollection
 
     /**
      * @param \Traversable<array-key, mixed> $configuration
-     * @param mixed $provider
      * @return \Generator<int, Configuration>
      */
-    private function validateIterableConfiguration(\Traversable $configuration, $provider): \Generator
+    private function validateIterableConfiguration(\Traversable $configuration, mixed $provider): \Generator
     {
         foreach ($configuration as $item) {
             if (!\is_array($item)) {
@@ -184,13 +172,10 @@ final class ProvidersCollection
         }
     }
 
-    /**
-     * @param mixed $provider
-     */
-    private function providerName($provider): string
+    private function providerName(mixed $provider): string
     {
         if (\is_object($provider)) {
-            return \get_class($provider);
+            return $provider::class;
         }
 
         if (\is_array($provider)) {
@@ -198,7 +183,7 @@ final class ProvidersCollection
             $method = $provider[1] ?? 'unknown';
 
             if (\is_object($target)) {
-                $target = \get_class($target);
+                $target = $target::class;
             }
 
             return \sprintf('%s::%s', (string)$target, (string)$method);

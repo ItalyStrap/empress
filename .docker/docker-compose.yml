@@ -17,8 +17,8 @@ services:
       context: .
       dockerfile: php/Dockerfile
       args:
-        PHP_VERSION: 7.4
-    container_name: ${PROJECT_NAME:-package}_php74
+        PHP_VERSION: 8.2
+    container_name: ${PROJECT_NAME:-package}_php82
   php83:
     <<: *php-base
     build:

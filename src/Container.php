@@ -7,14 +7,10 @@ namespace ItalyStrap\Empress;
 use Auryn\Injector;
 use Psr\Container\ContainerInterface;
 
-final class Container implements ContainerInterface
+final readonly class Container implements ContainerInterface
 {
-    private Injector $injector;
-
-    public function __construct(
-        Injector $injector
-    ) {
-        $this->injector = $injector;
+    public function __construct(private Injector $injector)
+    {
     }
 
     public function get(string $id)

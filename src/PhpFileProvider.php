@@ -6,19 +6,13 @@ namespace ItalyStrap\Empress;
 
 use ItalyStrap\Finder\FinderInterface;
 
-final class PhpFileProvider
+final readonly class PhpFileProvider
 {
-    private string $pattern;
-
-    private FinderInterface $finder;
-
     /**
      * @param string $pattern A glob pattern by which to look up config files.
      */
-    public function __construct(string $pattern, FinderInterface $finder)
+    public function __construct(private string $pattern, private FinderInterface $finder)
     {
-        $this->pattern = $pattern;
-        $this->finder = $finder;
     }
 
     public function __invoke(): \Generator

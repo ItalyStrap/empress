@@ -12,16 +12,12 @@ use Psr\Container\ContainerInterface;
 
 class ContainerBuilder
 {
-    private Injector $injector;
+    private readonly Injector $injector;
 
     /**
      * @var ConfigInterface<array-key, mixed>&NodeManipulationInterface<array-key, mixed>
      */
-    private ConfigInterface $config;
-
-    private ?ProvidersCacheInterface $cache;
-
-    private ?ProxyFactoryInterface $proxyFactory;
+    private readonly ConfigInterface $config;
 
     /**
      * @var array<int, callable|class-string|array{0: class-string|object, 1: non-empty-string}|object>
@@ -39,8 +35,8 @@ class ContainerBuilder
     public function __construct(
         ?Injector $injector = null,
         ?ConfigInterface $config = null,
-        ?ProvidersCacheInterface $cache = null,
-        ?ProxyFactoryInterface $proxyFactory = null
+        private readonly ?ProvidersCacheInterface $cache = null,
+        private readonly ?ProxyFactoryInterface $proxyFactory = null
     ) {
         if ($config instanceof ConfigInterface && !$config instanceof NodeManipulationInterface) {
             throw new \InvalidArgumentException(\sprintf(
@@ -53,8 +49,6 @@ class ContainerBuilder
         /** @var ConfigInterface<array-key, mixed>&NodeManipulationInterface<array-key, mixed> $configInstance */
         $configInstance = $config ?: new Config();
         $this->config = $configInstance;
-        $this->cache = $cache;
-        $this->proxyFactory = $proxyFactory;
     }
 
     /**
@@ -80,7 +74,7 @@ class ContainerBuilder
      */
     public function extend(...$extensions): self
     {
-        $this->extensions = $extensions;
+        $this->extensions = \array_values($extensions);
         return $this;
     }
 
@@ -90,7 +84,7 @@ class ContainerBuilder
         $injector->share($injector);
 
         $container = new Container($injector);
-        $injector->alias(ContainerInterface::class, \get_class($container));
+        $injector->alias(ContainerInterface::class, $container::class);
         $injector->share($container);
 
         $providersCollection = new ProvidersCollection($injector, $this->config, $this->cache, $this->providers);

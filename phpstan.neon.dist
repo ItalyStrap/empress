@@ -1,6 +1,6 @@
 parameters:
     level: 9
-    phpVersion: 70400
+    phpVersion: 80200
     paths:
         - src
     tmpDir: tests/_output/phpstan

@@ -116,7 +116,7 @@ final class AurynConfigTest extends UnitTestCase
     /**
      * @dataProvider shareProvider()
      */
-    public function testItShouldShare($expected): void
+    public function testItShouldShare(string|object $expected): void
     {
 
         $this->injector->share(Argument::any())->will(function ($args) use ($expected): void {
