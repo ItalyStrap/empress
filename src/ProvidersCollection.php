@@ -39,7 +39,7 @@ final class ProvidersCollection
             ));
         }
         $this->config = $config;
-        $this->cache = $cache ?: new NullProvidersCache();
+        $this->cache = $cache ?? new NullProvidersCache();
     }
 
     public function aggregate(): void

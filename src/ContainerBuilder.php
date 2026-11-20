@@ -45,9 +45,9 @@ final class ContainerBuilder
             ));
         }
 
-        $this->injector = $injector ?: new Injector();
+        $this->injector = $injector ?? new Injector();
         /** @var ConfigInterface<array-key, mixed>&NodeManipulationInterface<array-key, mixed> $configInstance */
-        $configInstance = $config ?: new Config();
+        $configInstance = $config ?? new Config();
         $this->config = $configInstance;
     }
 
