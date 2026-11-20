@@ -275,18 +275,16 @@ final class ContainerBuilderTest extends UnitTestCase
         $cache = new class implements ProvidersCacheInterface {
             public bool $written = false;
 
-            public function read(ConfigInterface $config): bool
+            public function read(): ?array
             {
-                $config->merge([
+                return [
                     AurynConfig::ALIASES => [
                         SomeInterface::class => SomeConcrete::class,
                     ],
-                ]);
-
-                return true;
+                ];
             }
 
-            public function write(ConfigInterface $config): void
+            public function write(array $config): void
             {
                 $this->written = true;
             }

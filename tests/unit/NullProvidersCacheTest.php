@@ -4,30 +4,24 @@ declare(strict_types=1);
 
 namespace ItalyStrap\Empress\Tests\Unit;
 
-use ItalyStrap\Config\Config;
 use ItalyStrap\Empress\NullProvidersCache;
 use ItalyStrap\Empress\Tests\UnitTestCase;
 
 final class NullProvidersCacheTest extends UnitTestCase
 {
-    public function testReadReturnsFalseAndLeavesConfigUntouched(): void
+    public function testReadReturnsNull(): void
     {
-        $config = new Config([
-            'key' => 'value',
-        ]);
-
-        $this->assertFalse((new NullProvidersCache())->read($config));
-        $this->assertSame(['key' => 'value'], $config->toArray());
+        $this->assertNull((new NullProvidersCache())->read());
     }
 
-    public function testWriteLeavesConfigUntouched(): void
+    public function testReadReturnsNullAfterWrite(): void
     {
-        $config = new Config([
+        $sut = new NullProvidersCache();
+
+        $sut->write([
             'key' => 'value',
         ]);
 
-        (new NullProvidersCache())->write($config);
-
-        $this->assertSame(['key' => 'value'], $config->toArray());
+        $this->assertNull($sut->read());
     }
 }

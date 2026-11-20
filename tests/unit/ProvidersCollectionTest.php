@@ -257,16 +257,14 @@ final class ProvidersCollectionTest extends UnitTestCase
         $cache = new class implements ProvidersCacheInterface {
             public bool $written = false;
 
-            public function read(ConfigInterface $config): bool
+            public function read(): ?array
             {
-                $config->merge([
+                return [
                     'from_cache' => true,
-                ]);
-
-                return true;
+                ];
             }
 
-            public function write(ConfigInterface $config): void
+            public function write(array $config): void
             {
                 $this->written = true;
             }
@@ -293,14 +291,14 @@ final class ProvidersCollectionTest extends UnitTestCase
              */
             public array $writtenConfig = [];
 
-            public function read(ConfigInterface $config): bool
+            public function read(): ?array
             {
-                return false;
+                return null;
             }
 
-            public function write(ConfigInterface $config): void
+            public function write(array $config): void
             {
-                $this->writtenConfig = $config->toArray();
+                $this->writtenConfig = $config;
             }
         };
 
@@ -313,6 +311,47 @@ final class ProvidersCollectionTest extends UnitTestCase
         $sut->aggregate();
 
         $this->assertSame('value', $cache->writtenConfig['key']);
+    }
+
+    public function testAggregateKeepsExistingConfigValuesWhenReadingFromCache(): void
+    {
+        $cache = new class implements ProvidersCacheInterface {
+            public function read(): ?array
+            {
+                return [
+                    'from_cache' => true,
+                ];
+            }
+
+            public function write(array $config): void
+            {
+            }
+        };
+        $config = new Config([
+            'existing' => 'value',
+        ]);
+
+        $this->makeInstance([], $cache, $config)->aggregate();
+
+        $this->assertSame([
+            'existing' => 'value',
+            'from_cache' => true,
+        ], $config->toArray());
+    }
+
+    public function testAggregateDoesNotSplitTopLevelKeysContainingTheDelimiter(): void
+    {
+        $config = new Config();
+
+        $this->makeInstance([
+            static fn(): array => [
+                'some.dotted.key' => 'value',
+            ],
+        ], null, $config)->aggregate();
+
+        $this->assertSame([
+            'some.dotted.key' => 'value',
+        ], $config->toArray());
     }
 
     public function testAggregateThrowsWhenProviderReturnsInvalidResult(): void

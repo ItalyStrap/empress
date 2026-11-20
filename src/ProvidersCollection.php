@@ -14,8 +14,6 @@ use ItalyStrap\Config\NodeManipulationInterface;
  */
 final class ProvidersCollection
 {
-    use ConfigReplacementTrait;
-
     /**
      * @var ConfigInterface<array-key, mixed>&NodeManipulationInterface<array-key, mixed>
      */
@@ -44,7 +42,9 @@ final class ProvidersCollection
 
     public function aggregate(): void
     {
-        if ($this->cache->read($this->config)) {
+        $cached = $this->cache->read();
+        if ($cached !== null) {
+            $this->applyToConfig($cached);
             return;
         }
 
@@ -53,9 +53,20 @@ final class ProvidersCollection
             $this->mergeConfiguration($configuration, $result);
         }
 
-        $this->replaceConfig($this->config, $result);
+        $this->applyToConfig($result);
+        $this->cache->write($result);
+    }
 
-        $this->cache->write($this->config);
+    /**
+     * Set every top level key, passed as a path so keys containing the delimiter are not split.
+     *
+     * @param Configuration $values
+     */
+    private function applyToConfig(array $values): void
+    {
+        foreach ($values as $key => $value) {
+            $this->config->set([$key], $value);
+        }
     }
 
     /**

@@ -4,17 +4,15 @@ declare(strict_types=1);
 
 namespace ItalyStrap\Empress;
 
-use ItalyStrap\Config\ConfigInterface;
-
 interface ProvidersCacheInterface
 {
     /**
-     * @param ConfigInterface<array-key, mixed> $config
+     * @return array<array-key, mixed>|null The cached configuration, null on a cache miss.
      */
-    public function read(ConfigInterface $config): bool;
+    public function read(): ?array;
 
     /**
-     * @param ConfigInterface<array-key, mixed> $config
+     * @param array<array-key, mixed> $config
      */
-    public function write(ConfigInterface $config): void;
+    public function write(array $config): void;
 }

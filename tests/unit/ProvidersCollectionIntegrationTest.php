@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace ItalyStrap\Empress\Tests\Unit;
 
 use Auryn\Injector;
-use ItalyStrap\Config\ConfigInterface;
 use ItalyStrap\Empress\AurynConfig;
 use ItalyStrap\Empress\ModuleInterface;
 use ItalyStrap\Empress\PhpFileProvider;
@@ -36,14 +35,14 @@ final class ProvidersCollectionIntegrationTest extends UnitTestCase
              */
             public ?array $written = null;
 
-            public function read(ConfigInterface $config): bool
+            public function read(): ?array
             {
-                return false;
+                return null;
             }
 
-            public function write(ConfigInterface $config): void
+            public function write(array $config): void
             {
-                $this->written = $config->toArray();
+                $this->written = $config;
             }
         };
     }
