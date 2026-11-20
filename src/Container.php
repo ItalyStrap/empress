@@ -41,7 +41,7 @@ final readonly class Container implements ContainerInterface
 
     private function injectorHas(string $id): bool
     {
-        $details = $this->injector->inspect($id, 31);
+        $details = $this->injector->inspect($id, Injector::I_ALL);
         return (bool) \array_filter($details);
     }
 }
