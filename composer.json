@@ -67,8 +67,6 @@
         }
     },
     "suggest": {
-        "elazar/auryn-container-interop": "Only if you want to add a psr/container adapter, not required for this package",
-        "northwoods/container": "Only if you want to add a psr/container adapter, not required for this package",
         "friendsofphp/proxy-manager-lts": "Only if you want to add support for lazy loading classes",
         "italystrap/empress-cache": "Only if you want to cache the aggregated providers configuration in a PHP file"
     },
