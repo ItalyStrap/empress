@@ -12,7 +12,7 @@ use ItalyStrap\Config\NodeManipulationInterface;
  * @phpstan-type Provider callable|class-string|array{0: class-string|object, 1: non-empty-string}|object
  * @phpstan-type Configuration array<array-key, mixed>
  */
-final class ProvidersCollection
+final readonly class ProvidersCollection
 {
     /**
      * @var ConfigInterface<array-key, mixed>&NodeManipulationInterface<array-key, mixed>

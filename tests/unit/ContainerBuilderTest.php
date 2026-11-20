@@ -275,7 +275,7 @@ final class ContainerBuilderTest extends UnitTestCase
         $cache = new class implements ProvidersCacheInterface {
             public bool $written = false;
 
-            public function read(): ?array
+            public function read(): array
             {
                 return [
                     AurynConfig::ALIASES => [

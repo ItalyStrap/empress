@@ -257,7 +257,7 @@ final class ProvidersCollectionTest extends UnitTestCase
         $cache = new class implements ProvidersCacheInterface {
             public bool $written = false;
 
-            public function read(): ?array
+            public function read(): array
             {
                 return [
                     'from_cache' => true,
@@ -316,7 +316,7 @@ final class ProvidersCollectionTest extends UnitTestCase
     public function testAggregateKeepsExistingConfigValuesWhenReadingFromCache(): void
     {
         $cache = new class implements ProvidersCacheInterface {
-            public function read(): ?array
+            public function read(): array
             {
                 return [
                     'from_cache' => true,
