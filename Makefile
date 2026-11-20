@@ -5,7 +5,6 @@ FILES_OWNERSHIP = sudo chown -R $(HOST_OWNER) .
 
 TEMP_DIR := ../config-temp
 EXCLUDE := --exclude=vendor --exclude=node_modules --exclude=.git
-RECTOR_CONFIG=rector-74.php
 
 default: help
 
@@ -56,11 +55,6 @@ reset: ## Reset the configuration files
 rm/vendor: ## Remove the vendor folder
 	@echo "Removing the vendor folder"
 	rm -rf vendor
-
-.PHONY: downgrade
-downgrade:
-	@echo "Downgrade with Rector..."
-	vendor/bin/rector process --config=$(RECTOR_CONFIG)
 
 .PHONY: rector
 rector: ## Run Rector in dry-run mode
