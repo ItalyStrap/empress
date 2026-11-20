@@ -314,7 +314,7 @@ $app->extend(
 		 * Called inside the AurynResolver instance
 		 * @param AurynConfigInterface $application
 		 */
-		public function execute( AurynConfigInterface $application ) {
+		public function execute( AurynConfigInterface $application ): void {
 
 			/**
 			 * ::walk() accept:

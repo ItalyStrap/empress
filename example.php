@@ -298,7 +298,7 @@ $app->extend(
          * Called inside the AurynConfig instance
          * @param AurynConfigInterface $application
          */
-        public function execute(AurynConfigInterface $application)
+        public function execute(AurynConfigInterface $application): void
         {
 
             /**

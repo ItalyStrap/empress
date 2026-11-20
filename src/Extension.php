@@ -8,8 +8,5 @@ interface Extension
 {
     public function name(): string;
 
-    /**
-     * @return void
-     */
-    public function execute(AurynConfigInterface $application);
+    public function execute(AurynConfigInterface $application): void;
 }

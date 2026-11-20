@@ -6,19 +6,12 @@ namespace ItalyStrap\Empress;
 
 interface AurynConfigInterface
 {
-    /**
-     * @return void
-     */
-    public function apply();
+    public function apply(): void;
 
     /**
      * @param class-string|Extension ...$extensions
-     * @return void
      */
-    public function extend(...$extensions);
+    public function extend(...$extensions): void;
 
-    /**
-     * @return void
-     */
-    public function walk(string $key, callable $callback);
+    public function walk(string $key, callable $callback): void;
 }
