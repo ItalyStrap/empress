@@ -11,7 +11,6 @@ use ItalyStrap\Config\Config;
 use ItalyStrap\Config\ConfigInterface;
 use ItalyStrap\Config\NodeManipulationInterface;
 use ItalyStrap\Empress\AurynConfig;
-use ItalyStrap\Empress\ProvidersCache;
 use ItalyStrap\Empress\ProvidersCacheInterface;
 use ItalyStrap\Empress\ProvidersCollection;
 use ItalyStrap\Empress\Tests\Modules\ModuleStub1;
@@ -313,24 +312,6 @@ final class ProvidersCollectionTest extends UnitTestCase
         $sut->aggregate();
 
         $this->assertSame('value', $cache->writtenConfig['key']);
-    }
-
-    public function testAggregateDoesNotWriteCacheWhenCacheIsDisabled(): void
-    {
-        $file = \codecept_output_dir('disabled-providers-cache.php');
-        if (\is_file($file)) {
-            \unlink($file);
-        }
-
-        $sut = $this->makeInstance([
-            static fn(): array => [
-                'key' => 'value',
-            ],
-        ], new ProvidersCache($file));
-
-        $sut->aggregate();
-
-        $this->assertFalse(\is_file($file));
     }
 
     public function testAggregateThrowsWhenProviderReturnsInvalidResult(): void

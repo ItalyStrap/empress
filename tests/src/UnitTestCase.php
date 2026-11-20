@@ -64,8 +64,6 @@ class UnitTestCase extends Unit
         return $this->finder->reveal();
     }
 
-    protected string $cachedConfigFile;
-
     // phpcs:ignore -- Method from Codeception
     protected function _before(): void {
         $this->realInjector = new Injector();
@@ -75,8 +73,6 @@ class UnitTestCase extends Unit
         $this->proxyFactory = $this->prophesize(ProxyFactoryInterface::class);
         $this->config = $this->prophesize(Config::class);
         $this->finder = $this->prophesize(FinderInterface::class);
-
-        $this->cachedConfigFile = codecept_output_dir('config-cache.php');
     }
 
     // phpcs:ignore -- Method from Codeception
@@ -85,6 +81,5 @@ class UnitTestCase extends Unit
         unset($this->configReal);
         unset($this->realInjector);
         unset($this->realProxyFactory);
-        \file_exists($this->cachedConfigFile) and unlink($this->cachedConfigFile);
     }
 }

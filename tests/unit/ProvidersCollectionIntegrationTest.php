@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace ItalyStrap\Empress\Tests\Unit;
 
 use Auryn\Injector;
+use ItalyStrap\Config\ConfigInterface;
 use ItalyStrap\Empress\AurynConfig;
 use ItalyStrap\Empress\ModuleInterface;
 use ItalyStrap\Empress\PhpFileProvider;
-use ItalyStrap\Empress\ProvidersCache;
+use ItalyStrap\Empress\ProvidersCacheInterface;
 use ItalyStrap\Empress\ProvidersCollection;
 use ItalyStrap\Empress\Tests\ConcreteNeedsSomeInterface;
 use ItalyStrap\Empress\Tests\SomeInterface;
@@ -24,13 +25,36 @@ final class ProvidersCollectionIntegrationTest extends UnitTestCase
 
     public const CONFIG_KEY_3 = 'Test test-global-php';
 
+    private ProvidersCacheInterface $cache;
+
+    // phpcs:ignore -- Method from Codeception
+    protected function _before(): void {
+        parent::_before();
+        $this->cache = new class implements ProvidersCacheInterface {
+            /**
+             * @var array<array-key, mixed>|null
+             */
+            public ?array $written = null;
+
+            public function read(ConfigInterface $config): bool
+            {
+                return false;
+            }
+
+            public function write(ConfigInterface $config): void
+            {
+                $this->written = $config->toArray();
+            }
+        };
+    }
+
     private function makeInstance(): ProvidersCollection
     {
         $config = $this->makeConfigReal();
         return new ProvidersCollection(
             new Injector(),
             $config,
-            new ProvidersCache($this->cachedConfigFile, 0666, true),
+            $this->cache,
             [
                 new PhpFileProvider(
                     '/config/autoload/{{,*.}global,{,*.}local}.php',
@@ -119,11 +143,7 @@ final class ProvidersCollectionIntegrationTest extends UnitTestCase
             ])
         );
 
-        $this->assertFileExists($this->cachedConfigFile);
-        $this->assertFileIsReadable($this->cachedConfigFile);
-
-        $file = require $this->cachedConfigFile;
-        $this->assertIsArray($file);
+        $this->assertSame($config->toArray(), $this->cache->written);
 
         $aliases = $config->get(AurynConfig::ALIASES);
 

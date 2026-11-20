@@ -46,7 +46,7 @@ final class ProvidersCollection
 
         $this->injector = $injector;
         $this->config = $config;
-        $this->cache = $cache ?: new ProvidersCache();
+        $this->cache = $cache ?: new NullProvidersCache();
         $this->providers = $providers;
     }
 

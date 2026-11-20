@@ -17,7 +17,6 @@
         "php" : ">=7.4",
         "italystrap/config": "^2.11",
         "overclokk/auryn": "dev-master",
-        "webimpress/safe-writer": "^2.2",
         "psr/container": "^1.1 || ^2.0"
     },
     "require-dev": {
@@ -42,12 +41,10 @@
         "rector/rector": "^1.2",
         "italystrap/debug": "dev-master",
         "italystrap/finder": "dev-master",
-        "laminas/laminas-config-aggregator": "^1.9",
         "crellbar/prophecy-extensions": "^1.1",
         "rector/swiss-knife": "^2.3",
 
-        "friendsofphp/proxy-manager-lts": "^1.0",
-        "brick/varexporter": "^0.3.8 || ^0.5"
+        "friendsofphp/proxy-manager-lts": "^1.0"
     },
     "autoload": {
         "psr-4": {
@@ -73,7 +70,7 @@
         "elazar/auryn-container-interop": "Only if you want to add a psr/container adapter, not required for this package",
         "northwoods/container": "Only if you want to add a psr/container adapter, not required for this package",
         "friendsofphp/proxy-manager-lts": "Only if you want to add support for lazy loading classes",
-        "brick/varexporter": "Only if you want to write the providers cache with ProvidersCache (^0.3.8 || ^0.5)"
+        "italystrap/empress-cache": "Only if you want to cache the aggregated providers configuration in a PHP file"
     },
     "scripts": {
         "cs": [
