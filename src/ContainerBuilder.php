@@ -74,7 +74,7 @@ class ContainerBuilder
      */
     public function extend(...$extensions): self
     {
-        $this->extensions = \array_values($extensions);
+        $this->extensions = [...$this->extensions, ...\array_values($extensions)];
         return $this;
     }
 

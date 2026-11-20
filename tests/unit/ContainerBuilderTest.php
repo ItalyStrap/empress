@@ -92,6 +92,41 @@ final class ContainerBuilderTest extends UnitTestCase
         $this->assertTrue($extension->executed);
     }
 
+    public function testExtendCalledTwiceKeepsPreviouslyAddedExtensions(): void
+    {
+        $first = $this->makeExecutionTrackingExtension('first');
+        $second = $this->makeExecutionTrackingExtension('second');
+        $builder = new ContainerBuilder();
+
+        $builder->extend($first);
+        $builder->extend($second);
+        $builder->build();
+
+        $this->assertTrue($first->executed, 'The extension added by the first extend() call must be executed');
+        $this->assertTrue($second->executed, 'The extension added by the second extend() call must be executed');
+    }
+
+    private function makeExecutionTrackingExtension(string $name): Extension
+    {
+        return new class ($name) implements Extension {
+            public bool $executed = false;
+
+            public function __construct(private readonly string $name)
+            {
+            }
+
+            public function name(): string
+            {
+                return $this->name;
+            }
+
+            public function execute(AurynConfigInterface $application): void
+            {
+                $this->executed = true;
+            }
+        };
+    }
+
     public function testExtendAcceptsExtensionClassString(): void
     {
         $config = new Config([
