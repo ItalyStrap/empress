@@ -68,6 +68,27 @@ final class ContainerBuilderTest extends UnitTestCase
         $this->assertInstanceOf(SomeConcrete::class, $builder->build()->get(SomeInterface::class));
     }
 
+    public function testAddProviderRejectsInvalidTypeImmediately(): void
+    {
+        $this->expectException(\TypeError::class);
+
+        (new ContainerBuilder())->addProvider(42);
+    }
+
+    public function testAddModuleRejectsInvalidTypeImmediately(): void
+    {
+        $this->expectException(\TypeError::class);
+
+        (new ContainerBuilder())->addModule(42);
+    }
+
+    public function testExtendRejectsInvalidTypeImmediately(): void
+    {
+        $this->expectException(\TypeError::class);
+
+        (new ContainerBuilder())->extend(42);
+    }
+
     public function testExtendIsFluentAndAppliesExtensionInstance(): void
     {
         $extension = new class implements Extension {

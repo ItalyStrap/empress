@@ -54,7 +54,7 @@ class ContainerBuilder
     /**
      * @param callable|class-string|array{0: class-string|object, 1: non-empty-string}|object $provider
      */
-    public function addProvider($provider): self
+    public function addProvider(callable|string|array|object $provider): self
     {
         $this->providers[] = $provider;
 
@@ -64,7 +64,7 @@ class ContainerBuilder
     /**
      * @param callable|class-string|array{0: class-string|object, 1: non-empty-string}|object $module
      */
-    public function addModule($module): self
+    public function addModule(callable|string|array|object $module): self
     {
         return $this->addProvider($module);
     }
@@ -72,7 +72,7 @@ class ContainerBuilder
     /**
      * @param class-string|Extension ...$extensions
      */
-    public function extend(...$extensions): self
+    public function extend(string|Extension ...$extensions): self
     {
         $this->extensions = [...$this->extensions, ...\array_values($extensions)];
         return $this;

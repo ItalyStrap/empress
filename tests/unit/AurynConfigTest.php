@@ -376,6 +376,13 @@ final class AurynConfigTest extends UnitTestCase
         $sut->extend('SomeGenericClass');
     }
 
+    public function testExtendRejectsInvalidTypeImmediately(): void
+    {
+        $sut = new AurynConfig(new Injector(), (new ConfigFactory())->make());
+        $this->expectException(\TypeError::class);
+        $sut->extend(42);
+    }
+
     public function testOldClassNameShouldBeAliasedCorrectly(): void
     {
         /**

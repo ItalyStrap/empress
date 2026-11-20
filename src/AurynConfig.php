@@ -85,7 +85,7 @@ class AurynConfig implements AurynConfigInterface
         $this->apply();
     }
 
-    public function extend(...$extensions): void
+    public function extend(string|Extension ...$extensions): void
     {
         foreach ($extensions as $extension) {
             if (
