@@ -9,5 +9,5 @@ codeception.yml
 c3.php
 rector.php
 bone.json
-.bak
+*.bak
 TODO.md
