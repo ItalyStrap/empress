@@ -6,7 +6,6 @@ namespace ItalyStrap\Empress;
 
 use Auryn\Injector;
 use Auryn\ConfigException;
-use Auryn\InjectionException;
 use ItalyStrap\Config\ConfigInterface as Config;
 
 use function array_walk;
@@ -121,7 +120,7 @@ final class AurynConfig implements AurynConfigInterface
     /**
      * @throws ConfigException
      */
-    private function share(mixed $nameOrInstance, int $index): void
+    private function share(string|object $nameOrInstance, int $index): void
     {
         $this->injector->share($nameOrInstance);
     }
@@ -176,7 +175,7 @@ final class AurynConfig implements AurynConfigInterface
     }
 
     /**
-     * @throws InjectionException
+     * @throws ConfigException
      */
     private function prepare(mixed $callableOrMethodStr, string $name): void
     {
