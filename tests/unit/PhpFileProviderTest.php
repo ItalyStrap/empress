@@ -17,7 +17,7 @@ final class PhpFileProviderTest extends UnitTestCase
 
     public function testShouldBeInvokable(): void
     {
-        $file = \codecept_data_dir('fixtures/config/autoload/config.global.php');
+        $file = $this->fixturesDir('config/autoload/config.global.php');
 
         $this->finder->names(['pattern'])->will(function ($args): void {
             Assert::assertSame('pattern', $args[0][0], 'Should be the same pattern');

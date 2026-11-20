@@ -26,9 +26,9 @@ final class ProvidersCollectionIntegrationTest extends UnitTestCase
 
     private ProvidersCacheInterface $cache;
 
-    // phpcs:ignore -- Method from Codeception
-    protected function _before(): void {
-        parent::_before();
+    protected function setUp(): void
+    {
+        parent::setUp();
         $this->cache = new class implements ProvidersCacheInterface {
             /**
              * @var array<array-key, mixed>|null
@@ -59,7 +59,7 @@ final class ProvidersCollectionIntegrationTest extends UnitTestCase
                     '/config/autoload/{{,*.}global,{,*.}local}.php',
                     (new FinderFactory())
                         ->make()
-                        ->in(codecept_data_dir('fixtures'))
+                        ->in($this->fixturesDir())
                 ),
                 static fn(): array => [
                     AurynConfig::ALIASES => [
@@ -107,7 +107,7 @@ final class ProvidersCollectionIntegrationTest extends UnitTestCase
                         ];
                     }
                 },
-                fn(): array => require \codecept_data_dir('fixtures/config/test.global.php'),
+                fn(): array => require $this->fixturesDir('config/test.global.php'),
             ],
         );
     }

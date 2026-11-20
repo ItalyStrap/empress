@@ -1,4 +1,0 @@
-actor: UnitTester
-modules:
-    enabled:
-        - \ItalyStrap\Empress\Tests\Helper\Unit

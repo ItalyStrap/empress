@@ -5,20 +5,18 @@ declare(strict_types=1);
 namespace ItalyStrap\Empress\Tests;
 
 use Auryn\Injector;
-use Codeception\Test\Unit;
 use ItalyStrap\Config\Config;
 use ItalyStrap\Config\ConfigInterface;
 use ItalyStrap\Empress\ProxyFactory;
 use ItalyStrap\Empress\ProxyFactoryInterface;
 use ItalyStrap\Finder\FinderInterface;
+use PHPUnit\Framework\TestCase;
 use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 
-class UnitTestCase extends Unit
+abstract class UnitTestCase extends TestCase
 {
     use ProphecyTrait;
-
-    protected UnitTester $tester;
 
     protected Injector $realInjector;
 
@@ -64,8 +62,9 @@ class UnitTestCase extends Unit
         return $this->finder->reveal();
     }
 
-    // phpcs:ignore -- Method from Codeception
-    protected function _before(): void {
+    protected function setUp(): void
+    {
+        parent::setUp();
         $this->realInjector = new Injector();
         $this->realProxyFactory = new ProxyFactory();
         $this->configReal = new Config();
@@ -75,11 +74,16 @@ class UnitTestCase extends Unit
         $this->finder = $this->prophesize(FinderInterface::class);
     }
 
-    // phpcs:ignore -- Method from Codeception
-    protected function _after(): void {
-        $this->prophet->checkPredictions();
+    protected function tearDown(): void
+    {
         unset($this->configReal);
         unset($this->realInjector);
         unset($this->realProxyFactory);
+        parent::tearDown();
+    }
+
+    protected function fixturesDir(string $path = ''): string
+    {
+        return \dirname(__DIR__) . '/_data/fixtures/' . $path;
     }
 }

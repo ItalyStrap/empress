@@ -10,8 +10,7 @@ tests/ export-ignore
 /.gitignore export-ignore
 /AGENTS.md export-ignore
 /bone.json export-ignore
-/codeception.* export-ignore
-/codeception.yml export-ignore
+/phpunit.xml.dist export-ignore
 /example.php export-ignore
 /infection.json.dist export-ignore
 /Makefile export-ignore

@@ -43,7 +43,7 @@ jobs:
           composer-options: ${{ matrix.composer-options }}
 
       - name: Run test suite
-        run: vendor/bin/codecept run unit --coverage-text
+        run: vendor/bin/phpunit --coverage-text
 
 #      - name: Run infection suite
 #        run: vendor/bin/infection --threads=4

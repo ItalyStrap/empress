@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ItalyStrap\Empress\Tests\Unit;
 
 use Auryn\Injector;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Auryn\ConfigException;
 use ItalyStrap\Config\ConfigFactory;
 use ItalyStrap\Empress\AurynConfig;
@@ -100,7 +101,7 @@ final class AurynConfigTest extends UnitTestCase
         $sut->apply();
     }
 
-    public function shareProvider(): iterable
+    public static function shareProvider(): iterable
     {
         return [
             'ClassName'     => [
@@ -113,9 +114,7 @@ final class AurynConfigTest extends UnitTestCase
         ];
     }
 
-    /**
-     * @dataProvider shareProvider()
-     */
+    #[DataProvider('shareProvider')]
     public function testItShouldShare(string|object $expected): void
     {
 
@@ -306,8 +305,7 @@ final class AurynConfigTest extends UnitTestCase
 
         $extension->name()->willReturn('ExtensionName');
 
-        $extension->execute(Argument::exact($sut))->will(function ($args): void {
-        });
+        $extension->execute(Argument::exact($sut))->shouldBeCalledOnce();
 
         $sut->extend($extension->reveal());
 
@@ -391,5 +389,7 @@ final class AurynConfigTest extends UnitTestCase
          */
         $auryn_config = new \ItalyStrap\Empress\AurynResolver(new Injector(), (new ConfigFactory())->make([]));
         $auryn_config->apply();
+
+        $this->assertInstanceOf(AurynConfig::class, $auryn_config);
     }
 }

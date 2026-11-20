@@ -4,7 +4,8 @@
 /_others/
 
 *.local
-codeception.yml
+phpunit.xml
+.phpunit.cache
 *.lock
 c3.php
 rector.php
