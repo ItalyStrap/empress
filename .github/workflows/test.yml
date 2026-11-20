@@ -45,8 +45,25 @@ jobs:
       - name: Run test suite
         run: vendor/bin/phpunit --coverage-text
 
-#      - name: Run infection suite
-#        run: vendor/bin/infection --threads=4
-
 #      - name: Run PHPBench suite
 #        run: vendor/bin/phpbench run --report=performance
+
+  mutation:
+    name: Mutation testing
+
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '--skip ci') && !github.event.pull_request.draft"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: pcov
+
+      - uses: ramsey/composer-install@v3
+
+      - name: Run Infection
+        run: vendor/bin/infection --threads=max --min-msi=100 --min-covered-msi=100 --show-mutations --no-progress --logger-github
