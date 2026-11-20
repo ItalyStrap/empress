@@ -12,6 +12,7 @@ use ItalyStrap\Config\ConfigInterface;
 use ItalyStrap\Config\NodeManipulationInterface;
 use ItalyStrap\Empress\AurynConfig;
 use ItalyStrap\Empress\ProvidersCacheInterface;
+use ItalyStrap\Empress\ProviderException;
 use ItalyStrap\Empress\ProvidersCollection;
 use ItalyStrap\Empress\Tests\Modules\ModuleStub1;
 use ItalyStrap\Empress\Tests\UnitTestCase;
@@ -320,7 +321,7 @@ final class ProvidersCollectionTest extends UnitTestCase
             static fn(): string => 'invalid',
         ]);
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(ProviderException::class);
         $this->expectExceptionMessage('must return an array or iterable of arrays');
 
         $sut->aggregate();
@@ -334,7 +335,7 @@ final class ProvidersCollectionTest extends UnitTestCase
             },
         ]);
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(ProviderException::class);
         $this->expectExceptionMessage('yielded string, expected array');
 
         $sut->aggregate();
@@ -381,9 +382,26 @@ final class ProvidersCollectionTest extends UnitTestCase
             },
         ]);
 
-        $this->expectException(\ErrorException::class);
+        $this->expectException(ProviderException::class);
         $this->expectExceptionMessage('Provider failed');
 
         $sut->aggregate();
+    }
+
+    public function testProviderExceptionKeepsTheOriginalErrorAsPrevious(): void
+    {
+        $original = new \RuntimeException('Provider failed');
+        $sut = $this->makeInstance([
+            static function () use ($original): array {
+                throw $original;
+            },
+        ]);
+
+        try {
+            $sut->aggregate();
+            $this->fail('Expected provider failure');
+        } catch (ProviderException $exception) {
+            $this->assertSame($original, $exception->getPrevious());
+        }
     }
 }

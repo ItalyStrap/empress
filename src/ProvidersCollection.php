@@ -117,16 +117,13 @@ final class ProvidersCollection
             try {
                 $result = $this->injector->execute($provider);
             } catch (\Throwable $e) {
-                throw new \ErrorException(
+                throw new ProviderException(
                     \sprintf(
                         'An error occurred when executing %s: %s',
                         $this->providerName($provider),
                         $e->getMessage()
                     ),
                     0,
-                    1,
-                    __FILE__,
-                    __LINE__,
                     $e
                 );
             }
@@ -141,7 +138,7 @@ final class ProvidersCollection
                 continue;
             }
 
-            throw new \RuntimeException(
+            throw new ProviderException(
                 \sprintf(
                     'The provider %s must return an array or iterable of arrays, %s given',
                     $this->providerName($provider),
@@ -159,7 +156,7 @@ final class ProvidersCollection
     {
         foreach ($configuration as $item) {
             if (!\is_array($item)) {
-                throw new \RuntimeException(
+                throw new ProviderException(
                     \sprintf(
                         'The provider %s yielded %s, expected array',
                         $this->providerName($provider),
