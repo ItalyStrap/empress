@@ -102,8 +102,9 @@ final class AurynConfig implements AurynConfigInterface
             }
 
             throw new \InvalidArgumentException(\sprintf(
-                'Invalid extension type, given: %s',
-                \gettype($extension)
+                'Invalid extension "%s", expected an instance or a class-string of %s',
+                $extension,
+                Extension::class
             ));
         }
     }

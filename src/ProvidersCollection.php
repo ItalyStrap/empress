@@ -145,7 +145,7 @@ final class ProvidersCollection
                 \sprintf(
                     'The provider %s must return an array or iterable of arrays, %s given',
                     $this->providerName($provider),
-                    \gettype($result)
+                    \get_debug_type($result)
                 )
             );
         }
@@ -163,7 +163,7 @@ final class ProvidersCollection
                     \sprintf(
                         'The provider %s yielded %s, expected array',
                         $this->providerName($provider),
-                        \gettype($item)
+                        \get_debug_type($item)
                     )
                 );
             }
@@ -193,6 +193,6 @@ final class ProvidersCollection
             return $provider;
         }
 
-        return \gettype($provider);
+        return \get_debug_type($provider);
     }
 }

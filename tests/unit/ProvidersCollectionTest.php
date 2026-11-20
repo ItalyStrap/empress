@@ -340,6 +340,39 @@ final class ProvidersCollectionTest extends UnitTestCase
         $sut->aggregate();
     }
 
+    public function testInvalidResultMessageNamesTheReturnedClass(): void
+    {
+        $sut = $this->makeInstance([
+            static fn(): \stdClass => new \stdClass(),
+        ]);
+
+        $this->expectExceptionMessage('stdClass given');
+
+        $sut->aggregate();
+    }
+
+    public function testInvalidYieldMessageNamesTheYieldedClass(): void
+    {
+        $sut = $this->makeInstance([
+            static function (): \Generator {
+                yield new \stdClass();
+            },
+        ]);
+
+        $this->expectExceptionMessage('yielded stdClass, expected array');
+
+        $sut->aggregate();
+    }
+
+    public function testExecutionErrorMessageNamesTheScalarProviderType(): void
+    {
+        $sut = $this->makeInstance([42]);
+
+        $this->expectExceptionMessage('An error occurred when executing int:');
+
+        $sut->aggregate();
+    }
+
     public function testAggregateWrapsProviderExecutionErrors(): void
     {
         $sut = $this->makeInstance([

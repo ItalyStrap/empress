@@ -373,6 +373,7 @@ final class AurynConfigTest extends UnitTestCase
     {
         $sut = new AurynConfig(new Injector(), (new ConfigFactory())->make());
         $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('SomeGenericClass');
         $sut->extend('SomeGenericClass');
     }
 
