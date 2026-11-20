@@ -21,7 +21,7 @@ final class ProvidersCollection
     private ProvidersCacheInterface $cache;
 
     /**
-     * @param ConfigInterface<array-key, mixed>&NodeManipulationInterface<array-key, mixed> $config
+     * @param ConfigInterface<array-key, mixed> $config Must also implement NodeManipulationInterface.
      * @param iterable<Provider> $providers
      */
     public function __construct(
@@ -50,7 +50,7 @@ final class ProvidersCollection
 
         $result = $this->config->toArray();
         foreach ($this->loadConfigurationsFromProviders() as $configuration) {
-            $this->mergeConfiguration($configuration, $result);
+            $result = $this->mergeArrays($result, $configuration);
         }
 
         $this->applyToConfig($result);
@@ -69,28 +69,24 @@ final class ProvidersCollection
         }
     }
 
-    /**
-     * @param Configuration $configuration
-     * @param array<array-key, mixed> $result
-     */
-    private function mergeConfiguration(
-        array $configuration,
-        array &$result
-    ): void {
-        $result = $this->mergeValue($result, $configuration);
-    }
-
-    /**
-     * @return mixed
-     */
-    private function mergeValue(mixed $current, mixed $incoming)
+    private function mergeValue(mixed $current, mixed $incoming): mixed
     {
         if (!\is_array($incoming)) {
             return $incoming;
         }
 
-        $current = \is_array($current) ? $current : [];
+        return $this->mergeArrays(\is_array($current) ? $current : [], $incoming);
+    }
 
+    /**
+     * String keys are merged recursively, list values are appended once.
+     *
+     * @param array<array-key, mixed> $current
+     * @param array<array-key, mixed> $incoming
+     * @return array<array-key, mixed>
+     */
+    private function mergeArrays(array $current, array $incoming): array
+    {
         foreach ($incoming as $key => $value) {
             if (!\is_int($key)) {
                 $current[$key] = $this->mergeValue($current[$key] ?? null, $value);
@@ -182,25 +178,22 @@ final class ProvidersCollection
 
     private function providerName(mixed $provider): string
     {
-        if (\is_object($provider)) {
-            return $provider::class;
-        }
-
         if (\is_array($provider)) {
-            $target = $provider[0] ?? 'unknown';
-            $method = $provider[1] ?? 'unknown';
-
-            if (\is_object($target)) {
-                $target = $target::class;
-            }
-
-            return \sprintf('%s::%s', (string)$target, (string)$method);
+            return \sprintf(
+                '%s::%s',
+                $this->describe($provider[0] ?? 'unknown'),
+                $this->describe($provider[1] ?? 'unknown')
+            );
         }
 
-        if (\is_string($provider)) {
-            return $provider;
-        }
+        return $this->describe($provider);
+    }
 
-        return \get_debug_type($provider);
+    /**
+     * A string as is, otherwise the class name or the type.
+     */
+    private function describe(mixed $value): string
+    {
+        return \is_string($value) ? $value : \get_debug_type($value);
     }
 }
