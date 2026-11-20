@@ -16,8 +16,10 @@ use ItalyStrap\Empress\Extension;
 use ItalyStrap\Empress\ModuleInterface;
 use ItalyStrap\Empress\ProvidersCacheInterface;
 use ItalyStrap\Empress\ProxyFactoryInterface;
+use PHPUnit\Framework\Attributes\RequiresPhp;
 use ItalyStrap\Empress\Tests\ConcreteNeedsSomeInterface;
 use ItalyStrap\Empress\Tests\ContainerBuilderExtensionStub;
+use ItalyStrap\Empress\Tests\FinalService;
 use ItalyStrap\Empress\Tests\SomeConcrete;
 use ItalyStrap\Empress\Tests\SomeInterface;
 use ItalyStrap\Empress\Tests\UnitTestCase;
@@ -381,6 +383,24 @@ final class ContainerBuilderTest extends UnitTestCase
         $this->assertSame('SomeConcrete', $service->render());
     }
 
+    #[RequiresPhp('>= 8.4')]
+    public function testBuildUsesNativeProxyFactoryByDefault(): void
+    {
+        $builder = new ContainerBuilder();
+        $builder->addProvider(static fn(): array => [
+            AurynConfig::PROXY => [
+                FinalService::class,
+            ],
+        ]);
+
+        /** @var FinalService $service */
+        $service = $builder->build()->get(FinalService::class);
+
+        $this->assertTrue((new \ReflectionClass(FinalService::class))->isUninitializedLazyObject($service));
+        $this->assertSame('FinalService', $service->value());
+    }
+
+    #[RequiresPhp('< 8.4')]
     public function testBuildThrowsWhenProxyFactoryIsMissingForRealClassProxyConfiguration(): void
     {
         $builder = new ContainerBuilder();

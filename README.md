@@ -94,6 +94,19 @@ $container = $builder->build();
 $service = $container->get(SomeService::class);
 ```
 
+### Lazy proxies
+
+Classes listed under `AurynConfig::PROXY` are created lazily through a `ProxyFactoryInterface`:
+
+* `NativeProxyFactory` uses the PHP 8.4 native lazy objects, no extra dependency and `final` classes are supported. `ContainerBuilder` uses it by default on PHP 8.4+.
+* `ProxyFactory` uses `friendsofphp/proxy-manager-lts`, pass it explicitly on PHP 8.2 and 8.3.
+
+```php
+$builder = new ContainerBuilder(null, null, null, new ProxyFactory());
+```
+
+Native lazy objects initialize on the first access to the object state, so a class without properties never calls its factory.
+
 > For more information on how to use Auryn\Injector see the [Auryn README](https://github.com/rdlowrey/auryn/blob/master/README.md)
 
 Keep in mind that `$injector->make(SomeClass::class)` hides the word `new` and does the instantiation for you.

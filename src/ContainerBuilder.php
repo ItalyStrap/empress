@@ -19,6 +19,8 @@ final class ContainerBuilder
      */
     private readonly ConfigInterface $config;
 
+    private readonly ?ProxyFactoryInterface $proxyFactory;
+
     /**
      * @var array<int, callable|class-string|array{0: class-string|object, 1: non-empty-string}|object>
      */
@@ -36,7 +38,7 @@ final class ContainerBuilder
         ?Injector $injector = null,
         ?ConfigInterface $config = null,
         private readonly ?ProvidersCacheInterface $cache = null,
-        private readonly ?ProxyFactoryInterface $proxyFactory = null
+        ?ProxyFactoryInterface $proxyFactory = null
     ) {
         if ($config instanceof ConfigInterface && !$config instanceof NodeManipulationInterface) {
             throw new \InvalidArgumentException(\sprintf(
@@ -49,6 +51,19 @@ final class ContainerBuilder
         /** @var ConfigInterface<array-key, mixed>&NodeManipulationInterface<array-key, mixed> $configInstance */
         $configInstance = $config ?? new Config();
         $this->config = $configInstance;
+        if ($proxyFactory === null) {
+            $proxyFactory = $this->defaultProxyFactory();
+        }
+
+        $this->proxyFactory = $proxyFactory;
+    }
+
+    /**
+     * Native lazy objects need PHP 8.4, older versions must pass a ProxyFactoryInterface explicitly.
+     */
+    private function defaultProxyFactory(): ?ProxyFactoryInterface
+    {
+        return \method_exists(\ReflectionClass::class, 'newLazyProxy') ? new NativeProxyFactory() : null;
     }
 
     /**
