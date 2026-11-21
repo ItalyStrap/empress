@@ -37,7 +37,7 @@ final class AurynConfig implements AurynConfigInterface
     public function __construct(
         private readonly Injector $injector,
         private readonly Config $dependencies,
-        private readonly ?ProxyFactoryInterface $proxy_factory = null
+        private readonly ?ProxyFactoryInterface $proxyFactory = null
     ) {
     }
 
@@ -130,18 +130,18 @@ final class AurynConfig implements AurynConfigInterface
      */
     private function proxy(string $name, int $index): void
     {
-        if ($name !== '' && \class_exists($name) && $this->proxy_factory === null) {
+        if ($name !== '' && \class_exists($name) && $this->proxyFactory === null) {
             throw new ConfigException(\sprintf(
                 'Proxy factory is required for proxying %s',
                 $name
             ));
         }
 
-        if ($this->proxy_factory === null) {
+        if ($this->proxyFactory === null) {
             return;
         }
 
-        $this->injector->proxy($name, $this->proxy_factory);
+        $this->injector->proxy($name, $this->proxyFactory);
     }
 
     /**
