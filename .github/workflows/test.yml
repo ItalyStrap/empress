@@ -45,6 +45,9 @@ jobs:
       - name: Run test suite
         run: vendor/bin/phpunit --coverage-text
 
+      - name: Run example.php
+        run: php example.php > /dev/null
+
 #      - name: Run PHPBench suite
 #        run: vendor/bin/phpbench run --report=performance
 

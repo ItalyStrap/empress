@@ -12,6 +12,7 @@ use ItalyStrap\Empress\AurynConfigInterface;
 use ItalyStrap\Empress\AurynConfig;
 use ItalyStrap\Empress\ContainerBuilder;
 use ItalyStrap\Empress\Extension;
+use ItalyStrap\Empress\ProxyFactory;
 use Psr\Container\ContainerInterface;
 use stdClass;
 
@@ -188,10 +189,13 @@ $config = [
 $injector = new Injector();
 
 /**
- * Pass the $injector instance to the AurynConfig::class as first parameter and a
- * Config::class instance at the second parameters with the configuration array.
+ * Pass the $injector instance to the AurynConfig::class as first parameter, a
+ * Config::class instance with the configuration array as second parameter and a
+ * ProxyFactoryInterface as third parameter because the configuration has proxies.
+ * Config extends ArrayObject, an internal class that PHP native lazy objects cannot proxy,
+ * so this example uses the friendsofphp/proxy-manager-lts based ProxyFactory.
  */
-$app = new AurynConfig($injector, (new ConfigFactory())->make($config));
+$app = new AurynConfig($injector, (new ConfigFactory())->make($config), new ProxyFactory());
 
 /**
  * Call the AurynConfig::$this->apply() method to do the autowiring of the application
