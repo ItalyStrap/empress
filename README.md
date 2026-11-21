@@ -6,7 +6,6 @@
 [![Latest Unstable Version](https://img.shields.io/packagist/vpre/italystrap/empress.svg)](https://packagist.org/packages/italystrap/empress)
 [![License](https://img.shields.io/packagist/l/italystrap/empress.svg)](https://packagist.org/packages/italystrap/empress)
 ![PHP from Packagist](https://img.shields.io/packagist/php-v/italystrap/empress)
-![Scrutinizer code quality (GitHub/Bitbucket)](https://img.shields.io/scrutinizer/quality/g/ItalyStrap/empress?label=Scrutinizer)
 
 Config driven for [Auryn Injector](https://github.com/rdlowrey/auryn) the OOP way
 
@@ -35,11 +34,96 @@ This package adheres to the [SemVer](http://semver.org/) specification and will 
 
 ## Basic Usage
 
+- PhpFileProvider: loads config arrays from files.
+- ModuleInterface: standard callable module contract.
+- ProvidersCollection: executes providers/modules and aggregates their returned config.
+- AurynConfig: applies the config array to Auryn.
+- Container: PSR-11 adapter around Auryn.
+- ContainerBuilder: coordinates the build process.
+
+```php
+$providers->aggregate();
+$aurynConfig->apply();
+$containerBuilder->build();
+```
+
+This reads as: aggregate config, apply DI config, build container.
+
+### PSR-11 ContainerBuilder
+
+`ContainerBuilder` is the quickest way to aggregate providers, apply the Auryn configuration, and receive a PSR-11 container.
+
+```php
+use ItalyStrap\Config\Config;
+use ItalyStrap\Config\ConfigInterface;
+use ItalyStrap\Empress\AurynConfig;
+use ItalyStrap\Empress\AurynConfigInterface;
+use ItalyStrap\Empress\ContainerBuilder;
+use ItalyStrap\Empress\Extension;
+use Psr\Container\ContainerInterface;
+
+$builder = new ContainerBuilder();
+
+$builder
+    ->addProvider(static fn(): array => [
+        AurynConfig::ALIASES => [
+            ConfigInterface::class => Config::class,
+        ],
+        AurynConfig::SHARING => [
+            ConfigInterface::class,
+        ],
+        AurynConfig::DELEGATIONS => [
+            SomeService::class => static function (ContainerInterface $container): SomeService {
+                return new SomeService($container->get(ConfigInterface::class));
+            },
+        ],
+    ])
+    ->extend(new class implements Extension {
+        public function name(): string
+        {
+            return 'my-extension';
+        }
+
+        public function execute(AurynConfigInterface $application): void
+        {
+            // Add custom Auryn configuration logic here.
+        }
+    });
+
+$container = $builder->build();
+$service = $container->get(SomeService::class);
+```
+
+### Post processors
+
+Post processors transform the merged configuration, in the order they are added, before it is cached and applied.
+A post processor is a callable or an invokable class string, it receives the configuration array and must return an
+array. They do not run when the configuration comes from the cache.
+
+```php
+$builder->addPostProcessor(static fn(array $config): array => $config + ['env' => 'production']);
+```
+
+A provider registered more than once throws a `ProviderException`.
+
+### Lazy proxies
+
+Classes listed under `AurynConfig::PROXY` are created lazily through a `ProxyFactoryInterface`:
+
+* `NativeProxyFactory` uses the PHP 8.4 native lazy objects, no extra dependency and `final` classes are supported. `ContainerBuilder` uses it by default on PHP 8.4+.
+* `ProxyFactory` uses `friendsofphp/proxy-manager-lts`, pass it explicitly on PHP 8.2 and 8.3.
+
+```php
+$builder = new ContainerBuilder(null, null, null, new ProxyFactory());
+```
+
+Native lazy objects initialize on the first access to the object state, so a class without properties never calls its factory.
+
 > For more information on how to use Auryn\Injector see the [Auryn README](https://github.com/rdlowrey/auryn/blob/master/README.md)
 
-Keep in mind that `$injector->(SomeClass::class)` hides the word `new` and does the instantiation for you.
+Keep in mind that `$injector->make(SomeClass::class)` hides the word `new` and does the instantiation for you.
 
-Do not use Injector as a service locator or your server will blown up.
+Do not use Injector as a service locator, or your server will blow up.
 
 ```php
 namespace MyApp;
@@ -50,21 +134,22 @@ use ItalyStrap\Config\ConfigInterface;
 use ItalyStrap\Empress\AurynConfigInterface;
 use ItalyStrap\Empress\AurynConfig;
 use ItalyStrap\Empress\Extension;
-use ItalyStrap\Empress\Injector;
+use Auryn\Injector;
 
 /**
  * The better way to add keys to the array configuration is to use the
- * AurynResolver::<CONSTANT KEYS>
+ * AurynConfig::<CONSTANT KEYS>
  *
  * Keys available are:
  *
- * AurynResolver::PROXY = 'proxies';
- * AurynResolver::SHARING = 'sharing';
- * AurynResolver::ALIASES = 'aliases';
- * AurynResolver::DEFINITIONS = 'definitions';
- * AurynResolver::DEFINE_PARAM = 'define_param';
- * AurynResolver::DELEGATIONS = 'delegations';
- * AurynResolver::PREPARATIONS = 'preparations';
+ * AurynConfig::PROXY = 'proxies';
+ * AurynConfig::SHARING = 'sharing';
+ * AurynConfig::ALIASES = 'aliases';
+ * AurynConfig::DEFINITIONS = 'definitions';
+ * AurynConfig::DEFINE_PARAM = 'define_param';
+ * AurynConfig::DELEGATIONS = 'delegations';
+ * AurynConfig::FACTORIES = 'factories';
+ * AurynConfig::PREPARATIONS = 'preparations';
  */
 
 /**
@@ -184,21 +269,20 @@ $config = [
 
 /**
  * Instantiate the Injector
- * Remember that ItalyStrap\Empress\Injector() is the extended class with the proxy functionality
- * The superclass \Auryn\Injector() does not have the ProxyManager in it.
+ * Proxies need a ProxyFactoryInterface passed as third argument of AurynConfig.
  */
-$injector = new \ItalyStrap\Empress\Injector();
+$injector = new Injector();
 
 /**
- * Pass the $injector instance to the AurynResolver::class as first parameter and a
+ * Pass the $injector instance to the AurynConfig::class as first parameter and a
  * Config::class instance at the second parameters with the configuration array.
  */
-$app = new AurynConfig( $injector, ConfigFactory::make( $config ) );
+$app = new AurynConfig( $injector, ( new ConfigFactory() )->make( $config ) );
 
 /**
- * Call the AurynResolver::resolve() method to do the autowiring of the application
+ * Call the AurynConfig::apply() method to do the autowiring of the application
  */
-$app->resolve();
+$app->apply();
 
 /**
  * Now that you have autoload your application dependency you can call $injector for instantiating objects
@@ -219,7 +303,7 @@ use ItalyStrap\Config\ConfigInterface;
 use ItalyStrap\Empress\AurynConfigInterface;
 use ItalyStrap\Empress\AurynConfig;
 use ItalyStrap\Empress\Extension;
-use ItalyStrap\Empress\Injector;
+use Auryn\Injector;
 
 $config = [
     'your-key'	=> [
@@ -227,11 +311,11 @@ $config = [
     ],
 ];
 
-$injector = new \ItalyStrap\Empress\Injector();
-$app = new AurynConfig( $injector, ConfigFactory::make( $config ) );
+$injector = new Injector();
+$app = new AurynConfig( $injector, ( new ConfigFactory() )->make( $config ) );
 
 /**
- * If you need more power you can extend the AurynResolver::class BEFORE calling the AurynResolver::resolve() method
+ * If you need more power you can extend the AurynConfig::class BEFORE calling the AurynConfig::apply() method
  * Create your custom configuration like the follow:
  * $config = [
  * 	'your-key'	=> [
@@ -239,7 +323,7 @@ $app = new AurynConfig( $injector, ConfigFactory::make( $config ) );
  *  ],
  * ];
  *
- * Now extend the AurynResolver:
+ * Now extend the AurynConfig:
  */
 $app->extend(
 	new class implements Extension {
@@ -252,10 +336,10 @@ $app->extend(
 		}
 
 		/**
-		 * Called inside the AurynResolver instance
+		 * Called inside the AurynConfig instance
 		 * @param AurynConfigInterface $application
 		 */
-		public function execute( AurynConfigInterface $application ) {
+		public function execute( AurynConfigInterface $application ): void {
 
 			/**
 			 * ::walk() accept:
@@ -278,9 +362,9 @@ $app->extend(
 
 /**
  * You can add as many extensions as you need
- * Now you can call the ::resolve() method
+ * Now you can call the ::apply() method
  */
-$app->resolve();
+$app->apply();
 
 // Do the rest of your stuff
 
@@ -304,3 +388,5 @@ This code is licensed under the [MIT](LICENSE).
 
 * [`rdlowrey/auryn`](https://github.com/rdlowrey/auryn)
 * [`brightnucleus/injector`](https://github.com/brightnucleus/injector)
+* [`Ocramius/ProxyManager`](https://github.com/Ocramius/ProxyManager)
+* [`laminas/laminas-config-aggregator`](https://github.com/laminas/laminas-config-aggregator)

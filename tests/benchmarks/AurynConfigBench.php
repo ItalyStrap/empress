@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace ItalyStrap\Tests\Benchmark;
 
+use Auryn\Injector;
 use ItalyStrap\Config\ConfigFactory;
 use ItalyStrap\Empress\AurynConfig;
-use ItalyStrap\Empress\Injector;
 use stdClass;
 
 class AurynConfigBench
@@ -16,19 +16,19 @@ class AurynConfigBench
      * @Revs(1000)
      * @Iterations(5)
      */
-    public function benchResolver()
+    public function benchResolver(): void
     {
         $injector = new Injector();
-        $config = ConfigFactory::make([
+        $config = (new ConfigFactory())->make([
             AurynConfig::SHARING    => [
                 stdClass::class,
             ],
         ]);
 
         $resolver = new AurynConfig($injector, $config);
-        $resolver->resolve();
+        $resolver->apply();
 
-        $class = $injector->make(stdClass::class);
+        $injector->make(stdClass::class);
     }
 
     /**
@@ -36,10 +36,10 @@ class AurynConfigBench
      * @Revs(1000)
      * @Iterations(5)
      */
-    public function benchResolverP()
+    public function benchResolverP(): void
     {
         $injector = new Injector();
         $injector->share(stdClass::class);
-        $class = $injector->make(stdClass::class);
+        $injector->make(stdClass::class);
     }
 }

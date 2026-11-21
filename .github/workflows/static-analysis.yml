@@ -18,9 +18,9 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'
+          php-version: '8.2'
 
       - uses: ramsey/composer-install@v2
 
-      - name: Psalm
-        run: composer run psalm
+      - name: PHPStan
+        run: composer run stan

@@ -5,10 +5,17 @@
     ]
   },
   "timeout": 10,
-  "mutators": {
-    "@default": true
+  "logs": {
+    "text": "php://stdout"
   },
-  "tmpDir": "\/tests\/_output",
-  "testFramework": "codeception",
-  "testFrameworkOptions": "--skip=wpunit --skip=acceptance --skip=functional"
+  "mutators": {
+    "@default": true,
+    "UnwrapArrayValues": {
+      "ignore": [
+        "ItalyStrap\\Empress\\ContainerBuilder::extend"
+      ]
+    }
+  },
+  "tmpDir": "tests\/_output",
+  "testFramework": "phpunit"
 }

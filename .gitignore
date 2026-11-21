@@ -1,9 +1,14 @@
+/.vscode/
 /vendor/
 
 /_others/
 
 *.local
-codeception.yml
+phpunit.xml
+.phpunit.cache
 *.lock
 c3.php
 rector.php
+bone.json
+*.bak
+TODO.md

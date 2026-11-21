@@ -1,0 +1,137 @@
+<?php
+
+declare(strict_types=1);
+
+namespace ItalyStrap\Empress;
+
+use Auryn\Injector;
+use ItalyStrap\Config\Config;
+use ItalyStrap\Config\ConfigInterface;
+use ItalyStrap\Config\NodeManipulationInterface;
+use Psr\Container\ContainerInterface;
+
+final class ContainerBuilder
+{
+    private readonly Injector $injector;
+
+    /**
+     * @var ConfigInterface<array-key, mixed>&NodeManipulationInterface<array-key, mixed>
+     */
+    private readonly ConfigInterface $config;
+
+    private readonly ?ProxyFactoryInterface $proxyFactory;
+
+    /**
+     * @var array<int, callable|class-string|array{0: class-string|object, 1: non-empty-string}|object>
+     */
+    private array $providers = [];
+
+    /**
+     * @var array<int, class-string|Extension>
+     */
+    private array $extensions = [];
+
+    /**
+     * @var list<callable(array<array-key, mixed>): array<array-key, mixed>|class-string>
+     */
+    private array $postProcessors = [];
+
+    /**
+     * @param ConfigInterface<array-key, mixed>|null $config
+     */
+    public function __construct(
+        ?Injector $injector = null,
+        ?ConfigInterface $config = null,
+        private readonly ?ProvidersCacheInterface $cache = null,
+        ?ProxyFactoryInterface $proxyFactory = null
+    ) {
+        if ($config instanceof ConfigInterface && !$config instanceof NodeManipulationInterface) {
+            throw new \InvalidArgumentException(\sprintf(
+                '$config must implement %s',
+                NodeManipulationInterface::class
+            ));
+        }
+
+        $this->injector = $injector ?? new Injector();
+        /** @var ConfigInterface<array-key, mixed>&NodeManipulationInterface<array-key, mixed> $configInstance */
+        $configInstance = $config ?? new Config();
+        $this->config = $configInstance;
+        if ($proxyFactory === null) {
+            $proxyFactory = $this->defaultProxyFactory();
+        }
+
+        $this->proxyFactory = $proxyFactory;
+    }
+
+    /**
+     * Native lazy objects need PHP 8.4, older versions must pass a ProxyFactoryInterface explicitly.
+     */
+    private function defaultProxyFactory(): ?ProxyFactoryInterface
+    {
+        return \method_exists(\ReflectionClass::class, 'newLazyProxy') ? new NativeProxyFactory() : null;
+    }
+
+    /**
+     * @param callable|class-string|array{0: class-string|object, 1: non-empty-string}|object $provider
+     */
+    public function addProvider(callable|string|array|object $provider): self
+    {
+        $this->providers[] = $provider;
+
+        return $this;
+    }
+
+    /**
+     * @param callable|class-string|array{0: class-string|object, 1: non-empty-string}|object $module
+     */
+    public function addModule(callable|string|array|object $module): self
+    {
+        return $this->addProvider($module);
+    }
+
+    /**
+     * Transform the merged configuration before it is cached and applied, processors run in order.
+     *
+     * @param callable(array<array-key, mixed>): array<array-key, mixed>|class-string $postProcessor
+     */
+    public function addPostProcessor(callable|string $postProcessor): self
+    {
+        $this->postProcessors[] = $postProcessor;
+
+        return $this;
+    }
+
+    /**
+     * @param class-string|Extension ...$extensions
+     */
+    public function extend(string|Extension ...$extensions): self
+    {
+        $this->extensions = [...$this->extensions, ...\array_values($extensions)];
+        return $this;
+    }
+
+    public function build(): ContainerInterface
+    {
+        $injector = $this->injector;
+        $injector->share($injector);
+
+        $container = new Container($injector);
+        $injector->alias(ContainerInterface::class, $container::class);
+        $injector->share($container);
+
+        $providersCollection = new ProvidersCollection(
+            $injector,
+            $this->config,
+            $this->cache,
+            $this->providers,
+            $this->postProcessors
+        );
+        $providersCollection->aggregate();
+
+        $injectorConfig = new AurynConfig($injector, $this->config, $this->proxyFactory);
+        $injectorConfig->extend(...$this->extensions);
+        $injectorConfig->apply();
+
+        return $container;
+    }
+}
