@@ -457,4 +457,38 @@ final class ProvidersCollectionTest extends UnitTestCase
 
         $sut->aggregate();
     }
+
+    public function testAggregateRejectsAClassStringProviderRegisteredTwice(): void
+    {
+        $sut = $this->makeInstance([ModuleStub1::class, ModuleStub1::class]);
+
+        $this->expectException(ProviderException::class);
+        $this->expectExceptionMessage(\sprintf('The provider %s is registered more than once', ModuleStub1::class));
+
+        $sut->aggregate();
+    }
+
+    public function testAggregateRejectsTheSameProviderInstanceRegisteredTwice(): void
+    {
+        $provider = static fn(): array => [];
+        $sut = $this->makeInstance([$provider, $provider]);
+
+        $this->expectException(ProviderException::class);
+        $this->expectExceptionMessage('The provider Closure is registered more than once');
+
+        $sut->aggregate();
+    }
+
+    public function testAggregateAcceptsDifferentProvidersOfTheSameType(): void
+    {
+        $config = new Config();
+        $sut = $this->makeInstance([
+            static fn(): array => ['first' => true],
+            static fn(): array => ['second' => true],
+        ], null, $config);
+
+        $sut->aggregate();
+
+        $this->assertSame(['first' => true, 'second' => true], $config->toArray());
+    }
 }

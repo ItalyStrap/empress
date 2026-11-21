@@ -120,7 +120,11 @@ final readonly class ProvidersCollection
      */
     private function loadConfigurationsFromProviders(): \Generator
     {
+        $seen = [];
         foreach ($this->providers as $provider) {
+            $this->assertNotRegisteredTwice($provider, $seen);
+            $seen[] = $provider;
+
             try {
                 $result = $this->injector->execute($provider);
             } catch (\Throwable $e) {
@@ -174,6 +178,21 @@ final readonly class ProvidersCollection
 
             yield $item;
         }
+    }
+
+    /**
+     * @param list<mixed> $seen
+     */
+    private function assertNotRegisteredTwice(mixed $provider, array $seen): void
+    {
+        if (!\in_array($provider, $seen, true)) {
+            return;
+        }
+
+        throw new ProviderException(\sprintf(
+            'The provider %s is registered more than once',
+            $this->providerName($provider)
+        ));
     }
 
     private function providerName(mixed $provider): string
