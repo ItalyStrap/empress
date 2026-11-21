@@ -11,6 +11,7 @@ use ItalyStrap\Config\NodeManipulationInterface;
 /**
  * @phpstan-type Provider callable|class-string|array{0: class-string|object, 1: non-empty-string}|object
  * @phpstan-type Configuration array<array-key, mixed>
+ * @phpstan-type PostProcessor callable(Configuration): Configuration|class-string
  */
 final readonly class ProvidersCollection
 {
@@ -23,12 +24,14 @@ final readonly class ProvidersCollection
     /**
      * @param ConfigInterface<array-key, mixed> $config Must also implement NodeManipulationInterface.
      * @param iterable<Provider> $providers
+     * @param iterable<PostProcessor> $postProcessors Applied in order to the merged config, before caching it.
      */
     public function __construct(
         private Injector $injector,
         ConfigInterface $config,
         ?ProvidersCacheInterface $cache = null,
-        private iterable $providers = []
+        private iterable $providers = [],
+        private iterable $postProcessors = []
     ) {
         if (!$config instanceof NodeManipulationInterface) {
             throw new \InvalidArgumentException(\sprintf(
@@ -53,8 +56,47 @@ final readonly class ProvidersCollection
             $result = $this->mergeArrays($result, $configuration);
         }
 
+        $result = $this->postProcess($result);
+
         $this->applyToConfig($result);
         $this->cache->write($result);
+    }
+
+    /**
+     * @param Configuration $config
+     * @return Configuration
+     */
+    private function postProcess(array $config): array
+    {
+        foreach ($this->postProcessors as $postProcessor) {
+            $processor = \is_string($postProcessor) ? $this->injector->make($postProcessor) : $postProcessor;
+            if (!\is_callable($processor)) {
+                throw new ProviderException(\sprintf(
+                    'The post processor %s is not callable',
+                    $this->providerName($postProcessor)
+                ));
+            }
+
+            $config = $this->assertPostProcessedConfig($processor($config), $postProcessor);
+        }
+
+        return $config;
+    }
+
+    /**
+     * @return Configuration
+     */
+    private function assertPostProcessedConfig(mixed $result, mixed $postProcessor): array
+    {
+        if (\is_array($result)) {
+            return $result;
+        }
+
+        throw new ProviderException(\sprintf(
+            'The post processor %s must return an array, %s given',
+            $this->providerName($postProcessor),
+            \get_debug_type($result)
+        ));
     }
 
     /**

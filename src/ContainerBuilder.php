@@ -32,6 +32,11 @@ final class ContainerBuilder
     private array $extensions = [];
 
     /**
+     * @var list<callable(array<array-key, mixed>): array<array-key, mixed>|class-string>
+     */
+    private array $postProcessors = [];
+
+    /**
      * @param ConfigInterface<array-key, mixed>|null $config
      */
     public function __construct(
@@ -85,6 +90,18 @@ final class ContainerBuilder
     }
 
     /**
+     * Transform the merged configuration before it is cached and applied, processors run in order.
+     *
+     * @param callable(array<array-key, mixed>): array<array-key, mixed>|class-string $postProcessor
+     */
+    public function addPostProcessor(callable|string $postProcessor): self
+    {
+        $this->postProcessors[] = $postProcessor;
+
+        return $this;
+    }
+
+    /**
      * @param class-string|Extension ...$extensions
      */
     public function extend(string|Extension ...$extensions): self
@@ -102,7 +119,13 @@ final class ContainerBuilder
         $injector->alias(ContainerInterface::class, $container::class);
         $injector->share($container);
 
-        $providersCollection = new ProvidersCollection($injector, $this->config, $this->cache, $this->providers);
+        $providersCollection = new ProvidersCollection(
+            $injector,
+            $this->config,
+            $this->cache,
+            $this->providers,
+            $this->postProcessors
+        );
         $providersCollection->aggregate();
 
         $injectorConfig = new AurynConfig($injector, $this->config, $this->proxyFactory);

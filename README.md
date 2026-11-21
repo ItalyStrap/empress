@@ -94,6 +94,18 @@ $container = $builder->build();
 $service = $container->get(SomeService::class);
 ```
 
+### Post processors
+
+Post processors transform the merged configuration, in the order they are added, before it is cached and applied.
+A post processor is a callable or an invokable class string, it receives the configuration array and must return an
+array. They do not run when the configuration comes from the cache.
+
+```php
+$builder->addPostProcessor(static fn(array $config): array => $config + ['env' => 'production']);
+```
+
+A provider registered more than once throws a `ProviderException`.
+
 ### Lazy proxies
 
 Classes listed under `AurynConfig::PROXY` are created lazily through a `ProxyFactoryInterface`:

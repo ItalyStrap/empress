@@ -14,6 +14,7 @@ use ItalyStrap\Empress\AurynConfig;
 use ItalyStrap\Empress\ProvidersCacheInterface;
 use ItalyStrap\Empress\ProviderException;
 use ItalyStrap\Empress\ProvidersCollection;
+use ItalyStrap\Empress\Tests\AddProcessedFlag;
 use ItalyStrap\Empress\Tests\Modules\ModuleStub1;
 use ItalyStrap\Empress\Tests\UnitTestCase;
 
@@ -22,13 +23,15 @@ final class ProvidersCollectionTest extends UnitTestCase
     private function makeInstance(
         iterable $providers = [],
         ?ProvidersCacheInterface $cache = null,
-        ?ConfigInterface $config = null
+        ?ConfigInterface $config = null,
+        iterable $postProcessors = []
     ): ProvidersCollection {
         return new ProvidersCollection(
             new Injector(),
             $config ?: new Config(),
             $cache,
-            $providers
+            $providers,
+            $postProcessors
         );
     }
 
@@ -490,5 +493,98 @@ final class ProvidersCollectionTest extends UnitTestCase
         $sut->aggregate();
 
         $this->assertSame(['first' => true, 'second' => true], $config->toArray());
+    }
+
+    public function testPostProcessorsTransformTheMergedConfigInOrder(): void
+    {
+        $config = new Config();
+        $sut = $this->makeInstance([
+            static fn(): array => ['value' => 'provider'],
+        ], null, $config, [
+            static fn(array $merged): array => ['value' => $merged['value'] . '-first', 'first' => true],
+            static fn(array $merged): array => $merged + ['second' => true],
+        ]);
+
+        $sut->aggregate();
+
+        $this->assertSame(
+            ['value' => 'provider-first', 'first' => true, 'second' => true],
+            $config->toArray()
+        );
+    }
+
+    public function testPostProcessorCanBeAnInvokableClassString(): void
+    {
+        $config = new Config();
+        $sut = $this->makeInstance([], null, $config, [AddProcessedFlag::class]);
+
+        $sut->aggregate();
+
+        $this->assertSame(AddProcessedFlag::class, $config->get('processed_by'));
+    }
+
+    public function testPostProcessedConfigIsWrittenToTheCache(): void
+    {
+        $cache = new class implements ProvidersCacheInterface {
+            /**
+             * @var array<array-key, mixed>
+             */
+            public array $writtenConfig = [];
+
+            public function read(): ?array
+            {
+                return null;
+            }
+
+            public function write(array $config): void
+            {
+                $this->writtenConfig = $config;
+            }
+        };
+
+        $this->makeInstance([], $cache, null, [AddProcessedFlag::class])->aggregate();
+
+        $this->assertSame(['processed_by' => AddProcessedFlag::class], $cache->writtenConfig);
+    }
+
+    public function testPostProcessorsAreNotAppliedToCachedConfig(): void
+    {
+        $cache = new class implements ProvidersCacheInterface {
+            public function read(): array
+            {
+                return ['from_cache' => true];
+            }
+
+            public function write(array $config): void
+            {
+            }
+        };
+        $config = new Config();
+
+        $this->makeInstance([], $cache, $config, [AddProcessedFlag::class])->aggregate();
+
+        $this->assertSame(['from_cache' => true], $config->toArray());
+    }
+
+    public function testPostProcessorMustReturnAnArray(): void
+    {
+        $sut = $this->makeInstance([], null, null, [
+            static fn(array $merged): string => 'invalid',
+        ]);
+
+        $this->expectException(ProviderException::class);
+        $this->expectExceptionMessage('The post processor Closure must return an array, string given');
+
+        $sut->aggregate();
+    }
+
+    public function testPostProcessorClassStringMustBeInvokable(): void
+    {
+        $sut = $this->makeInstance([], null, null, [\stdClass::class]);
+
+        $this->expectException(ProviderException::class);
+        $this->expectExceptionMessage('The post processor stdClass is not callable');
+
+        $sut->aggregate();
     }
 }

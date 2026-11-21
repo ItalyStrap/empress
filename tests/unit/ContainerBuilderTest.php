@@ -57,6 +57,20 @@ final class ContainerBuilderTest extends UnitTestCase
         $this->assertSame('SomeConcrete', $service->render());
     }
 
+    public function testAddPostProcessorIsFluentAndTransformsTheMergedConfig(): void
+    {
+        $config = new Config();
+        $builder = new ContainerBuilder(null, $config);
+
+        $result = $builder
+            ->addProvider(static fn(): array => ['value' => 'provider'])
+            ->addPostProcessor(static fn(array $merged): array => ['value' => $merged['value'] . '-processed']);
+        $builder->build();
+
+        $this->assertSame($builder, $result);
+        $this->assertSame('provider-processed', $config->get('value'));
+    }
+
     public function testAddModuleIsFluentAliasForAddProvider(): void
     {
         $builder = new ContainerBuilder();
