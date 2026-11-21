@@ -11,6 +11,7 @@ use ItalyStrap\Config\ConfigFactory;
 use ItalyStrap\Empress\AurynConfig;
 use ItalyStrap\Empress\AurynConfigInterface;
 use ItalyStrap\Empress\Extension;
+use ItalyStrap\Empress\ProxyFactoryInterface;
 use ItalyStrap\Empress\Tests\ContainerBuilderExtensionStub;
 use ItalyStrap\Empress\Tests\SomeConcrete;
 use ItalyStrap\Empress\Tests\SomeInterface;
@@ -433,5 +434,19 @@ final class AurynConfigTest extends UnitTestCase
         $this->expectOutputString(SomeExtension::class);
         $sut->apply();
         $this->assertInstanceOf(SomeConcrete::class, $injector->make(SomeInterface::class));
+    }
+
+    public function testProxyFactoryCanBeDefinedByItsParameterName(): void
+    {
+        $injector = new Injector();
+        $factory = $this->prophesize(ProxyFactoryInterface::class)->reveal();
+
+        $sut = $injector->make(AurynConfig::class, [
+            ':dependencies' => (new ConfigFactory())->make([AurynConfig::PROXY => [SomeConcrete::class]]),
+            ':proxyFactory' => $factory,
+        ]);
+        $sut->apply();
+
+        $this->assertInstanceOf(AurynConfig::class, $sut);
     }
 }
